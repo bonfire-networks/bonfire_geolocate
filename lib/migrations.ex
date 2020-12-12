@@ -5,7 +5,7 @@ defmodule Bonfire.Geolocate.Migrations do
   import Pointers.Migration
 
   @user Application.get_env(:bonfire_geolocate, :user_schema)
-  def users_table(), do: @user.__schema__(:source)
+  # def users_table(), do: @user.__schema__(:source)
 
   def change do
     :ok =
@@ -23,7 +23,7 @@ defmodule Bonfire.Geolocate.Migrations do
 
       add(:context_id, weak_pointer(), null: true)
 
-      add(:creator_id, references(users_table(), on_delete: :nilify_all))
+      add(:creator_id, weak_pointer(@user), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
