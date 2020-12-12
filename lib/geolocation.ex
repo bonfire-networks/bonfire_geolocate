@@ -8,7 +8,7 @@ defmodule Bonfire.Geolocate.Geolocation do
 
   alias Ecto.Changeset
   alias Pointers.Pointer
-  @user CommonsPub.Users.User
+  @user Application.get_env(:bonfire_geolocate, :user_schema)
 
   @type t :: %__MODULE__{}
 
