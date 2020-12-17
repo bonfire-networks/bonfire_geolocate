@@ -4,7 +4,7 @@ defmodule Bonfire.Geolocate.Migrations do
   # alias Ecto.ULID
   import Pointers.Migration
 
-  @user Application.get_env(:bonfire_geolocate, :user_schema)
+  @user Bonfire.Common.Config.get_ext(:bonfire_geolocate, :user_schema)
   # def users_table(), do: @user.__schema__(:source)
 
   def change do

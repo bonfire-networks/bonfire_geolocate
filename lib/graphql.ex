@@ -4,8 +4,8 @@ defmodule Bonfire.Geolocate.GraphQL do
   use Absinthe.Schema.Notation
   require Logger
 
-  @repo Application.get_env(:bonfire_geolocate, :repo_module)
-  # IO.inspect(@repo)
+  import Bonfire.Common.Config, only: [repo: 0]
+  #
 
   alias Bonfire.GraphQL
   alias Bonfire.GraphQL.{
@@ -54,7 +54,7 @@ defmodule Bonfire.Geolocate.GraphQL do
     data_q = Queries.filter(base_q, data_filters)
     count_q = Queries.filter(base_q, count_filters)
 
-    with {:ok, [data, counts]} <- @repo.transact_many(all: data_q, count: count_q) do
+    with {:ok, [data, counts]} <- repo().transact_many(all: data_q, count: count_q) do
       {:ok, Page.new(data, counts, cursor_fn, page_opts)}
     end
   end
@@ -178,14 +178,14 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   # defp default_outbox_query_contexts() do
-  #   CommonsPub.Config.get!(Geolocations)
+  #   Bonfire.Common.Config.get!(Geolocations)
   #   |> Keyword.fetch!(:default_outbox_query_contexts)
   # end
 
   ## finally the mutations...
 
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, pointer} <- Bonfire.Common.Pointers.one(id: context_id),
            context = Bonfire.Common.Pointers.follow!(pointer),
@@ -197,8 +197,8 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   def create_geolocation(%{spatial_thing: attrs}, info) do
-  #  IO.inspect(@repo)
-   @repo.transact_with(fn ->
+  #
+   repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, attrs) do
@@ -208,7 +208,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   def update_geolocation(%{spatial_thing: %{id: id} = changes}, info) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
            {:ok, geolocation} <- geolocation(%{id: id}, info),
            :ok <- ensure_update_allowed(user, geolocation),

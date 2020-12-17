@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.Geolocations do
-  @repo Application.get_env(:bonfire_geolocate, :repo_module)
-  # IO.inspect(@repo)
+  import Bonfire.Common.Config, only: [repo: 0]
+  #
 
   alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Queries
@@ -23,21 +23,21 @@ defmodule Bonfire.Geolocate.Geolocations do
   * ActivityPub integration
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
-  def one(filters), do: @repo.single(Queries.query(Geolocation, filters))
+  def one(filters), do: repo().single(Queries.query(Geolocation, filters))
 
   @doc """
   Retrieves a list of collections by arbitrary filters.
   Used by:
   * Various parts of the codebase that need to query for collections (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, @repo.all(Queries.query(Geolocation, filters))}
+  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Geolocation, filters))}
 
   ## mutations
 
   @spec create(any(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(creator, %{} = context, attrs) when is_map(attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs),
            {:ok, character} <- {:ok, nil} #Characters.create(creator, attrs, item), # FIXME
@@ -56,7 +56,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @spec create(any(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(creator, attrs) when is_map(attrs) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs),
            {:ok, character} <- {:ok, nil} # FIXME: Characters.create(creator, attrs, item),
@@ -72,14 +72,14 @@ defmodule Bonfire.Geolocate.Geolocations do
   defp insert_geolocation(creator, context, attrs) do
     cs = Geolocation.create_changeset(creator, context, attrs)
 
-    with {:ok, item} <- @repo.insert(cs) do
+    with {:ok, item} <- repo().insert(cs) do
       {:ok, %{item | context: context}}
     end
   end
 
   defp insert_geolocation(creator, attrs) do
     cs = Geolocation.create_changeset(creator, attrs)
-    with {:ok, item} <- @repo.insert(cs), do: {:ok, item}
+    with {:ok, item} <- repo().insert(cs), do: {:ok, item}
   end
 
 
@@ -124,7 +124,7 @@ defmodule Bonfire.Geolocate.Geolocations do
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(user, %Geolocation{} = geolocation, attrs) do
     with {:ok, attrs} <- resolve_mappable_address(attrs),
-         {:ok, item} <- @repo.update(Geolocation.update_changeset(geolocation, attrs))
+         {:ok, item} <- repo().update(Geolocation.update_changeset(geolocation, attrs))
         # FIXME :ok <- ap_publish("update", item.id, user.id)
          do
       {:ok, populate_coordinates(item)}
@@ -133,7 +133,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @spec soft_delete(any(), Geolocation.t()) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def soft_delete(%{} = user, %Geolocation{} = geo) do
-    @repo.transact_with(fn ->
+    repo().transact_with(fn ->
       with {:ok, geo} <- Bonfire.Repo.Delete.soft_delete(geo)
           # FIXME :ok <- ap_publish("delete", geo.id, user.id)
            do
