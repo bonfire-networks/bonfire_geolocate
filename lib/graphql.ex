@@ -187,8 +187,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, pointer} <- Bonfire.Common.Pointers.one(id: context_id),
-           context = Bonfire.Common.Pointers.follow!(pointer),
+           {:ok, context} <- Bonfire.Common.Pointers.get(context_id),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, context, attrs) do
         {:ok, %{spatial_thing: g}}
@@ -219,7 +218,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   def ensure_update_allowed(user, geo) do
-    if user.local_user.is_instance_admin or geo.creator_id == user.id do
+    if Bonfire.Geolocate.Integration.is_admin(user) or geo.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")
@@ -236,7 +235,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   def ensure_delete_allowed(user, geo) do
-    if user.local_user.is_instance_admin or geo.creator_id == user.id do
+    if Bonfire.Geolocate.Integration.is_admin(user) or geo.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("delete")
