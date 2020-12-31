@@ -1,10 +1,10 @@
 defmodule Bonfire.Geolocate.Migrations do
   use Ecto.Migration
   # alias CommonsPub.Repo
-  # alias Ecto.ULID
+  # alias Pointers.ULID
   import Pointers.Migration
 
-  @user Bonfire.Common.Config.get_ext(:bonfire_geolocate, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
   # def users_table(), do: @user.__schema__(:source)
 
   def change do

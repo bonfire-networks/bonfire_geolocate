@@ -8,7 +8,7 @@ defmodule Bonfire.Geolocate.Geolocation do
 
   alias Ecto.Changeset
   alias Pointers.Pointer
-  @user Bonfire.Common.Config.get_ext(:bonfire_geolocate, :user_schema)
+  @user Bonfire.Common.Config.get!(:user_schema)
 
   @type t :: %__MODULE__{}
 

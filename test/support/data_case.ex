@@ -33,7 +33,7 @@ defmodule Bonfire.Geolocate.DataCase do
     :ok = Ecto.Adapters.SQL.Sandbox.checkout(repo())
 
     unless tags[:async] do
-      Ecto.Adapters.SQL.Sandbox.mode(@repo, {:shared, self()})
+      Ecto.Adapters.SQL.Sandbox.mode(repo(), {:shared, self()})
     end
 
     :ok
