@@ -1,30 +1,22 @@
 defmodule Bonfire.Geolocate.MapLive do
-  use Bonfire.Web, :live_view
+  use Bonfire.Web, :live_component
 
-  import Bonfire.Common.Utils
+  import Bonfire.Geolocate.Places
 
   @postgis_srid 4326
 
-  def mount(params, session, socket) do
-    # socket = init_assigns(params, session, socket) # FIXME
-
-    {:ok,
-     socket
-     |> assign(page_title: "Map")}
-  end
-
-  def handle_params(%{"id" => id} = _params, _url, socket) when id != "" do
+  def update(%{id: id} = assigns, socket) when is_binary(id) do
     show_place_things(id, socket)
   end
 
-  def handle_params(_params, _url, socket) do
-    fetch_places(socket)
+  def update(assigns, socket) do
+    fetch_places(socket) |> mark_places(socket)
   end
 
   def handle_event("marker_click", %{"id" => id} = _params, socket) do
     IO.inspect(click: id)
 
-    {:noreply, socket |> push_redirect(to: "@@" <> id)}
+    show_place_things(id, socket)
   end
 
   def handle_event(
@@ -51,40 +43,33 @@ defmodule Bonfire.Geolocate.MapLive do
   #       end
   #     end)
 
-  #   {:noreply, assign(socket, markers: updated_markers)}
+  #   {:ok, assign(socket, markers: updated_markers)}
   # end
 
-  def get_icon_url(false) do
-    "/images/logo_commonspub.png"
+  def map_icon(false) do
+    # heroicon location-marker
+    """
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
+      <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
+    </svg>
+    """
   end
 
-  def get_icon_url(_) do
-    "/images/sun_face.png"
-  end
-
-  def fetch_places(socket) do
-    with {:ok, places} <-
-           Bonfire.Geolocate.GraphQL.geolocations(%{limit: 15}, %{
-             context: %{current_user: socket.assigns.current_user}
-           }) do
-      # [
-      #   %{id: 1, lat: 51.5, long: -0.09, selected: false},
-      #   %{id: 2, lat: 51.5, long: -0.099, selected: true}
-      # ]
-
-      mark_places(socket, places.edges)
-    else
-      _e ->
-        {:noreply, socket}
-    end
+  def map_icon(_) do
+    """
+    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+    </svg>
+    """
   end
 
   defp show_place_things("intents", socket) do
-    fetch_place_things([preload: :at_location], socket)
+    fetch_place_things([preload: :at_location], socket) |> mark_places(socket)
   end
 
   defp show_place_things(id, socket) when is_binary(id) do
-    fetch_place_things([at_location_id: id], socket)
+    fetch_place_things([at_location_id: id], socket) |> mark_places(socket)
   end
 
   defp show_place_things(
@@ -104,54 +89,27 @@ defmodule Bonfire.Geolocate.MapLive do
 
     IO.inspect(geom)
 
-    fetch_place_things([location_within: geom], socket)
+    fetch_place_things([location_within: geom], socket) |> mark_places(socket)
   end
 
-  def fetch_place_things(filters, socket) do
-    with {:ok, things} <-
-           ValueFlows.Planning.Intent.Intents.many(filters) do
-      IO.inspect(things)
-
-      things =
-        things
-        |> Enum.map(
-          &Map.merge(
-            Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(&1, :at_location)),
-            &1 || %{}
-          )
-        )
-
-      IO.inspect(things)
-
-      mark_places(socket, things, nil)
-    else
-      _e ->
-        fetch_places(socket)
-    end
-  end
-
-  def fetch_place(id, socket) do
-    with {:ok, place} <-
-           Bonfire.Geolocate.GraphQL.geolocation(%{id: id}, %{
-             context: %{current_user: socket.assigns.current_user}
-           }) do
-      mark_places(socket, [place], place)
-    else
-      _e ->
-        {:noreply, socket}
-    end
-  end
-
-  defp mark_places(socket, places, place \\ nil) do
+  defp mark_places(places, place \\ nil, socket) when is_list(places) do
     IO.inspect(places)
+    place = if (length(places)==1), do: hd(place)
 
     points = Enum.map(places, &[Map.get(&1, :lat, 0), Map.get(&1, :long, 0)])
     IO.inspect(points)
 
-    {:noreply,
+    {:ok,
      assign(socket,
        markers: places,
        points: points,
+       place: place
+     )}
+  end
+
+  defp mark_places(_, place, socket) do
+    {:ok,
+     assign(socket,
        place: place
      )}
   end

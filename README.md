@@ -7,6 +7,10 @@ An extension for [Bonfire](https://bonfire.cafe/) that handles:
 - Geocoding of addresses
 - Reverse geocoding
 
+## Usage
+
+If you want to use the map LiveView component, you will need to `npm add leaflet --save --prefix assets/` in your app, and import
+
 ## Handy commands
 
 ## Copyright and License
