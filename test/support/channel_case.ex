@@ -24,7 +24,7 @@ defmodule Bonfire.Geolocate.ChannelCase do
       import Bonfire.Geolocate.ChannelCase
 
       # The default endpoint for testing
-      @endpoint Bonfire.Geolocate.Web.Endpoint
+      @endpoint Bonfire.Common.Config.get!(:endpoint_module)
     end
   end
 
