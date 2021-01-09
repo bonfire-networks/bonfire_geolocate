@@ -9,27 +9,35 @@ defmodule Bonfire.Geolocate.MapLive do
     show_place_things(id, socket)
   end
 
-  def update(assigns, socket) do
-    fetch_places(socket) |> mark_places(socket)
+  def update(%{markers: markers} = assigns, socket) when length(markers) >0 do
+    response(
+     assign(socket, assigns), false
+    )
   end
 
-  def handle_event("marker_click", %{"id" => id} = _params, socket) do
+  def update(assigns, socket) do
+    Map.get(assigns, :places) || fetch_places(socket) |> mark_places(socket)
+  end
+
+  def handle_event("map_marker_click", %{"id" => id} = _params, socket,
+        to_view \\ false) do
     IO.inspect(click: id)
 
-    show_place_things(id, socket)
+    show_place_things(id, socket, to_view)
   end
 
   def handle_event(
-        "bounds",
+        "map_bounds",
         polygon,
-        socket
+        socket,
+        to_view
       ) do
     IO.inspect(bounds: polygon)
 
-    show_place_things(Enum.at(polygon, 0), socket)
+    show_place_things(Enum.at(polygon, 0), socket, to_view)
   end
 
-  # def handle_event("toggle_marker", %{"id" => id} = _params, socket) do
+  # def handle_event("map_toggle_marker", %{"id" => id} = _params, socket, to_view ) do
   #   {id, _} = Integer.parse(id)
 
   #   updated_markers =
@@ -45,6 +53,87 @@ defmodule Bonfire.Geolocate.MapLive do
 
   #   {:ok, assign(socket, markers: updated_markers)}
   # end
+
+
+  defp show_place_things(id, socket,
+        to_view \\ false) when is_binary(id) do
+    # fetch_place_things([at_location_id: id], socket) |> mark_places(socket, to_view)
+    fetch_place(id, socket) |> mark_places(socket, to_view)
+  end
+
+  # defp show_place_things("intents", socket,
+  #       to_view) do
+  #   fetch_place_things([preload: :at_location], socket) |> mark_places(socket, to_view)
+  # end
+
+  defp show_place_things(
+         polygon,
+         socket,
+        to_view
+       ) do
+    polygon = Enum.map(polygon, &Map.values(&1))
+    polygon = Enum.map(polygon, &{List.first(&1), List.last(&1)})
+    polygon = polygon ++ [List.first(polygon)]
+
+    IO.inspect(polygon: polygon)
+
+    geom = %Geo.Polygon{
+      coordinates: [polygon],
+      srid: @postgis_srid
+    }
+
+    IO.inspect(geom: geom)
+
+    fetch_place_things([location_within: geom], socket) |> mark_places(socket, to_view)
+  end
+
+  defp mark_places(places, socket, to_view \\ false) when is_list(places) do
+    IO.inspect(places: places)
+    place = if (places && length(places)==1), do: hd(places)
+
+    points = Enum.map(places, &[
+      place_lat(&1),
+      place_long(&1)
+    ])
+    |> Enum.filter(fn [h,t] -> if(h && t && h !=0 && t !=0) do [h,t] end end)
+    IO.inspect(points: points)
+
+    response(
+     assign(socket,
+       markers: places,
+       points: points,
+       place: place
+     ), to_view)
+  end
+
+  defp mark_places(%{} = place, socket, to_view) do
+    mark_places([place], socket, to_view)
+  end
+
+  def place_lat(place) do
+    Map.get(place, :lat) || (
+      (Map.get(place, :geom) || %{})
+        |> Map.get(:coordinates, {0, 0})
+          |> elem(0)
+    )
+  end
+
+  def place_long(place) do
+    Map.get(place, :long) || (
+      (Map.get(place, :geom) || %{})
+        |> Map.get(:coordinates, {0, 0})
+          |> elem(1)
+    )
+  end
+
+
+  def response(socket, true) do
+    {:noreply, socket}
+  end
+
+  def response(socket, _) do
+    {:ok, socket}
+  end
 
   def map_icon(false) do
     # heroicon location-marker
@@ -62,55 +151,5 @@ defmodule Bonfire.Geolocate.MapLive do
       <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
     </svg>
     """
-  end
-
-  defp show_place_things("intents", socket) do
-    fetch_place_things([preload: :at_location], socket) |> mark_places(socket)
-  end
-
-  defp show_place_things(id, socket) when is_binary(id) do
-    fetch_place_things([at_location_id: id], socket) |> mark_places(socket)
-  end
-
-  defp show_place_things(
-         polygon,
-         socket
-       ) do
-    polygon = Enum.map(polygon, &Map.values(&1))
-    polygon = Enum.map(polygon, &{List.first(&1), List.last(&1)})
-    polygon = polygon ++ [List.first(polygon)]
-
-    IO.inspect(polygon)
-
-    geom = %Geo.Polygon{
-      coordinates: [polygon],
-      srid: @postgis_srid
-    }
-
-    IO.inspect(geom)
-
-    fetch_place_things([location_within: geom], socket) |> mark_places(socket)
-  end
-
-  defp mark_places(places, place \\ nil, socket) when is_list(places) do
-    IO.inspect(places)
-    place = if (length(places)==1), do: hd(place)
-
-    points = Enum.map(places, &[Map.get(&1, :lat, 0), Map.get(&1, :long, 0)])
-    IO.inspect(points)
-
-    {:ok,
-     assign(socket,
-       markers: places,
-       points: points,
-       place: place
-     )}
-  end
-
-  defp mark_places(_, place, socket) do
-    {:ok,
-     assign(socket,
-       place: place
-     )}
   end
 end

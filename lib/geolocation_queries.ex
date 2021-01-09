@@ -7,6 +7,7 @@ defmodule Bonfire.Geolocate.Queries do
 
   import Bonfire.Repo.Query, only: [match_admin: 0]
   import Ecto.Query
+  import Geo.PostGIS
 
   def query(Geolocation) do
     from(c in Geolocation, as: :geolocation) # FIXME: join: a in assoc(c, :character), as: :character)
@@ -94,6 +95,18 @@ defmodule Bonfire.Geolocate.Queries do
     q
     |> where([geolocation: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)
+  end
+
+  # by GPS coords
+
+  def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
+    q
+    |> where([geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+  end
+
+  def filter(q, {:location_within, geom_point}) do
+    q
+    |> where([geolocation: g], st_within(g.geom, ^geom_point))
   end
 
   ## by status

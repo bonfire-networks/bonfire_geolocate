@@ -21,7 +21,7 @@
         lat="<%= marker.lat %>"
         lng="<%= marker.long %>"
         selected="<%= Map.get(marker, :is_disabled, false) %>"
-        phx-click="marker_click"
+        phx-click="map_marker_click"
         phx-value-id="<%= marker.id %>"
         popup="<%= marker.name %>">
           <leaflet-icon

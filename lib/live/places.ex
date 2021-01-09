@@ -20,8 +20,8 @@ defmodule Bonfire.Geolocate.Places do
 
   def fetch_place_things(filters, socket) do
     with {:ok, things} <-
-           ValueFlows.Planning.Intent.Intents.many(filters) do
-      IO.inspect(things)
+           Bonfire.Geolocate.Geolocations.many(filters) do
+      IO.inspect(filtered: things)
 
       things =
         things

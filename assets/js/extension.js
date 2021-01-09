@@ -20,7 +20,7 @@ ExtensionHooks.MapLeaflet = {
     const maybe_map_moved = function (e) {
       var bounds = createPolygonFromBounds(e.target, e.target.getBounds());
       console.log(bounds);
-      view.pushEvent("bounds", bounds._latlngs);
+      view.pushEvent("map_bounds", bounds._latlngs);
     };
 
     /// Takes an L.latLngBounds object and returns an 8 point L.polygon.
