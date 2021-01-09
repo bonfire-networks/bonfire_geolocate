@@ -17,18 +17,18 @@ defmodule Bonfire.Geolocate.Geolocations do
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
   @doc """
-  Retrieves a single collection by arbitrary filters.
+  Retrieves a single geolocation by arbitrary filters.
   Used by:
   * GraphQL Item queries
   * ActivityPub integration
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
   def one(filters), do: repo().single(Queries.query(Geolocation, filters))
 
   @doc """
-  Retrieves a list of collections by arbitrary filters.
+  Retrieves a list of geolocations by arbitrary filters.
   Used by:
-  * Various parts of the codebase that need to query for collections (inc. tests)
+  * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
   def many(filters \\ []), do: {:ok, repo().all(Queries.query(Geolocation, filters))}
 
