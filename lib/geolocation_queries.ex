@@ -160,7 +160,7 @@ defmodule Bonfire.Geolocate.Queries do
   end
 
   def filter(q, {:name_contains, text}) when is_binary(text) do
-    where(q, [geolocation: c], ilike(c.name, ^"#{text}%") or ilike(c.name, ^"% #{text}%"))
+    where(q, [geolocation: c], ilike(c.name, ^"#{text}%") or ilike(c.name, ^"% #{text}%") or ilike(c.mappable_address, ^"#{text}%") or ilike(c.mappable_address, ^"% #{text}%"))
   end
 
   # def filter(q, {:username, username}) when is_binary(username) do
