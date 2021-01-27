@@ -32,7 +32,7 @@ defmodule Bonfire.Geolocate.Migrations do
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
-    require Bonfire.Geolocate.PrimaryGeolocation.Migration
-    Bonfire.Geolocate.PrimaryGeolocation.Migration.migrate_primary_geolocation()
+    # require Bonfire.Geolocate.PrimaryGeolocation.Migration
+    # Bonfire.Geolocate.PrimaryGeolocation.Migration.migrate_primary_geolocation()
   end
 end

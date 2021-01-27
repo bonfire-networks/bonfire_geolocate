@@ -1,7 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.Geolocations do
   import Bonfire.Common.Config, only: [repo: 0]
-  #
+  alias Bonfire.Common.Utils
 
   alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Queries
@@ -80,6 +80,14 @@ defmodule Bonfire.Geolocate.Geolocations do
   defp insert_geolocation(creator, attrs) do
     cs = Geolocation.create_changeset(creator, attrs)
     with {:ok, item} <- repo().insert(cs), do: {:ok, item}
+  end
+
+  def thing_add_location(user, thing, mappable_address) when is_binary(mappable_address) do
+    with {:ok, geolocation} <- create(user, %{name: mappable_address, mappable_address: mappable_address}) do
+      if Utils.module_exists?(Bonfire.Tag.Tags) do
+        Bonfire.Tag.Tags.tag_something(user, thing, geolocation)
+      end
+    end
   end
 
 
