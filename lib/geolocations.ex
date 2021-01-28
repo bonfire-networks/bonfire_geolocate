@@ -163,7 +163,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   def populate_coordinates(geo), do: geo || %{}
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
-    with {:ok, coords} <- Geocoder.call(address) do
+    with {:ok, coords} <- Bonfire.Geolocate.Geocode.coordinates(address) do
       # IO.inspect(attrs)
       # IO.inspect(coords)
       # TODO: should take bounds and save in `geom`
