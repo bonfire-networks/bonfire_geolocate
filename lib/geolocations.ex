@@ -84,7 +84,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def thing_add_location(user, thing, mappable_address) when is_binary(mappable_address) do
     with {:ok, geolocation} <- create(user, %{name: mappable_address, mappable_address: mappable_address}) do
-      if Utils.module_exists?(Bonfire.Tag.Tags) do
+      if Utils.module_enabled?(Bonfire.Tag.Tags) do
         Bonfire.Tag.Tags.tag_something(user, thing, geolocation)
       end
     end

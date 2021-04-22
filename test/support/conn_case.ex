@@ -25,7 +25,7 @@ defmodule Bonfire.Geolocate.ConnCase do
       import Phoenix.LiveViewTest
       import Bonfire.Geolocate.ConnCase
       import Bonfire.Geolocate.Test.ConnHelpers
-      unquote(Bonfire.Common.Utils.import_if_available(Bonfire.Me.Fake))
+      unquote(Bonfire.Common.Utils.import_if_enabled(Bonfire.Me.Fake))
       alias Bonfire.Geolocate.Fake
       alias Bonfire.Geolocate.Web.Router.Helpers, as: Routes
 
