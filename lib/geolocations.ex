@@ -1,4 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
+
+# check that this extension is configured
+Bonfire.Common.Config.require_extension_config!(:bonfire_geolocate)
+
 defmodule Bonfire.Geolocate.Geolocations do
   import Bonfire.Common.Config, only: [repo: 0]
   alias Bonfire.Common.Utils

@@ -1,5 +1,3 @@
-# check that this extension is configured
-Bonfire.Common.Config.require_extension_config!(:bonfire_geolocate)
 
 defmodule Bonfire.Geolocate.Simulate do
   import Bonfire.Common.Simulation
