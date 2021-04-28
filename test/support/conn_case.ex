@@ -17,6 +17,8 @@ defmodule Bonfire.Geolocate.ConnCase do
 
   use ExUnit.CaseTemplate
 
+  require Bonfire.Common.Utils 
+
   using do
     quote do
       # Import conveniences for testing with connections
