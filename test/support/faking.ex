@@ -6,6 +6,8 @@ defmodule Bonfire.Geolocate.Test.Faking do
   # import CommonsPub.Utils.Simulate
   # import Bonfire.Geolocate.Simulate
 
+if Bonfire.Common.Utils.module_enabled?(Bonfire.GraphQL.Test.GraphQLFields) do
+
   import Grumble
   import Bonfire.GraphQL.Test.GraphQLFields
   import Bonfire.GraphQL.Test.GraphQLAssertions
@@ -98,4 +100,5 @@ defmodule Bonfire.Geolocate.Test.Faking do
   def delete_geolocation_submutation(_options \\ []) do
     field(:delete_spatial_thing, args: [id: var(:id)])
   end
+end
 end
