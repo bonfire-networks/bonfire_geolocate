@@ -2,10 +2,6 @@
 defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
 
-  # import Bonfire.Common.Simulation
-  # import CommonsPub.Utils.Simulate
-  # import Bonfire.Geolocate.Simulate
-
 if Code.ensure_loaded?(Grumble) and Code.ensure_loaded?(Bonfire.GraphQL.Test.GraphQLFields) do
 
   import Grumble
