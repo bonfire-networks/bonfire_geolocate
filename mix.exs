@@ -15,7 +15,7 @@ defmodule Bonfire.Geolocate.MixProject do
       deps: Mess.deps [
         {:floki, ">= 0.0.0", only: [:dev, :test]},
         {:bonfire_api_graphql, git: "https://github.com/bonfire-networks/bonfire_api_graphql", branch: "main", optional: true},
-        {:grumble, "~> 0.1.3", only: [:test]}
+        {:grumble, "~> 0.1.3", only: [:dev, :test], optional: true}
       ]
     ]
   end

@@ -1,0 +1,13 @@
+%{
+  "bonfire_api_graphql": {:git, "https://github.com/bonfire-networks/bonfire_api_graphql", "cb04c2c01b0c6523fa0239d013ffbabb428608f2", [branch: "main"]},
+  "bonfire_common": {:git, "https://github.com/bonfire-networks/bonfire_common", "7f47816f28e21ab212150cfa33d53d6690b2c031", [branch: "main"]},
+  "bonfire_data_access_control": {:git, "https://github.com/bonfire-networks/bonfire_data_access_control", "beb3ff8562951bf2732182db33fb56c7f534aef6", [branch: "main"]},
+  "bonfire_data_activity_pub": {:git, "https://github.com/bonfire-networks/bonfire_data_activity_pub", "9ef039559ce6860e8135027b756a7cf23539a6f1", [branch: "main"]},
+  "bonfire_data_identity": {:git, "https://github.com/bonfire-networks/bonfire_data_identity", "d56e6e66cb834c157f4bb308abc61aad134ff5c9", [branch: "main"]},
+  "bonfire_data_social": {:git, "https://github.com/bonfire-networks/bonfire_data_social", "7920749d817758bc3c2f105a4710dd0c57a79e61", [branch: "main"]},
+  "bonfire_fail": {:git, "https://github.com/bonfire-networks/bonfire_fail", "454f676fb82f7c0453bc839ce012a078c8d9149e", [branch: "main"]},
+  "ecto_materialized_path": {:git, "https://github.com/mayel/ecto_materialized_path", "91bccdaa93db0b16df929807ee4930ba9a92b61e", []},
+  "geocoder": {:git, "https://github.com/knrz/geocoder", "64e9781c7797f0cbee654438b10600008a094f0b", []},
+  "pointers": {:git, "https://github.com/bonfire-networks/pointers", "926255d923d799360c4915e50693db10ed27d7b9", [branch: "main"]},
+  "query_elf": {:git, "https://github.com/bonfire-networks/query_elf", "e5df70e857cc3122bfce02b52eb4c67e9fea5f4e", [branch: "bonfire"]},
+}
