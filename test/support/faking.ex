@@ -1,12 +1,14 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
+  
+  alias Bonfire.Common.Utils
 
-if Code.ensure_loaded?(Grumble) and Code.ensure_loaded?(Bonfire.GraphQL.Test.GraphQLFields) do
+if Utils.module_enabled?(Bonfire.GraphQL) do
 
-  import Grumble
-  import Bonfire.GraphQL.Test.GraphQLFields
-  import Bonfire.GraphQL.Test.GraphQLAssertions
+  Utils.import_if_enabled Grumble
+  Utils.import_if_enabled Bonfire.GraphQL.Test.GraphQLFields
+  Utils.import_if_enabled Bonfire.GraphQL.Test.GraphQLAssertions
 
   ## assertions
 
