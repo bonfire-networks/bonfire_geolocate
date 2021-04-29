@@ -3,6 +3,7 @@ defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
   
   alias Bonfire.Common.Utils
+  require Utils
 
 if Utils.module_enabled?(Bonfire.GraphQL) do
 
