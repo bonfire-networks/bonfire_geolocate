@@ -3,13 +3,11 @@ defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
   
   alias Bonfire.Common.Utils
-  require Utils
+  # require Utils
 
-if Utils.module_enabled?(Bonfire.GraphQL) do
-
-  Utils.import_if_enabled Grumble
-  Utils.import_if_enabled Bonfire.GraphQL.Test.GraphQLFields
-  Utils.import_if_enabled Bonfire.GraphQL.Test.GraphQLAssertions
+  import Grumble
+  import Bonfire.GraphQL.Test.GraphQLFields
+  import Bonfire.GraphQL.Test.GraphQLAssertions
 
   ## assertions
 
@@ -99,5 +97,4 @@ if Utils.module_enabled?(Bonfire.GraphQL) do
   def delete_geolocation_submutation(_options \\ []) do
     field(:delete_spatial_thing, args: [id: var(:id)])
   end
-end
 end
