@@ -17,7 +17,7 @@ defmodule Bonfire.Geolocate.ConnCase do
 
   use ExUnit.CaseTemplate
 
-  require Bonfire.Common.Utils 
+
 
   using do
     quote do
@@ -27,7 +27,7 @@ defmodule Bonfire.Geolocate.ConnCase do
       import Phoenix.LiveViewTest
       import Bonfire.Geolocate.ConnCase
       import Bonfire.Geolocate.Test.ConnHelpers
-      unquote(Bonfire.Common.Utils.quoted_import_if_enabled(Bonfire.Me.Fake))
+      unquote(Bonfire.Common.Extend.quoted_import_if_enabled(Bonfire.Me.Fake))
       alias Bonfire.Geolocate.Fake
       alias Bonfire.Geolocate.Web.Router.Helpers, as: Routes
 
