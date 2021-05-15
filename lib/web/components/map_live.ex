@@ -6,17 +6,25 @@ defmodule Bonfire.Geolocate.MapLive do
   @postgis_srid 4326
 
   def update(%{id: id} = assigns, socket) when is_binary(id) do
-    show_place_things(id, socket)
+    show_place_things(id, assign(socket, assigns))
   end
 
-  def update(%{markers: markers} = assigns, socket) when length(markers) >0 do
+
+  def update(%{places: places} = assigns, socket) when is_list(places) and length(places) >0 do
+    # IO.inspect(places: places)
+    mark_places(places, assign(socket, assigns))
+  end
+
+  def update(%{markers: markers} = assigns, socket) when is_list(markers) and length(markers) >0 do
     response(
      assign(socket, assigns), false
     )
   end
 
   def update(assigns, socket) do
-    Map.get(assigns, :places) || fetch_places(socket) |> mark_places(socket)
+    socket = assign(socket, assigns)
+    Logger.info("fallback to showing some locations, because no `places` assign was set ")
+    fetch_places(socket) |> mark_places(socket)
   end
 
   def handle_event("map_marker_click", %{"id" => id} = _params, socket,
@@ -84,23 +92,32 @@ defmodule Bonfire.Geolocate.MapLive do
 
     IO.inspect(geom: geom)
 
-    fetch_place_things([location_within: geom], socket) |> mark_places(socket, to_view)
+    fetch_place_things_fn = Map.get(socket.assigns, :fetch_place_things_fn, &fetch_place_things/2)
+    IO.inspect(fetch_place_things_fn: fetch_place_things_fn)
+
+    apply(fetch_place_things_fn, [[location_within: geom], socket])
+    |> mark_places(socket, to_view)
   end
 
   defp mark_places(places, socket, to_view \\ false) when is_list(places) do
-    IO.inspect(places: places)
-    place = if (places && length(places)==1), do: hd(places)
 
-    points = Enum.map(places, &[
+    markers = Bonfire.Geolocate.Geolocations.populate_coordinates(places)
+    IO.inspect(marked_places: markers)
+
+    place = if (markers && length(markers)==1), do: hd(markers)
+
+    # calculation map bounds
+    points = Enum.map(markers, &[
       place_lat(&1),
       place_long(&1)
     ])
     |> Enum.filter(fn [h,t] -> if(h && t && h !=0 && t !=0) do [h,t] end end)
-    IO.inspect(points: points)
+
+    # IO.inspect(points: points)
 
     response(
      assign(socket,
-       markers: places,
+       markers: markers,
        points: points,
        place: place
      ), to_view)
@@ -108,6 +125,10 @@ defmodule Bonfire.Geolocate.MapLive do
 
   defp mark_places(%{} = place, socket, to_view) do
     mark_places([place], socket, to_view)
+  end
+  defp mark_places(_, socket, to_view) do
+    response(
+     socket, to_view)
   end
 
   def place_lat(place) do

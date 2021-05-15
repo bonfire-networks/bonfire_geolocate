@@ -159,7 +159,7 @@ defmodule Bonfire.Geolocate.Queries do
     where(q, [geolocation: c], c.context_id in ^ids)
   end
 
-  def filter(q, {:name_contains, text}) when is_binary(text) do
+  def filter(q, {:autocomplete, text}) when is_binary(text) do
     where(q, [geolocation: c], ilike(c.name, ^"#{text}%") or ilike(c.name, ^"% #{text}%") or ilike(c.mappable_address, ^"#{text}%") or ilike(c.mappable_address, ^"% #{text}%"))
   end
 

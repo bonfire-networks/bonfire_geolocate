@@ -21,18 +21,6 @@ defmodule Bonfire.Geolocate.Places do
   def fetch_place_things(filters, socket) do
     with {:ok, things} <-
            Bonfire.Geolocate.Geolocations.many(filters) do
-      IO.inspect(filtered: things)
-
-      things =
-        things
-        |> Enum.map(
-          &Map.merge(
-            Bonfire.Geolocate.Geolocations.populate_coordinates(Map.get(&1, :at_location)),
-            &1 || %{}
-          )
-        )
-
-      IO.inspect(things)
 
       things
     else

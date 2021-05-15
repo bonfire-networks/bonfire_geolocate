@@ -158,13 +158,16 @@ defmodule Bonfire.Geolocate.Geolocations do
     populate_coordinates(%{geo | character: character})
   end
 
-  def populate_coordinates(%Geolocation{geom: geom} = geo) when not is_nil(geom) do
-    {lat, long} = geo.geom.coordinates
-
-    %{geo | lat: lat, long: long}
+  def populate_coordinates(objects) when is_list(objects) do
+    Enum.map(objects, &populate_coordinates/1)
   end
 
-  def populate_coordinates(geo), do: geo || %{}
+  def populate_coordinates(%{geom: %{coordinates: {lat, long}}} = object) do
+    # IO.inspect(populate_coordinates: lat)
+    Map.merge(object, %{lat: lat, long: long})
+  end
+
+  def populate_coordinates(geo), do: (geo || %{}) #|> IO.inspect(label: "could not find coords")
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
     with {:ok, coords} <- Bonfire.Geolocate.Geocode.coordinates(address) do
