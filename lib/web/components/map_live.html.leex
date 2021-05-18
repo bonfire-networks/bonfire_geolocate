@@ -12,26 +12,29 @@
     )
 %>
 <% end %>
-<div class="h-full w-fill pt-12">
-<section class="map" id="map-<%= e(@place, :id, 'unknown')%>" phx-hook="MapLeaflet" style="width: 100%; height: 100%">
-  <leaflet-map points="<%= "#{inspect @points}"%>">
-    <%= for marker <- @markers do %>
-      <%= if Map.get(marker, :lat) && Map.get(marker, :long) do %>
-        <leaflet-marker
-        lat="<%= marker.lat %>"
-        lng="<%= marker.long %>"
-        selected="<%= e(marker, :is_disabled, false) %>"
-        phx-click="map_marker_click"
-        phx-value-id="<%= marker.id %>"
-        popup="<%= e(marker, :name, "") %> : <%= e(marker, :note, "") %>">
-          <leaflet-icon
-          icon-url="<%= map_icon(e(marker, :is_disabled, false)) %>"
-          width="64"
-          height="64">
-          </leaflet-icon>
-        </leaflet-marker>
-      <% end %>
-    <% end %>
-  </leaflet-map>
-</section>
+  <main class="lg:flex">
+    <div class="w-full mr-4 min-h-screen shadow-tick bg-white mt-4 rounded-lg">
+      <section class="map" id="map-<%= e(@place, :id, 'unknown')%>" phx-hook="MapLeaflet" style="width: 100%; height: 100%">
+        <leaflet-map points="<%= "#{inspect @points}"%>">
+          <%= for marker <- @markers do %>
+            <%= if Map.get(marker, :lat) && Map.get(marker, :long) do %>
+              <leaflet-marker
+              lat="<%= marker.lat %>"
+              lng="<%= marker.long %>"
+              selected="<%= e(marker, :is_disabled, false) %>"
+              phx-click="map_marker_click"
+              phx-value-id="<%= marker.id %>"
+              popup="<%= e(marker, :name, "") %> : <%= e(marker, :note, "") %>">
+                <leaflet-icon
+                icon-url="<%= map_icon(e(marker, :is_disabled, false)) %>"
+                width="64"
+                height="64">
+                </leaflet-icon>
+              </leaflet-marker>
+            <% end %>
+          <% end %>
+        </leaflet-map>
+      </section>
+    </div>
+  </main>
 </div>
