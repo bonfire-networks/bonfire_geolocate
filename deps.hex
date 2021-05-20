@@ -9,5 +9,5 @@ postgrex = ">= 0.0.0"
 telemetry_metrics = "~> 0.4"
 telemetry_poller = "~> 0.4"
 # for this extension:
-geocoder = "~> 1.1"
+geocoder = "~> 1.1.2"
 geo_postgis = "~> 3.1"

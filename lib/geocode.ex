@@ -11,7 +11,7 @@ defmodule Bonfire.Geolocate.Geocode do
 
   def maybe_call_opencage(query) do
     key = System.get_env("GEOLOCATE_OPENCAGEDATA")
-    if key do
+    if key && key !="" do
       Geocoder.call(query, provider: Geocoder.Providers.OpenCageData, key: key)
     else
       {:error, nil}
