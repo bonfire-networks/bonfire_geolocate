@@ -5,7 +5,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
   alias Bonfire.Geolocate.Geolocations
 
   def handle_event("create", attrs, socket) do
-    with {:ok, geolocation} <- Geolocations.create(socket.assigns.current_user, attrs) do
+    with {:ok, geolocation} <- Geolocations.create(e(socket.assigns, :current_user, nil), attrs) do
       IO.inspect(created_geolocation: geolocation)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/geolocation/")<>geolocation.id)}
     end
