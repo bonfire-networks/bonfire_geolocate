@@ -25,7 +25,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
 
     options = matches ++ [{"Define a new location with the address: "<>search, search}]
 
-    {:noreply, socket |> cast_self(geolocation_autocomplete: options) }
+    {:noreply, socket |> assign_global(geolocation_autocomplete: options) }
   end
 
 
@@ -35,7 +35,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
     selected = if !is_ulid?(select_geolocation), do: create_in_autocomplete(e(socket.assigns, :current_user, nil), select_geolocation), else: {name, select_geolocation}
 
     IO.inspect(selected)
-    {:noreply, socket |> cast_self(geolocation_selected: [selected])}
+    {:noreply, socket |> assign_global(geolocation_selected: [selected])}
   end
 
   def to_tuple(geolocation) do
