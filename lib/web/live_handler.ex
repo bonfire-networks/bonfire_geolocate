@@ -5,7 +5,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
   alias Bonfire.Geolocate.Geolocations
 
   def handle_event("create", attrs, socket) do
-    with {:ok, geolocation} <- Geolocations.create(e(socket.assigns, :current_user, nil), attrs) do
+    with {:ok, geolocation} <- Geolocations.create(current_user(socket), attrs) do
       IO.inspect(created_geolocation: geolocation)
       {:noreply, socket |> push_redirect(to: e(attrs, "redirect_after", "/geolocation/")<>geolocation.id)}
     end
@@ -32,7 +32,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
   def handle_event("select", %{"id" => select_geolocation, "name"=> name} = attrs, socket) when is_binary(select_geolocation) do
     # IO.inspect(socket)
 
-    selected = if !is_ulid?(select_geolocation), do: create_in_autocomplete(e(socket.assigns, :current_user, nil), select_geolocation), else: {name, select_geolocation}
+    selected = if !is_ulid?(select_geolocation), do: create_in_autocomplete(current_user(socket), select_geolocation), else: {name, select_geolocation}
 
     IO.inspect(selected)
     {:noreply, socket |> assign_global(geolocation_selected: [selected])}

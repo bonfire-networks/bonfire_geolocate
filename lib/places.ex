@@ -4,7 +4,7 @@ defmodule Bonfire.Geolocate.Places do
   def fetch_places(socket) do
     with {:ok, places} <-
            Bonfire.Geolocate.GraphQL.geolocations(%{limit: 15}, %{
-             context: %{current_user: Utils.e(socket.assigns, :current_user, nil)}
+             context: %{current_user: Utils.current_user(socket)}
            }) do
       # [
       #   %{id: 1, lat: 51.5, long: -0.09, selected: false},
@@ -33,7 +33,7 @@ defmodule Bonfire.Geolocate.Places do
   def fetch_place(id, socket) do
     with {:ok, place} <-
            Bonfire.Geolocate.GraphQL.geolocation(%{id: id}, %{
-             context: %{current_user: Utils.e(socket.assigns, :current_user, nil)}
+             context: %{current_user: Utils.current_user(socket)}
            }) do
       place
     else
