@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(Bonfire.GraphQL.Schema) do
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.GraphQLTest do
   use Bonfire.Geolocate.ConnCase, async: true
@@ -169,4 +170,5 @@ defmodule Bonfire.Geolocate.GraphQLTest do
       assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
     end
   end
+end
 end
