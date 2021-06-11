@@ -1,4 +1,10 @@
+let use_vector = true;
+let mapbox_token = "pk.eyJ1IjoibWF5ZWwiLCJhIjoiY2tlMmxzNXF5MGFpaDJ0bzR2M29id2EzOCJ9.QsmjD-zypsE0_wonLGCYlA";
+// TODO: read the token from env/config
+
 import L from "leaflet";
+import "mapbox-gl";
+import "mapbox-gl-leaflet";
 import "./leaflet-marker";
 import "./leaflet-icon";
 
@@ -9,10 +15,9 @@ ExtensionHooks.MapLeaflet = {
     const view = this;
 
     const template = document.createElement("template");
+    // Warning: remember to update the stylesheet version at the same time as the JS
     template.innerHTML = `
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.6.0/dist/leaflet.css"
-    integrity="sha512-xwE/Az9zrjBIphAcBb3F6JVqxf46+CDLwfLMHloNu6KEQCAWi6HcDUbeOfBIptF7tcCzusKFjFw2yuvEpDL9wQ=="
-    crossorigin=""/>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" crossorigin=""/>
     <div style="height: 100%; min-height: 420px;">
         <slot />
     </div>`;
@@ -65,20 +70,45 @@ ExtensionHooks.MapLeaflet = {
         //   [this.getAttribute("lat"), this.getAttribute("lng")],
         //   13
         // );
+        
+        if(!use_vector){ 
+          
+          console.log("map: use tiles")
 
-        L.tileLayer(
-          "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-          {
-            attribution:
-              'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-            maxZoom: 18,
-            id: "mapbox/streets-v11",
-            tileSize: 512,
-            zoomOffset: -1,
-            accessToken:
-              "pk.eyJ1IjoibWF5ZWwiLCJhIjoiY2tlMmxzNXF5MGFpaDJ0bzR2M29id2EzOCJ9.QsmjD-zypsE0_wonLGCYlA",
-          }
-        ).addTo(this.map);
+          L.tileLayer(
+            "https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+            {
+              attribution:
+                'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+              maxZoom: 18,
+              id: "mapbox/streets-v11",
+              tileSize: 512,
+              zoomOffset: -1,
+              accessToken: mapbox_token,
+              crossOrigin: ""
+            }
+          ).addTo(this.map);
+
+        } else { 
+
+          console.log("map: use vectors from openmaptiles.org")
+
+          this.map.options.minZoom = 2;
+
+          var gl = L.mapboxGL({
+              accessToken: mapbox_token,
+              style: 'mapbox://styles/mapbox/streets-v11', // style URL
+              // style: 'https://openmaptiles.github.io/maptiler-toner-gl-style/style-cdn.json'
+              // style: 'https://openmaptiles.github.io/maptiler-terrain-gl-style/style-cdn.json'
+              // style: 'https://maputnik.github.io/osm-liberty/style.json'
+              // style: 'https://openmaptiles.github.io/maptiler-basic-gl-style/style-cdn.json'
+              // style: 'https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json'
+              // style: 'https://openmaptiles.github.io/maptiler-3d-gl-style/style-cdn.json'
+          }).addTo(this.map);
+
+          this.map.fitWorld();
+
+        }
 
         this.map.on("moveend", maybe_map_moved);
         this.map.on("zoomend", maybe_map_moved);
