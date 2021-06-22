@@ -40,13 +40,14 @@ defmodule Bonfire.Geolocate.GraphQLTest do
   describe "geolocation.in_scope_of" do
     test "returns the context of the geolocation" do
       user = fake_user!()
-      context = fake_user!()
+      context = fake_geolocation!(user)
+
       geo = fake_geolocation!(user, context)
 
       q = geolocation_query(fields: [in_scope_of: [:__typename]])
       conn = user_conn(user)
       assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
-      assert resp["inScopeOf"]["__typename"] == "User"
+      assert resp["inScopeOf"]["__typename"] == "SpatialThing"
     end
 
     test "returns nil if there is no context" do
@@ -153,11 +154,11 @@ defmodule Bonfire.Geolocate.GraphQLTest do
       assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
     end
 
-    test "fails to delete a unit of another user unless an admin" do
+    test "fails to delete a location of another user unless an admin" do
       q = delete_geolocation_mutation()
+      admin = fake_user!() # first user is admin
       user = fake_user!()
       guest = fake_user!()
-      admin = fake_user!(%{is_instance_admin: true})
 
       geo = fake_geolocation!(user)
       conn = user_conn(guest)

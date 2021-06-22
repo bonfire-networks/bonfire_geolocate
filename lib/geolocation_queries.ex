@@ -17,6 +17,10 @@ defmodule Bonfire.Geolocate.Queries do
     from(c in Geolocation, as: :geolocation)
   end
 
+  def query(filters) do
+    query(Geolocation, filters)
+  end
+
   def query(q, filters), do: filter(query(q), filters)
 
   def queries(query, _page_opts, base_filters, data_filters, count_filters) do
