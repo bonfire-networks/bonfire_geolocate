@@ -34,7 +34,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   Used by:
   * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().all(Queries.query(Geolocation, filters))}
+  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Geolocation, filters))}
 
   ## mutations
 
