@@ -1,9 +1,10 @@
-<div class="container h-screen max-w-screen-lg mx-auto">
 
-  <%= live_component(
-    @socket,
-    Bonfire.Geolocate.MapLive,
-    id: :AMap,
-  )  %>
-
-</div>
+      
+      <%= live_component(
+        @socket,
+        Bonfire.Geolocate.MapLive,
+        id: :AMap,
+        page_title: @page_title,
+        page: @page,
+        smart_input: @smart_input
+        )  %>
