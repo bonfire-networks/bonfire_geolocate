@@ -1,10 +1,8 @@
 
-      
+
       <%= live_component(
         @socket,
         Bonfire.Geolocate.MapLive,
-        id: :AMap,
-        page_title: @page_title,
-        page: @page,
-        smart_input: @smart_input
-        )  %>
+        assigns_merge(assigns,
+          id: :AMap
+        ))  %>
