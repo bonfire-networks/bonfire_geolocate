@@ -1,8 +1,6 @@
-
-
-      <%= live_component(
-        @socket,
-        Bonfire.Geolocate.MapLive,
-        assigns_merge(assigns,
-          id: :AMap
-        ))  %>
+<%= live_component(
+  @socket,
+  Bonfire.Geolocate.MapLive,
+  assigns_merge(assigns,
+    id: :AMap
+  ))  %>
