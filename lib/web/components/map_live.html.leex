@@ -33,9 +33,7 @@
               lat="<%= marker.lat %>"
               lng="<%= marker.long %>"
               selected="<%= e(marker, :is_disabled, false) %>"
-              phx-click="Bonfire.Geolocate:marker_click"
-              phx-value-id="<%= marker.id %>"
-              popup="<%= e(marker, :name, "") %> : <%= e(marker, :note, "") %>">
+              popup="<%= e(marker, :name, "") %>">
                 <leaflet-icon
                 icon-url="<%= map_icon(e(marker, :is_disabled, false)) %>"
                 width="64"

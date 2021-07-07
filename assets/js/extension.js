@@ -1,4 +1,4 @@
-let use_vector = true;
+let use_vector = false;
 let mapbox_token = "pk.eyJ1IjoibWF5ZWwiLCJhIjoiY2tlMmxzNXF5MGFpaDJ0bzR2M29id2EzOCJ9.QsmjD-zypsE0_wonLGCYlA";
 // TODO: read the token from env/config
 
@@ -63,6 +63,8 @@ ExtensionHooks.MapLeaflet = {
         var bounds = new L.LatLngBounds(
           JSON.parse(this.getAttribute("points"))
         );
+        console.log(this.getAttribute("points"))
+        console.log(bounds)
 
         this.map = L.map(this.mapElement).fitBounds(bounds);
 
@@ -70,7 +72,8 @@ ExtensionHooks.MapLeaflet = {
         //   [this.getAttribute("lat"), this.getAttribute("lng")],
         //   13
         // );
-        
+        console.log(use_vector)
+        this.map.options.minZoom = 2;
         if(!use_vector){ 
           
           console.log("map: use tiles")
@@ -93,9 +96,19 @@ ExtensionHooks.MapLeaflet = {
 
           console.log("map: use vectors from openmaptiles.org")
 
-          this.map.options.minZoom = 2;
+          this.map.options.minZoom = 4;
+          
+          // L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+          //     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+          //     maxZoom: 18,
+          //     id: 'mapbox/streets-v11',
+          //     tileSize: 512,
+          //     zoomOffset: -1,
+          //     accessToken: 'your.mapbox.access.token'
+          // }).addTo(mymap);
 
-          var gl = L.mapboxGL({
+
+          L.mapboxGL({
               accessToken: mapbox_token,
               style: 'mapbox://styles/mapbox/streets-v11', // style URL
               // style: 'https://openmaptiles.github.io/maptiler-toner-gl-style/style-cdn.json'
@@ -114,8 +127,8 @@ ExtensionHooks.MapLeaflet = {
         this.map.on("zoomend", maybe_map_moved);
 
         this.defaultIcon = L.icon({
-          iconUrl: "https://www.flaticon.com/svg/static/icons/svg/446/446075.svg",
-          iconSize: [32, 32],
+          iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+          // iconSize: [32, 32],
         });
       }
 
@@ -132,19 +145,19 @@ ExtensionHooks.MapLeaflet = {
           const popup = markerEl.getAttribute("popup");
 
           if (popup) {
-            marker.bindPopup(popup).openPopup();
+            marker.bindPopup(popup);
 
-            marker.on("mouseover", function (e) {
+            marker.on("click", function (e) {
               this.openPopup();
             });
-            marker.on("mouseout", function (e) {
-              this.closePopup();
-            });
+            // marker.on("mouseout", function (e) {
+            //   this.closePopup();
+            // });
           }
 
-          marker.addEventListener("click", (_event) => {
-            markerEl.click();
-          });
+          // marker.addEventListener("click", (_event) => {
+          //   markerEl.click();
+          // });
 
           const iconEl = markerEl.querySelector("leaflet-icon");
           const iconSize = [
