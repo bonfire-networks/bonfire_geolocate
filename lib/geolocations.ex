@@ -5,7 +5,8 @@ Bonfire.Common.Config.require_extension_config!(:bonfire_geolocate)
 
 defmodule Bonfire.Geolocate.Geolocations do
   import Bonfire.Common.Config, only: [repo: 0]
-  alias Bonfire.Common.Utils
+  import Bonfire.Common.Utils
+  alias Bonfire.Geolocate.Integration
 
   alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Queries
@@ -16,6 +17,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   # alias CommonsPub.Activities
   # alias CommonsPub.Feeds
 
+  @search_type "Bonfire.Geolocate.Geolocation"
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -35,12 +37,18 @@ defmodule Bonfire.Geolocate.Geolocations do
   * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
   def many(filters \\ []), do: {:ok, repo().many(Queries.query(Geolocation, filters))}
+  def many!(filters \\ []), do: repo().many(Queries.query(Geolocation, filters))
+
+  def search(search) do
+    maybe_apply(Bonfire.Search, :search_by_type, [search, @search_type], &none/2) || many!(autocomplete: search)
+  end
+  defp none(_, _), do: nil
 
   ## mutations
 
   @spec create(any(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(creator, %{} = context, attrs) when is_map(attrs) do
+  def create(creator, %{} = context, attrs) when is_map(attrs) do # TODO deprecate
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs),
@@ -49,6 +57,7 @@ defmodule Bonfire.Geolocate.Geolocations do
           #  {:ok, activity} <- Activities.create(creator, item, act_attrs),
           #  :ok <- publish(creator, context, item, activity, :created)
            do
+        maybe_index(item)
         {:ok, populate_result(item, character)}
       end
     end)
@@ -68,6 +77,7 @@ defmodule Bonfire.Geolocate.Geolocations do
           #  {:ok, activity} <- Activities.create(creator, item, act_attrs),
           #  :ok <- publish(creator, item, activity, :created)
            do
+        maybe_index(item)
         {:ok, populate_result(item, character)}
       end
     end)
@@ -88,7 +98,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def thing_add_location(user, thing, mappable_address) when is_binary(mappable_address) do
     with {:ok, geolocation} <- create(user, %{name: mappable_address, mappable_address: mappable_address}) do
-      if Utils.module_enabled?(Bonfire.Tag.Tags) do
+      if module_enabled?(Bonfire.Tag.Tags) do
         Bonfire.Tag.Tags.tag_something(user, thing, geolocation)
       end
     end
@@ -116,7 +126,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   #   ]
 
   #   with :ok <- FeedActivities.publish(activity, feeds) do
-  #     ap_publish("create", geolocation.id, Bonfire.Common.Utils.maybe_get(creator, :id))
+  #     ap_publish("create", geolocation.id, maybe_get(creator, :id))
   #   end
   # end
 
@@ -139,6 +149,7 @@ defmodule Bonfire.Geolocate.Geolocations do
          {:ok, item} <- repo().update(Geolocation.update_changeset(geolocation, attrs))
         # FIXME :ok <- ap_publish("update", item.id, user.id)
          do
+      maybe_index(item)
       {:ok, populate_coordinates(item)}
     end
   end
@@ -181,4 +192,27 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   def resolve_mappable_address(attrs), do: {:ok, attrs}
+
+  def indexing_object_format(u) do
+
+    # IO.inspect(obj)
+
+    %{
+      "id" => u.id,
+      "index_type" => @search_type,
+      # "url" => url(obj),
+      "name" => e(u, :name, ""),
+      "note" => e(u, :note, ""),
+      "mappable_address" => e(u, :mappable_address, "")
+    } |> IO.inspect
+  end
+
+  # TODO: less boilerplate
+  def maybe_index(object) when is_struct(object) do
+    object |> indexing_object_format() |> maybe_index()
+  end
+  def maybe_index(object) when is_map(object) do
+    maybe_apply(Bonfire.Search.Indexer, :maybe_index_object, object, &none/2)
+  end
+  def maybe_index(other), do: other
 end

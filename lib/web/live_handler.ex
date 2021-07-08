@@ -12,18 +12,14 @@ defmodule Bonfire.Geolocate.LiveHandler do
   end
 
 
+  def handle_event("autocomplete", %{"value"=>search}, socket), do: handle_event("autocomplete", search, socket)
   def handle_event("autocomplete", search, socket) when is_binary(search) do
-    IO.inspect(search: search)
+    # IO.inspect(search: search)
 
-    matches = with {:ok, matches} <- Geolocations.many(autocomplete: search) do
-      # IO.inspect(matches)
-      matches |> Enum.map(&to_tuple/1)
-    else
-      _ -> []
-    end
-    # IO.inspect(matches)
+    options = ( Geolocations.search(search) || [] )
+              |> Enum.map(&to_tuple/1)
 
-    options = matches ++ [{"Define a new location with the address: "<>search, search}]
+    options = options ++ [{"Define a new location with this address: "<>search, search}]
 
     {:noreply, socket |> assign_global(geolocation_autocomplete: options) }
   end
