@@ -8,9 +8,9 @@ import "mapbox-gl-leaflet";
 import "./leaflet-marker";
 import "./leaflet-icon";
 
-let ExtensionHooks = {};
+let GeolocateHooks = {};
 
-ExtensionHooks.MapLeaflet = {
+GeolocateHooks.MapLeaflet = {
   mounted() {
     const view = this;
 
@@ -182,4 +182,4 @@ ExtensionHooks.MapLeaflet = {
   },
 };
 
-export { ExtensionHooks }
+export { GeolocateHooks }
