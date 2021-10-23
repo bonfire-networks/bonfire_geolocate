@@ -204,7 +204,7 @@ defmodule Bonfire.Geolocate.Geolocations do
       "name" => e(u, :name, ""),
       "note" => e(u, :note, ""),
       "mappable_address" => e(u, :mappable_address, "")
-    } |> IO.inspect
+    } #|> IO.inspect
   end
 
   # TODO: less boilerplate
