@@ -19,6 +19,8 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @search_type "Bonfire.Geolocate.Geolocation"
 
+  def federation_module, do: ["Place", "SpatialThing"]
+
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
 
