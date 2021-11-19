@@ -217,4 +217,14 @@ defmodule Bonfire.Geolocate.Geolocations do
     maybe_apply(Bonfire.Search.Indexer, :maybe_index_object, object, &none/2)
   end
   def maybe_index(other), do: other
+
+
+  def ap_publish_activity(activity_name, thing) do
+    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :spatial_thing, thing, 2, [
+    ])
+  end
+
+  def ap_receive_activity(creator, activity, object) do
+    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+  end
 end
