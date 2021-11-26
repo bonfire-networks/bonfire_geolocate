@@ -11,39 +11,43 @@
     )
 %>
 <% end %>
-  <main class="">
-    <div class="bg-white shadow w-center dark:bg-gray-700">
-      <div class="flex items-center flex-1 p-3 space-x-2 text-left border-b dark:border-gray-600 dark:bg-gray-700">
-        <a
-          aria-label="Navigate to the previous page"
-          href="javascript:window.history.back()">
-          <span class="flex items-center w-8 h-8 rounded-full place-content-center bg-blueGray-200 dark:bg-gray-600 hover:bg-blueGray-300">
-            <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-          </span>
-        </a>
-        <h1 class="text-xs text-gray-800 uppercase dark:text-gray-100 font-regular">Map</h1>
-      </div>
 
-      <section class="map" id="map-<%= e(@place, :id, 'unknown')%>" phx-hook="MapLeaflet" style="width: 100%; height: 100%">
-       
-        <leaflet-map points="<%= "#{inspect @points}"%>">
-          <%= for marker <- @markers do %>
-            <%= if Map.get(marker, :lat) && Map.get(marker, :long) do %>
-              <leaflet-marker
-              lat="<%= marker.lat %>"
-              lng="<%= marker.long %>"
-              selected="<%= e(marker, :is_disabled, false) %>"
-              popup="<%= e(marker, :name, "") %>">
-                <leaflet-icon
-                icon-url="<%= map_icon(e(marker, :is_disabled, false)) %>"
-                width="64"
-                height="64">
-                </leaflet-icon>
-              </leaflet-marker>
-            <% end %>
-          <% end %>
-        </leaflet-map>
-      </section>
+<main class="">
+  <div class="bg-white shadow w-center dark:bg-gray-700">
+    <div class="flex items-center flex-1 p-3 space-x-2 text-left border-b dark:border-gray-600 dark:bg-gray-700">
+      <a
+        aria-label="Navigate to the previous page"
+        href="javascript:window.history.back()">
+        <span class="flex items-center w-8 h-8 rounded-full place-content-center bg-blueGray-200 dark:bg-gray-600 hover:bg-blueGray-300">
+          <svg class="w-4 h-4 text-gray-600 dark:text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
+        </span>
+      </a>
+      <h1 class="text-xs text-gray-800 uppercase dark:text-gray-100 font-regular">Map</h1>
     </div>
-  </main>
-</div>
+
+    <section class="map" 
+    id={"map-"<> e(@place, :id, 'unknown')} 
+    phx-hook="MapLeaflet" 
+    style="width: 100%; height: 100%">
+      
+      <leaflet-map points={"#{inspect @points}"}>
+        <%= for marker <- @markers do %>
+          <%= if Map.get(marker, :lat) && Map.get(marker, :long) do %>
+            <leaflet-marker
+            lat={marker.lat}
+            lng={marker.long}
+            selected={e(marker, :is_disabled, false)}
+            popup={e(marker, :name, "")}
+            >
+              <leaflet-icon
+              icon-url={ map_icon(e(marker, :is_disabled, false))}
+              width="64"
+              height="64">
+              </leaflet-icon>
+            </leaflet-marker>
+          <% end %>
+        <% end %>
+      </leaflet-map>
+    </section>
+  </div>
+</main>
