@@ -187,7 +187,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   def create_geolocation(%{spatial_thing: attrs, in_scope_of: context_id}, info) do
     repo().transact_with(fn ->
       with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
-           {:ok, context} <- Bonfire.Common.Pointers.get(context_id),
+           {:ok, context} <- Bonfire.Common.Pointers.get(context_id, current_user: user),
            attrs = Map.merge(attrs, %{is_public: true}),
            {:ok, g} <- Geolocations.create(user, context, attrs) do
         {:ok, %{spatial_thing: g}}
