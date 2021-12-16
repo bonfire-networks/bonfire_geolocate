@@ -6,7 +6,7 @@ Bonfire.Common.Config.require_extension_config!(:bonfire_geolocate)
 defmodule Bonfire.Geolocate.Geolocations do
   import Bonfire.Common.Config, only: [repo: 0]
   import Bonfire.Common.Utils
-  alias Bonfire.Geolocate.Integration
+  alias Bonfire.Geolocate
 
   alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Queries

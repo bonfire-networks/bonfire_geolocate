@@ -1,4 +1,4 @@
-# Bonfire:Geolocate
+# Bonfire.Geolocate
 
 An extension for [Bonfire](https://bonfire.cafe/) that handles:
 
