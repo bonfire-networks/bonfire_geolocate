@@ -4,7 +4,7 @@ defmodule Bonfire.Geolocate.Geolocation do
     source: "bonfire_geolocate_geolocation",
     table_id: "2P1ACEW1THGE0010CAT10NMARK"
 
-  import Bonfire.Repo.Changeset, only: [change_public: 1, change_disabled: 1]
+  import Bonfire.Repo.Common, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
   alias Pointers.Pointer
