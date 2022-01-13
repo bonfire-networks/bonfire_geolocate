@@ -1,6 +1,5 @@
 defmodule Bonfire.Geolocate.MapLive do
   use Bonfire.Web, :live_component
-
   import Bonfire.Geolocate.Places
 
   @postgis_srid 4326
@@ -8,7 +7,6 @@ defmodule Bonfire.Geolocate.MapLive do
   def update(%{id: id} = assigns, socket) when is_binary(id) do
     show_place_things(id, assign(socket, assigns))
   end
-
 
   def update(%{places: places} = assigns, socket) when is_list(places) and length(places) >0 do
     # IO.inspect(places: places)
