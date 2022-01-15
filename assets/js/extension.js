@@ -1,6 +1,5 @@
 let use_vector = false;
-let mapbox_token = "pk.eyJ1IjoibWF5ZWwiLCJhIjoiY2tlMmxzNXF5MGFpaDJ0bzR2M29id2EzOCJ9.QsmjD-zypsE0_wonLGCYlA";
-// TODO: read the token from env/config
+let mapbox_token = window.Gon.getAsset("mapbox_api_key"); // requires phoenix_gon to be set up to load config into the view
 
 import L from "leaflet";
 import "mapbox-gl";
