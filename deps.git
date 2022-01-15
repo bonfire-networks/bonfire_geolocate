@@ -2,4 +2,8 @@ bonfire_common = "https://github.com/bonfire-networks/bonfire_common#main"
 # bonfire_web_phoenix = "https://github.com/bonfire-networks/bonfire_web_phoenix#main"
 pointers = "https://github.com/bonfire-networks/pointers#main"
 # geocoder = "https://github.com/knrz/geocoder"
+<<<<<<< HEAD
 phoenix_gon = "https://github.com/bonfire-networks/phoenix_gon"" # used to pass config to JS
+=======
+phoenix_gon = "https://github.com/bonfire-networks/phoenix_gon" # used to pass config to JS
+>>>>>>> fb884eb (fork)
