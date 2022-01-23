@@ -74,13 +74,9 @@ defmodule Bonfire.Geolocate.Geolocations do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs),
-           {:ok, character} <- {:ok, nil} # FIXME: Characters.create(creator, attrs, item),
-          #  act_attrs = %{verb: "created", is_local: true},
-          #  {:ok, activity} <- Activities.create(creator, item, act_attrs),
-          #  :ok <- publish(creator, item, activity, :created)
-           do
+         {:ok, activity} <- ValueFlows.Util.publish(creator, :create, item) do
         maybe_index(item)
-        {:ok, populate_result(item, character)}
+        {:ok, populate_result(item)}
       end
     end)
   end
@@ -107,43 +103,6 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
 
-  # defp publish(creator, context, geolocation, activity, :created) do
-  #   feeds = [
-  #     CommonsPub.Feeds.outbox_id(context),
-  #     CommonsPub.Feeds.outbox_id(creator),
-  #     CommonsPub.Feeds.outbox_id(geolocation),
-  #     Feeds.instance_outbox_id()
-  #   ]
-
-  #   with :ok <- FeedActivities.publish(activity, feeds) do
-  #     ap_publish("create", geolocation.id, creator.id)
-  #   end
-  # end
-
-  # defp publish(creator, geolocation, activity, :created) do
-  #   feeds = [
-  #     CommonsPub.Feeds.outbox_id(creator),
-  #     CommonsPub.Feeds.outbox_id(geolocation),
-  #     Feeds.instance_outbox_id()
-  #   ]
-
-  #   with :ok <- FeedActivities.publish(activity, feeds) do
-  #     ap_publish("create", geolocation.id, maybe_get(creator, :id))
-  #   end
-  # end
-
-  # defp ap_publish(verb, context_id, user_id) do
-  #   job_result =
-  #     APPublishWorker.enqueue(verb, %{
-  #       "context_id" => context_id,
-  #       "user_id" => user_id
-  #     })
-
-  #   with {:ok, _} <- job_result, do: :ok
-  # end
-
-  # defp ap_publish(_, _, _), do: :ok
-
   @spec update(any(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(user, %Geolocation{} = geolocation, attrs) do
@@ -167,8 +126,8 @@ defmodule Bonfire.Geolocate.Geolocations do
     end)
   end
 
-  def populate_result(geo, character) do
-    populate_coordinates(%{geo | character: character})
+  def populate_result(geo) do
+    populate_coordinates(geo)
   end
 
   def populate_coordinates(objects) when is_list(objects) do
