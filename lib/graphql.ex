@@ -218,7 +218,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   def ensure_update_allowed(user, geo) do
-    if Bonfire.Geolocate.is_admin(user) or geo.creator_id == user.id do
+    if Bonfire.Geolocate.is_admin?(user) or geo.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("update")
@@ -235,7 +235,7 @@ defmodule Bonfire.Geolocate.GraphQL do
   end
 
   def ensure_delete_allowed(user, geo) do
-    if Bonfire.Geolocate.is_admin(user) or geo.creator_id == user.id do
+    if Bonfire.Geolocate.is_admin?(user) or geo.creator_id == user.id do
       :ok
     else
       GraphQL.not_permitted("delete")
