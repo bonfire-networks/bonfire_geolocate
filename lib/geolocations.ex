@@ -53,14 +53,13 @@ defmodule Bonfire.Geolocate.Geolocations do
   def create(creator, %{} = context, attrs) when is_map(attrs) do # TODO deprecate
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item} <- insert_geolocation(creator, context, attrs),
-           {:ok, character} <- {:ok, nil} #Characters.create(creator, attrs, item), # FIXME
+           {:ok, item} <- insert_geolocation(creator, context, attrs)
           #  act_attrs = %{verb: "created", is_local: true},
           #  {:ok, activity} <- Activities.create(creator, item, act_attrs),
           #  :ok <- publish(creator, context, item, activity, :created)
            do
         maybe_index(item)
-        {:ok, populate_result(item, character)}
+        {:ok, populate_result(item)}
       end
     end)
   end

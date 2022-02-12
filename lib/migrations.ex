@@ -23,7 +23,7 @@ defmodule Bonfire.Geolocate.Migrations do
 
       add(:context_id, weak_pointer(), null: true)
 
-      add(:creator_id, weak_pointer(@user), null: true)
+      add(:creator_id, weak_pointer(), null: true)
 
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
