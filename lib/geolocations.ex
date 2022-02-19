@@ -134,16 +134,16 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   def populate_coordinates(%{geom: %{coordinates: {lat, long}}} = object) do
-    # IO.inspect(populate_coordinates: lat)
+    # debug(populate_coordinates: lat)
     Map.merge(object, %{lat: lat, long: long})
   end
 
-  def populate_coordinates(geo), do: (geo || %{}) #|> IO.inspect(label: "could not find coords")
+  def populate_coordinates(geo), do: (geo || %{}) #|> debug(label: "could not find coords")
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
     with {:ok, coords} <- Bonfire.Geolocate.Geocode.coordinates(address) do
-      #IO.inspect(attrs)
-      #IO.inspect(coords)
+      #debug(attrs)
+      #debug(coords)
       # TODO: should take bounds and save in `geom`
       {:ok, Map.put(Map.put(attrs, :lat, coords.lat), :long, coords.lon)}
     else
@@ -155,7 +155,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def indexing_object_format(u) do
 
-    # IO.inspect(obj)
+    # debug(obj)
 
     %{
       "id" => u.id,

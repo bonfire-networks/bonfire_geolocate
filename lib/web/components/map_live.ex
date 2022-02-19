@@ -9,7 +9,7 @@ defmodule Bonfire.Geolocate.MapLive do
   end
 
   def update(%{places: places} = assigns, socket) when is_list(places) and length(places) >0 do
-    # IO.inspect(places: places)
+    # debug(places: places)
     mark_places(places, assign(socket, assigns))
   end
 
@@ -21,13 +21,13 @@ defmodule Bonfire.Geolocate.MapLive do
 
   def update(assigns, socket) do
     socket = assign(socket, assigns)
-    Logger.info("fallback to showing some locations, because no `places` assign was set ")
+    debug("fallback to showing some locations, because no `places` assign was set ")
     fetch_places(socket) |> mark_places(socket)
   end
 
   def handle_event("map_marker_click", %{"id" => id} = _params, socket,
         to_view \\ false) do
-    IO.inspect(click: id)
+    debug(click: id)
 
     show_place_things(id, socket, to_view)
   end
@@ -38,7 +38,7 @@ defmodule Bonfire.Geolocate.MapLive do
         socket,
         to_view
       ) do
-    IO.inspect(bounds: polygon)
+    debug(bounds: polygon)
 
     show_place_things(Enum.at(polygon, 0), socket, to_view)
   end
@@ -81,17 +81,17 @@ defmodule Bonfire.Geolocate.MapLive do
     polygon = Enum.map(polygon, &{List.first(&1), List.last(&1)})
     polygon = polygon ++ [List.first(polygon)]
 
-    IO.inspect(polygon: polygon)
+    debug(polygon: polygon)
 
     geom = %Geo.Polygon{
       coordinates: [polygon],
       srid: @postgis_srid
     }
 
-    IO.inspect(geom: geom)
+    debug(geom: geom)
 
     fetch_place_things_fn = Map.get(socket.assigns, :fetch_place_things_fn, &fetch_place_things/2)
-    IO.inspect(fetch_place_things_fn: fetch_place_things_fn)
+    debug(fetch_place_things_fn: fetch_place_things_fn)
 
     apply(fetch_place_things_fn, [[location_within: geom], socket])
     |> mark_places(socket, to_view)
@@ -100,7 +100,7 @@ defmodule Bonfire.Geolocate.MapLive do
   defp mark_places(places, socket, to_view \\ false) when is_list(places) do
 
     markers = Bonfire.Geolocate.Geolocations.populate_coordinates(places)
-    IO.inspect(marked_places: markers)
+    debug(marked_places: markers)
 
     place = if (markers && length(markers)==1), do: hd(markers)
 
@@ -111,7 +111,7 @@ defmodule Bonfire.Geolocate.MapLive do
     ])
     |> Enum.filter(fn [h,t] -> if(h && t && h !=0 && t !=0) do [h,t] end end)
 
-    # IO.inspect(points: points)
+    # debug(points: points)
 
     response(
      assign(socket,
