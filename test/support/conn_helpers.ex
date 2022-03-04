@@ -3,6 +3,7 @@ defmodule Bonfire.Geolocate.Test.ConnHelpers do
   alias Phoenix.{ConnTest, Controller}
   alias Plug.{Conn, Session}
   import ExUnit.Assertions
+  import Where
 
   @endpoint Bonfire.Common.Config.get!(:endpoint_module)
 
