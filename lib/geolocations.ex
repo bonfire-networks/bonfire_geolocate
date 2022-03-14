@@ -138,7 +138,7 @@ defmodule Bonfire.Geolocate.Geolocations do
     Map.merge(object, %{lat: lat, long: long})
   end
 
-  def populate_coordinates(geo), do: (geo || %{}) #|> debug(label: "could not find coords")
+  def populate_coordinates(geo), do: (geo || %{}) #|> debug("could not find coords")
 
   def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
     with {:ok, coords} <- Bonfire.Geolocate.Geocode.coordinates(address) do

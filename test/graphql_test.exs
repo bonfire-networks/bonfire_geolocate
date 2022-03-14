@@ -1,4 +1,4 @@
-if Code.ensure_loaded?(Bonfire.GraphQL.Schema) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.GraphQLTest do
   use Bonfire.Geolocate.ConnCase, async: true

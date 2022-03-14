@@ -1,13 +1,13 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
-  
+
   alias Bonfire.Common.Utils
   # require Utils
 
   import Grumble
-  import Bonfire.GraphQL.Test.GraphQLFields
-  import Bonfire.GraphQL.Test.GraphQLAssertions
+  import Bonfire.API.GraphQL.Test.GraphQLFields
+  import Bonfire.API.GraphQL.Test.GraphQLAssertions
 
   ## assertions
 

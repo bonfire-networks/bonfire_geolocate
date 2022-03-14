@@ -1,5 +1,5 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-if Code.ensure_loaded?(Bonfire.GraphQL) do
+if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule Bonfire.Geolocate.GraphQL do
   use Absinthe.Schema.Notation
   import Where
@@ -7,8 +7,8 @@ defmodule Bonfire.Geolocate.GraphQL do
   import Bonfire.Common.Config, only: [repo: 0]
   #
 
-  alias Bonfire.GraphQL
-  alias Bonfire.GraphQL.{
+  alias Bonfire.API.GraphQL
+  alias Bonfire.API.GraphQL.{
     # ResolvePage,
     # ResolvePages,
     ResolveField,
@@ -75,7 +75,7 @@ defmodule Bonfire.Geolocate.GraphQL do
       )
 
   def pages(cursor_fn, group_fn, page_opts, base_filters, data_filters, count_filters) do
-    Bonfire.GraphQL.Pagination.pages(
+    Bonfire.API.GraphQL.Pagination.pages(
       Queries,
       Geolocation,
       cursor_fn,
