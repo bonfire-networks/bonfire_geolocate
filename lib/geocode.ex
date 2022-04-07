@@ -1,4 +1,5 @@
 defmodule Bonfire.Geolocate.Geocode do
+  import Where
 
   def coordinates(query) do
     # use the default provider (OpenStreetMaps)
@@ -7,12 +8,14 @@ defmodule Bonfire.Geolocate.Geocode do
     {:error, _} <- maybe_with_opencage(query) do
       {:error, nil}
     end
+  catch
+    :exit, error ->
+      error(error)
+      {:error, error}
   end
 
   defp maybe_with_geocoder(query) do
     Geocoder.call(query)
-  catch _ ->
-    {:error, nil}
   end
 
   defp maybe_with_opencage(query) do
@@ -20,7 +23,8 @@ defmodule Bonfire.Geolocate.Geocode do
     if key && key !="" do
       Geocoder.call(query, provider: Geocoder.Providers.OpenCageData, key: key)
     else
-      {:error, nil}
+      error("You need to configure an API key for https://opencagedata.com in env: GEOLOCATE_OPENCAGEDATA")
+      {:error, "No API"}
     end
   end
 
