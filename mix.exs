@@ -30,9 +30,7 @@ defmodule Bonfire.Geolocate.MixProject do
   defp elixirc_paths(:test), do: ["lib", "test/support"]
   defp elixirc_paths(_), do: ["lib"]
 
-  @bonfire_deps [
-    "pointers",
-  ] |> Enum.join(" ")
+
 
   defp aliases do
     [
