@@ -10,7 +10,7 @@ defmodule Bonfire.Geolocate.Geocode do
     end
   catch
     :exit, error ->
-      error(error)
+      error(__STACKTRACE__, inspect error)
       {:error, error}
   end
 
