@@ -2,9 +2,6 @@
 defmodule Bonfire.Geolocate.Test.Faking do
   @moduledoc false
 
-  alias Bonfire.Common.Utils
-  # require Utils
-
   import Grumble
   import Bonfire.API.GraphQL.Test.GraphQLFields
   import Bonfire.API.GraphQL.Test.GraphQLAssertions
