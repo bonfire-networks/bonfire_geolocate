@@ -1,6 +1,6 @@
 defmodule Bonfire.Geolocate.Geolocation do
   use Pointers.Pointable,
-    otp_app: :commons_pub,
+    otp_app: :bonfire_geolocate,
     source: "bonfire_geolocate_geolocation",
     table_id: "2P1ACEW1THGE0010CAT10NMARK"
 
