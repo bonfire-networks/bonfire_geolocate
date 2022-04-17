@@ -31,7 +31,7 @@ defmodule Bonfire.Geolocate.Geolocation do
     field(:deleted_at, :utc_datetime_usec)
 
     # FIXME, implement Bonfire Character
-    field(:character, :any, virtual: true)
+    # field(:character, :any, virtual: true)
     # has_one(:character, CommonsPub.Characters.Character, references: :id, foreign_key: :id)
 
     belongs_to(:creator, @user)
