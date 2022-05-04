@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.MapLive do
-  use Bonfire.Web, :live_component
+  use Bonfire.UI.Common.Web, :live_component
   import Bonfire.Geolocate.Places
 
   @postgis_srid 4326

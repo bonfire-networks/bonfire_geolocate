@@ -28,7 +28,7 @@
 
 #   def soft_delete(%{} = user, %PrimaryGeolocation{} = geo) do
 #     repo().transact_with(fn ->
-#       with {:ok, geo} <- Bonfire.Repo.Delete.soft_delete(geo) do
+#       with {:ok, geo} <- Bonfire.Common.Repo.Delete.soft_delete(geo) do
 #         {:ok, geo}
 #       end
 #     end)

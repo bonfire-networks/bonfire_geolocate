@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.LiveHandler do
-  use Bonfire.Web, :live_handler
+  use Bonfire.UI.Common.Web, :live_handler
 
   alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Geolocations

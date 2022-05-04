@@ -5,7 +5,7 @@ defmodule Bonfire.Geolocate.Queries do
   # alias CommonsPub.Follows.{Follow, FollowerCount}
   # @user CommonsPub.Users.User
 
-  import Bonfire.Repo.Common, only: [match_admin: 0]
+  import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
 
