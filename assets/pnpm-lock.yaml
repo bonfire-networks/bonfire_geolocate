@@ -1,4 +1,4 @@
-lockfileVersion: 5.3
+lockfileVersion: 5.4
 
 specifiers:
   leaflet: ^1.7.1
@@ -8,7 +8,7 @@ specifiers:
 dependencies:
   leaflet: 1.7.1
   mapbox-gl: 2.3.0
-  mapbox-gl-leaflet: 0.0.15_leaflet@1.7.1+mapbox-gl@2.3.0
+  mapbox-gl-leaflet: 0.0.15_cequjjvv5z2kxcnuzcyter3rmi
 
 packages:
 
@@ -93,7 +93,7 @@ packages:
     resolution: {integrity: sha512-/xwPEBidtg69Q3HlqPdU3DnrXQOvQU/CCHA1tcDQVzOwm91YMYaILjNp7L4Eaw5Z4sOYdbBz6koWyibppd8Zqw==}
     dev: false
 
-  /mapbox-gl-leaflet/0.0.15_leaflet@1.7.1+mapbox-gl@2.3.0:
+  /mapbox-gl-leaflet/0.0.15_cequjjvv5z2kxcnuzcyter3rmi:
     resolution: {integrity: sha512-dyuJLubdr/lBkf7ssqGrJCc4OCv6iZlYd/eqVzjKJOv0caPi69SLefm/Y3mfE5BMD6FiqtaZqIRDL0U5zWPlRg==}
     peerDependencies:
       leaflet: ^1.0.0

@@ -25,7 +25,7 @@ defmodule Bonfire.Geolocate.ConnCase do
       import Plug.Conn
       import Phoenix.ConnTest
       import Phoenix.LiveViewTest
-      import Bonfire.Geolocate.ConnCase
+      # import Bonfire.Geolocate.ConnCase
       import Bonfire.Geolocate.Test.ConnHelpers
       unquote(Bonfire.Common.Extend.quoted_import_if_enabled(Bonfire.Me.Fake))
       alias Bonfire.Geolocate.Fake

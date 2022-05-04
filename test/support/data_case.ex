@@ -22,7 +22,7 @@ defmodule Bonfire.Geolocate.DataCase do
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
-      import Bonfire.Geolocate.DataCase
+      # import Bonfire.Geolocate.DataCase
     end
   end
 
