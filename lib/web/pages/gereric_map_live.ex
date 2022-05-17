@@ -1,7 +1,7 @@
 defmodule Bonfire.Geolocate.Web.GenericMapLive do
   use Bonfire.UI.Common.Web, :live_view
 
-  alias Bonfire.Me.Web.LivePlugs
+  alias Bonfire.UI.Me.LivePlugs
 
   def mount(params, session, socket) do
     live_plug params, session, socket, [
