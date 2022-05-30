@@ -1,7 +1,7 @@
 {
     "repository": {},
     "description": " ",
-    "license": "MIT",
+    "license": "AGPL-3.0",
     "dependencies": {
         "leaflet": "^1.7.1",
         "mapbox-gl": "^2.3.0",
