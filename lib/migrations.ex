@@ -4,7 +4,7 @@ defmodule Bonfire.Geolocate.Migrations do
   # alias Pointers.ULID
   import Pointers.Migration
 
-  @user Bonfire.Common.Config.get!(:user_schema)
+  @user Application.compile_env!(:bonfire, :user_schema)
   # def users_table(), do: @user.__schema__(:source)
 
   def change do
