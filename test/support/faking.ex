@@ -67,7 +67,7 @@ defmodule Bonfire.Geolocate.Test.Faking do
   end
 
   def create_geolocation_mutation(options \\ []) do
-    [spatial_thing: type!(:spatial_thing_input)]
+    [spatial_thing: type!(:spatial_thing_create_params)]
     |> gen_mutation(&create_geolocation_submutation/1, options)
   end
 
@@ -77,7 +77,7 @@ defmodule Bonfire.Geolocate.Test.Faking do
   end
 
   def update_geolocation_mutation(options \\ []) do
-    [spatial_thing: type!(:spatial_thing_input)]
+    [spatial_thing: type!(:spatial_thing_update_params)]
     |> gen_mutation(&update_geolocation_submutation/1, options)
   end
 

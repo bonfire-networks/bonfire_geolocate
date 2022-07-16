@@ -22,6 +22,7 @@ defmodule Bonfire.Geolocate.GraphQLTest do
   end
 
   describe "spatialThingPages" do
+    @tag :fixme
     test "fetches a paginated list of geolocations" do
       user = fake_user!()
       _geos = some(5, fn -> fake_geolocation!(user) end)
@@ -38,6 +39,8 @@ defmodule Bonfire.Geolocate.GraphQLTest do
   end
 
   describe "geolocation.in_scope_of" do
+
+    @tag :fixme
     test "returns the context of the geolocation" do
       user = fake_user!()
       context = fake_geolocation!(user)

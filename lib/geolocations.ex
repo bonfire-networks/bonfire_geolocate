@@ -50,16 +50,13 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @spec create(any(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(creator, %{} = context, attrs) when is_map(attrs) do # TODO deprecate
+  def create(creator, %{} = context, attrs) when is_map(attrs) do # TODO deprecate in favour of create/2
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item} <- insert_geolocation(creator, context, attrs)
-          #  act_attrs = %{verb: "created", is_local: true},
-          #  {:ok, activity} <- Activities.create(creator, item, act_attrs),
-          #  :ok <- publish(creator, context, item, activity, :created)
-           do
+           {:ok, item} <- insert_geolocation(creator, context, attrs) do
+        maybe_apply(ValueFlows.Util, :publish, [creator, :create, item]) # FIXME: use publishing logic in from a different repo
         maybe_index(item)
-        {:ok, populate_result(item)}
+        {:ok, populate_result(item)} |> debug()
       end
     end)
   end
@@ -72,10 +69,10 @@ defmodule Bonfire.Geolocate.Geolocations do
   def create(creator, attrs) when is_map(attrs) do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item} <- insert_geolocation(creator, attrs),
-         {:ok, activity} <- ValueFlows.Util.publish(creator, :create, item) do
+           {:ok, item} <- insert_geolocation(creator, attrs) do
+        maybe_apply(ValueFlows.Util, :publish, [creator, :create, item]) # FIXME: use publishing logic in from a different repo
         maybe_index(item)
-        {:ok, populate_result(item)}
+        {:ok, populate_result(item)} |> debug()
       end
     end)
   end
@@ -95,9 +92,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def thing_add_location(user, thing, mappable_address) when is_binary(mappable_address) do
     with {:ok, geolocation} <- create(user, %{name: mappable_address, mappable_address: mappable_address}) do
-      if module_enabled?(Bonfire.Tag.Tags) do
-        Bonfire.Tag.Tags.tag_something(user, thing, geolocation)
-      end
+      maybe_apply(Bonfire.Tag.Tags, :tag_something, [user, thing, geolocation])
     end
   end
 
