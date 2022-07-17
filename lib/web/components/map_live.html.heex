@@ -18,6 +18,7 @@
    
     <div class="flex items-center flex-1 p-3 space-x-2 text-left border-b  ">
       <a
+        x-show="history.length > 2 && document.referrer.indexOf(window.location.host) !== -1"
         aria-label="Navigate to the previous page"
         href="javascript:window.history.back()">
         <span class="flex items-center w-8 h-8 rounded-full place-content-center bg-blueGray-200  hover:bg-blueGray-300">

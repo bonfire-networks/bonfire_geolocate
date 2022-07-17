@@ -229,7 +229,7 @@ defmodule Bonfire.Geolocate.GraphQL do
     with {:ok, user} <- GraphQL.current_user_or_not_logged_in(info),
          {:ok, geo} <- geolocation(%{id: id}, info),
          :ok <- ensure_delete_allowed(user, geo),
-         {:ok, _geo} <- Geolocations.soft_delete(user, geo) do
+         {:ok, _geo} <- Geolocations.soft_delete(geo, user) do
       {:ok, true}
     end
   end
