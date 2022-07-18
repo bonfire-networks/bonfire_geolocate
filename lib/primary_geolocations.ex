@@ -35,13 +35,13 @@
 #   end
 
 #   def soft_delete(%{} = user, %{id: id}) do
-#     soft_delete(user, id)
+#     soft_delete(id, user)
 #   end
 
 #   import Ecto.Query
 #   def soft_delete(%{} = user, id) when is_binary(id) do
 #     with {:ok, geo} <- repo().single(from pg in PrimaryGeolocation, where: pg.id == ^id) do
-#       soft_delete(user, geo)
+#       soft_delete(geo, user)
 #     end
 #   end
 # end

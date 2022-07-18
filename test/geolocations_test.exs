@@ -29,7 +29,7 @@ defmodule Bonfire.Geolocate.GeolocationsTest do
       user = fake_user!()
       geo = fake_geolocation!(user)
 
-      assert {:ok, geo} = Geolocations.soft_delete(user, geo)
+      assert {:ok, geo} = Geolocations.soft_delete(geo, user)
 
       assert {:error, :not_found} =
                Geolocations.one([:default, id: geo.id])
@@ -101,7 +101,7 @@ defmodule Bonfire.Geolocate.GeolocationsTest do
       user = fake_user!()
       geo = fake_geolocation!(user)
       refute geo.deleted_at
-      assert {:ok, geo} = Geolocations.soft_delete(user, geo)
+      assert {:ok, geo} = Geolocations.soft_delete(geo, user)
       assert geo.deleted_at
     end
   end
