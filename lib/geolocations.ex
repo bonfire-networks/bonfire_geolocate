@@ -54,7 +54,7 @@ defmodule Bonfire.Geolocate.Geolocations do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs) do
-        maybe_apply(ValueFlows.Util, :publish, [creator, :create, item]) # FIXME: use publishing logic in from a different repo
+        maybe_apply(Bonfire.Social.Objects, :publish, [creator, :create, item, attrs, __MODULE__])
         maybe_index(item)
         {:ok, populate_result(item)} |> debug()
       end
@@ -70,7 +70,7 @@ defmodule Bonfire.Geolocate.Geolocations do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs) do
-        maybe_apply(ValueFlows.Util, :publish, [creator, :create, item]) # FIXME: use publishing logic in from a different repo
+        maybe_apply(Bonfire.Social.Objects, :publish, [creator, :create, item, attrs, __MODULE__]) # FIXME: use publishing logic in from a different repo
         maybe_index(item)
         {:ok, populate_result(item)} |> debug()
       end
