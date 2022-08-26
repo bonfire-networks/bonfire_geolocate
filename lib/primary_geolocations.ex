@@ -22,7 +22,7 @@
 
 #   defp upsert_geolocation(object, attrs) do
 #     cs = PrimaryGeolocation.changeset(object, attrs)
-#     with {:ok, item} <- repo().insert(cs, on_conflict: {:replace_all_except, [:id]}), do: {:ok, item}
+#     with {:ok, item} <- repo().upsert(cs, attrs), do: {:ok, item}
 #   end
 
 
