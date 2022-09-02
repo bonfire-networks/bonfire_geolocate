@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.Geocode do
-  import Where
+  import Untangle
 
   def coordinates(query) do
     # use the default provider (OpenStreetMaps)

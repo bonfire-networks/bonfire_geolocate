@@ -2,7 +2,7 @@
 if Code.ensure_loaded?(Bonfire.API.GraphQL) do
 defmodule Bonfire.Geolocate.GraphQL do
   use Absinthe.Schema.Notation
-  import Where
+  import Untangle
 
   import Bonfire.Common.Config, only: [repo: 0]
   #

@@ -3,7 +3,7 @@ defmodule Bonfire.Geolocate.Test.ConnHelpers do
   alias Phoenix.{ConnTest, Controller}
   alias Plug.{Conn, Session}
   import ExUnit.Assertions
-  import Where
+  import Untangle
 
   @endpoint Application.compile_env!(:bonfire, :endpoint_module)
 
