@@ -3,6 +3,9 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
 
   alias Bonfire.UI.Me.LivePlugs
 
+
+  declare_extension("Maps", icon: "gis:world-map")
+
   def mount(params, session, socket) do
     live_plug params, session, socket, [
       LivePlugs.LoadCurrentAccount,
