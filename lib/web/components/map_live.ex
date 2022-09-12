@@ -8,25 +8,34 @@ defmodule Bonfire.Geolocate.MapLive do
     show_place_things(id, assign(socket, assigns))
   end
 
-  def update(%{places: places} = assigns, socket) when is_list(places) and length(places) >0 do
+  def update(%{places: places} = assigns, socket)
+      when is_list(places) and length(places) > 0 do
     # debug(places: places)
     mark_places(places, assign(socket, assigns))
   end
 
-  def update(%{markers: markers} = assigns, socket) when is_list(markers) and length(markers) >0 do
+  def update(%{markers: markers} = assigns, socket)
+      when is_list(markers) and length(markers) > 0 do
     response(
-     assign(socket, assigns), false
+      assign(socket, assigns),
+      false
     )
   end
 
   def update(assigns, socket) do
     socket = assign(socket, assigns)
+
     debug("fallback to showing some locations, because no `places` assign was set ")
+
     fetch_places(socket) |> mark_places(socket)
   end
 
-  def handle_event("map_marker_click", %{"id" => id} = _params, socket,
-        to_view \\ false) do
+  def handle_event(
+        "map_marker_click",
+        %{"id" => id} = _params,
+        socket,
+        to_view \\ false
+      ) do
     debug(click: id)
 
     show_place_things(id, socket, to_view)
@@ -60,9 +69,7 @@ defmodule Bonfire.Geolocate.MapLive do
   #   {:ok, assign(socket, markers: updated_markers)}
   # end
 
-
-  defp show_place_things(id, socket,
-        to_view \\ false) when is_binary(id) do
+  defp show_place_things(id, socket, to_view \\ false) when is_binary(id) do
     # fetch_place_things([at_location_id: id], socket) |> mark_places(socket, to_view)
     fetch_place(id, socket) |> mark_places(socket, to_view)
   end
@@ -75,7 +82,7 @@ defmodule Bonfire.Geolocate.MapLive do
   defp show_place_things(
          polygon,
          socket,
-        to_view
+         to_view
        ) do
     polygon = Enum.map(polygon, &Map.values(&1))
     polygon = Enum.map(polygon, &{List.first(&1), List.last(&1)})
@@ -91,6 +98,7 @@ defmodule Bonfire.Geolocate.MapLive do
     debug(geom: geom)
 
     fetch_place_things_fn = Map.get(socket.assigns, :fetch_place_things_fn, &fetch_place_things/2)
+
     debug(fetch_place_things_fn: fetch_place_things_fn)
 
     apply(fetch_place_things_fn, [[location_within: geom], socket])
@@ -98,53 +106,62 @@ defmodule Bonfire.Geolocate.MapLive do
   end
 
   defp mark_places(places, socket, to_view \\ false) when is_list(places) do
-
     markers = Bonfire.Geolocate.Geolocations.populate_coordinates(places)
     debug(marked_places: markers)
 
-    place = if (markers && length(markers)==1), do: hd(markers)
+    place = if markers && length(markers) == 1, do: hd(markers)
 
     # calculation map bounds
-    points = Enum.map(markers, &[
-      place_lat(&1),
-      place_long(&1)
-    ])
-    |> Enum.filter(fn [h,t] -> if(h && t && h !=0 && t !=0) do [h,t] end end)
+    points =
+      Enum.map(
+        markers,
+        &[
+          place_lat(&1),
+          place_long(&1)
+        ]
+      )
+      |> Enum.filter(fn [h, t] ->
+        if(h && t && h != 0 && t != 0) do
+          [h, t]
+        end
+      end)
 
     # debug(points: points)
 
     response(
-     assign(socket,
-       markers: markers,
-       points: points,
-       place: place
-     ), to_view)
+      assign(socket,
+        markers: markers,
+        points: points,
+        place: place
+      ),
+      to_view
+    )
   end
 
   defp mark_places(%{} = place, socket, to_view) do
     mark_places([place], socket, to_view)
   end
+
   defp mark_places(_, socket, to_view) do
     response(
-     socket, to_view)
+      socket,
+      to_view
+    )
   end
 
   def place_lat(place) do
-    Map.get(place, :lat) || (
+    Map.get(place, :lat) ||
       (Map.get(place, :geom) || %{})
-        |> Map.get(:coordinates, {0, 0})
-          |> elem(0)
-    )
+      |> Map.get(:coordinates, {0, 0})
+      |> elem(0)
   end
 
   def place_long(place) do
-    Map.get(place, :long) || (
+    Map.get(place, :long) ||
       (Map.get(place, :geom) || %{})
-        |> Map.get(:coordinates, {0, 0})
-          |> elem(1)
-    )
+      |> Map.get(:coordinates, {0, 0})
+      |> elem(1)
   end
-
 
   def response(socket, true) do
     {:noreply, socket}

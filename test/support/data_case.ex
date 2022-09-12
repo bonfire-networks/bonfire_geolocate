@@ -18,7 +18,6 @@ defmodule Bonfire.Geolocate.DataCase do
 
   using do
     quote do
-
       import Ecto
       import Ecto.Changeset
       import Ecto.Query
@@ -27,7 +26,6 @@ defmodule Bonfire.Geolocate.DataCase do
   end
 
   setup tags do
-
     import Bonfire.Common.Config, only: [repo: 0]
 
     Bonfire.Common.Test.Interactive.setup_test_repo(tags)

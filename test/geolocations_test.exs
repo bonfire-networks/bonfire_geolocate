@@ -19,6 +19,7 @@ defmodule Bonfire.Geolocate.GeolocationsTest do
       assert_geolocation(fetched)
       assert {:ok, fetched} = Geolocations.one(user: user)
       assert_geolocation(fetched)
+
       # assert {:ok, fetched} = Geolocations.one(username: geo.character.preferred_username)
       # assert_geolocation(fetched)
       assert {:ok, fetched} = Geolocations.one(context_id: context.id)
@@ -31,8 +32,7 @@ defmodule Bonfire.Geolocate.GeolocationsTest do
 
       assert {:ok, geo} = Geolocations.soft_delete(geo, user)
 
-      assert {:error, :not_found} =
-               Geolocations.one([:default, id: geo.id])
+      assert {:error, :not_found} = Geolocations.one([:default, id: geo.id])
     end
   end
 

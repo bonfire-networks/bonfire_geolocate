@@ -6,7 +6,6 @@
 
 #   ## mutations
 
-
 #   @doc """
 #   Set primary location of an object
 #   """
@@ -24,7 +23,6 @@
 #     cs = PrimaryGeolocation.changeset(object, attrs)
 #     with {:ok, item} <- repo().upsert(cs, attrs), do: {:ok, item}
 #   end
-
 
 #   def soft_delete(%{} = user, %PrimaryGeolocation{} = geo) do
 #     repo().transact_with(fn ->

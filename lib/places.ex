@@ -18,11 +18,9 @@ defmodule Bonfire.Geolocate.Places do
     end
   end
 
-
   def fetch_place_things(filters, socket) do
     with {:ok, things} <-
            Bonfire.Geolocate.Geolocations.many(filters) do
-
       things
     else
       _e ->
@@ -41,5 +39,4 @@ defmodule Bonfire.Geolocate.Places do
         nil
     end
   end
-
 end

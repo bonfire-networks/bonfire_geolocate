@@ -1,4 +1,3 @@
-
 defmodule Bonfire.Geolocate.Simulate do
   import Bonfire.Common.Simulation
 
@@ -6,7 +5,8 @@ defmodule Bonfire.Geolocate.Simulate do
 
   def address do
     # avoid using because fake addresses cannot be geocoded
-    Faker.Address.street_address() <> ", " <> Faker.Address.city() <> ", " <> Faker.Address.country()
+    Faker.Address.street_address() <>
+      ", " <> Faker.Address.city() <> ", " <> Faker.Address.country()
   end
 
   def mappable_address do
@@ -15,7 +15,8 @@ defmodule Bonfire.Geolocate.Simulate do
 
   def mappable_address do
     # avoid using because fake addresses cannot be geocoded
-    Faker.Address.street_address() <> Faker.Address.city() <> Faker.Address.country()
+    Faker.Address.street_address() <>
+      Faker.Address.city() <> Faker.Address.country()
   end
 
   def geolocation(base \\ %{}) do
@@ -26,6 +27,7 @@ defmodule Bonfire.Geolocate.Simulate do
     |> Map.put_new_lazy(:long, &Faker.Address.longitude/0)
     |> Map.put_new_lazy(:is_public, &truth/0)
     |> Map.put_new_lazy(:is_disabled, &falsehood/0)
+
     # |> Map.merge(character(base)) # FIXME
   end
 
@@ -47,6 +49,7 @@ defmodule Bonfire.Geolocate.Simulate do
 
   def fake_geolocation!(user, context, overrides) do
     {:ok, geolocation} = Geolocations.create(user, context, geolocation(overrides))
+
     geolocation
   end
 end

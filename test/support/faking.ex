@@ -29,7 +29,9 @@ defmodule Bonfire.Geolocate.Test.Faking do
   end
 
   def geolocation_mutation_fields(extra \\ []) do
-    [spatial_thing: extra ++ ~w(id name mappable_address lat long alt note geom)a]
+    [
+      spatial_thing: extra ++ ~w(id name mappable_address lat long alt note geom)a
+    ]
   end
 
   def geolocation_query(options \\ []) do
@@ -67,28 +69,41 @@ defmodule Bonfire.Geolocate.Test.Faking do
   end
 
   def create_geolocation_mutation(options \\ []) do
-    [spatial_thing: type!(:spatial_thing_create_params)]
-    |> gen_mutation(&create_geolocation_submutation/1, options)
+    gen_mutation(
+      [spatial_thing: type!(:spatial_thing_create_params)],
+      &create_geolocation_submutation/1,
+      options
+    )
   end
 
   def create_geolocation_submutation(options \\ []) do
-    [spatial_thing: var(:spatial_thing)]
-    |> gen_submutation(:create_spatial_thing, &geolocation_mutation_fields/1, options)
+    gen_submutation(
+      [spatial_thing: var(:spatial_thing)],
+      :create_spatial_thing,
+      &geolocation_mutation_fields/1,
+      options
+    )
   end
 
   def update_geolocation_mutation(options \\ []) do
-    [spatial_thing: type!(:spatial_thing_update_params)]
-    |> gen_mutation(&update_geolocation_submutation/1, options)
+    gen_mutation(
+      [spatial_thing: type!(:spatial_thing_update_params)],
+      &update_geolocation_submutation/1,
+      options
+    )
   end
 
   def update_geolocation_submutation(options \\ []) do
-    [spatial_thing: var(:spatial_thing)]
-    |> gen_submutation(:update_spatial_thing, &geolocation_mutation_fields/1, options)
+    gen_submutation(
+      [spatial_thing: var(:spatial_thing)],
+      :update_spatial_thing,
+      &geolocation_mutation_fields/1,
+      options
+    )
   end
 
   def delete_geolocation_mutation(options \\ []) do
-    [id: type!(:id)]
-    |> gen_mutation(&delete_geolocation_submutation/1, options)
+    gen_mutation([id: type!(:id)], &delete_geolocation_submutation/1, options)
   end
 
   def delete_geolocation_submutation(_options \\ []) do

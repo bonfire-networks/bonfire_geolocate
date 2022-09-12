@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.Queries do
   alias Bonfire.Geolocate.Geolocation
+
   # alias Geolocate.Geolocations
   # alias CommonsPub.Follows.{Follow, FollowerCount}
   # @user CommonsPub.Users.User
@@ -10,7 +11,8 @@ defmodule Bonfire.Geolocate.Queries do
   import Geo.PostGIS
 
   def query(Geolocation) do
-    from(c in Geolocation, as: :geolocation) # FIXME: join: a in assoc(c, :character), as: :character)
+    # FIXME: join: a in assoc(c, :character), as: :character)
+    from(c in Geolocation, as: :geolocation)
   end
 
   def query(:count) do
@@ -60,9 +62,7 @@ defmodule Bonfire.Geolocate.Queries do
   #     as: :follower_count
   #   )
   # end
-
   ### filter/2
-
   ## by many
 
   def filter(q, filters) when is_list(filters) do
@@ -73,18 +73,17 @@ defmodule Bonfire.Geolocate.Queries do
 
   def filter(q, :default) do
     filter(q, [:deleted])
+
     # FIXME: filter(q, [:deleted, preload: :character])
   end
 
   ## by join
 
+  ## by user
   def filter(q, {:join, {join, qual}}), do: join_to(q, join, qual)
   def filter(q, {:join, join}), do: join_to(q, join)
 
-  ## by user
-
   def filter(q, {:user, match_admin()}), do: q
-
   def filter(q, {:user, nil}), do: filter(q, ~w(disabled private))
 
   # FIXME
@@ -104,13 +103,15 @@ defmodule Bonfire.Geolocate.Queries do
   # by GPS coords
 
   def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
-    q
-    |> where([geolocation: g], st_dwithin_in_meters(g.geom, ^geom_point, ^meters))
+    where(
+      q,
+      [geolocation: g],
+      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
+    )
   end
 
   def filter(q, {:location_within, geom_point}) do
-    q
-    |> where([geolocation: g], st_within(g.geom, ^geom_point))
+    where(q, [geolocation: g], st_within(g.geom, ^geom_point))
   end
 
   ## by status
@@ -164,7 +165,13 @@ defmodule Bonfire.Geolocate.Queries do
   end
 
   def filter(q, {:autocomplete, text}) when is_binary(text) do
-    where(q, [geolocation: c], ilike(c.name, ^"#{text}%") or ilike(c.name, ^"% #{text}%") or ilike(c.mappable_address, ^"#{text}%") or ilike(c.mappable_address, ^"% #{text}%"))
+    where(
+      q,
+      [geolocation: c],
+      ilike(c.name, ^"#{text}%") or ilike(c.name, ^"% #{text}%") or
+        ilike(c.mappable_address, ^"#{text}%") or
+        ilike(c.mappable_address, ^"% #{text}%")
+    )
   end
 
   # def filter(q, {:username, username}) when is_binary(username) do
@@ -174,7 +181,6 @@ defmodule Bonfire.Geolocate.Queries do
   # def filter(q, {:username, usernames}) when is_list(usernames) do
   #   where(q, [character: a], a.preferred_username in ^usernames)
   # end
-
   ## by ordering
 
   def filter(q, {:order, :followers_desc}) do
@@ -206,7 +212,6 @@ defmodule Bonfire.Geolocate.Queries do
   # def filter(q, {:preload, :character}) do
   #   preload(q, [character: a], character: a)
   # end
-
   # pagination
 
   def filter(q, {:limit, limit}) do

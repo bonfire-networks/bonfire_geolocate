@@ -17,8 +17,6 @@ defmodule Bonfire.Geolocate.ConnCase do
 
   use ExUnit.CaseTemplate
 
-
-
   using do
     quote do
       # Import conveniences for testing with connections
@@ -37,12 +35,10 @@ defmodule Bonfire.Geolocate.ConnCase do
   end
 
   setup tags do
-
     import Bonfire.Common.Config, only: [repo: 0]
 
     Bonfire.Common.Test.Interactive.setup_test_repo(tags)
 
     {:ok, []}
   end
-
 end

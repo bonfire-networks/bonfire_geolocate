@@ -38,25 +38,41 @@ defmodule Bonfire.Geolocate.Geolocations do
   Used by:
   * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
-  def many(filters \\ []), do: {:ok, repo().many(Queries.query(Geolocation, filters))}
+  def many(filters \\ []),
+    do: {:ok, repo().many(Queries.query(Geolocation, filters))}
+
   def many!(filters \\ []), do: repo().many(Queries.query(Geolocation, filters))
 
   def search(search) do
-    maybe_apply(Bonfire.Search, :search_by_type, [search, @search_type], &none/2) || many!(autocomplete: search)
+    maybe_apply(
+      Bonfire.Search,
+      :search_by_type,
+      [search, @search_type],
+      &none/2
+    ) || many!(autocomplete: search)
   end
+
   defp none(_, _), do: nil
 
   ## mutations
 
   @spec create(any(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def create(creator, %{} = context, attrs) when is_map(attrs) do # TODO deprecate in favour of create/2
+  # TODO deprecate in favour of create/2
+  def create(creator, %{} = context, attrs) when is_map(attrs) do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, context, attrs) do
-        maybe_apply(Bonfire.Social.Objects, :publish, [creator, :create, item, attrs, __MODULE__])
+        maybe_apply(Bonfire.Social.Objects, :publish, [
+          creator,
+          :create,
+          item,
+          attrs,
+          __MODULE__
+        ])
+
         maybe_index(item)
-        {:ok, populate_result(item)} |> debug()
+        debug({:ok, populate_result(item)})
       end
     end)
   end
@@ -65,14 +81,23 @@ defmodule Bonfire.Geolocate.Geolocations do
     create(creator, attrs)
   end
 
-  @spec create(any(), attrs :: map) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  @spec create(any(), attrs :: map) ::
+          {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(creator, attrs) when is_map(attrs) do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
            {:ok, item} <- insert_geolocation(creator, attrs) do
-        maybe_apply(Bonfire.Social.Objects, :publish, [creator, :create, item, attrs, __MODULE__]) # FIXME: use publishing logic in from a different repo
+        # FIXME: use publishing logic in from a different repo
+        maybe_apply(Bonfire.Social.Objects, :publish, [
+          creator,
+          :create,
+          item,
+          attrs,
+          __MODULE__
+        ])
+
         maybe_index(item)
-        {:ok, populate_result(item)} |> debug()
+        debug({:ok, populate_result(item)})
       end
     end)
   end
@@ -90,31 +115,35 @@ defmodule Bonfire.Geolocate.Geolocations do
     with {:ok, item} <- repo().insert(cs), do: {:ok, item}
   end
 
-  def thing_add_location(user, thing, mappable_address) when is_binary(mappable_address) do
-    with {:ok, geolocation} <- create(user, %{name: mappable_address, mappable_address: mappable_address}) do
+  def thing_add_location(user, thing, mappable_address)
+      when is_binary(mappable_address) do
+    with {:ok, geolocation} <-
+           create(user, %{
+             name: mappable_address,
+             mappable_address: mappable_address
+           }) do
       maybe_apply(Bonfire.Tag.Tags, :tag_something, [user, thing, geolocation])
     end
   end
 
-
   @spec update(any(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(user, %Geolocation{} = geolocation, attrs) do
+    # FIXME :ok <- ap_publish("update", item.id, user.id)
     with {:ok, attrs} <- resolve_mappable_address(attrs),
-         {:ok, item} <- repo().update(Geolocation.update_changeset(geolocation, attrs))
-        # FIXME :ok <- ap_publish("update", item.id, user.id)
-         do
+         {:ok, item} <-
+           repo().update(Geolocation.update_changeset(geolocation, attrs)) do
       maybe_index(item)
       {:ok, populate_coordinates(item)}
     end
   end
 
-  @spec soft_delete(Geolocation.t(), any()) :: {:ok, Geolocation.t()} | {:error, Changeset.t()}
+  @spec soft_delete(Geolocation.t(), any()) ::
+          {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def soft_delete(%Geolocation{} = geo, _opts) do
     repo().transact_with(fn ->
-      with {:ok, geo} <- Bonfire.Common.Repo.Delete.soft_delete(geo)
-          # FIXME :ok <- ap_publish("delete", geo.id, user.id)
-           do
+      # FIXME :ok <- ap_publish("delete", geo.id, user.id)
+      with {:ok, geo} <- Bonfire.Common.Repo.Delete.soft_delete(geo) do
         {:ok, geo}
       end
     end)
@@ -133,12 +162,14 @@ defmodule Bonfire.Geolocate.Geolocations do
     Map.merge(object, %{lat: lat, long: long})
   end
 
-  def populate_coordinates(geo), do: (geo || %{}) #|> debug("could not find coords")
+  # |> debug("could not find coords")
+  def populate_coordinates(geo), do: geo || %{}
 
-  def resolve_mappable_address(%{mappable_address: address} = attrs) when is_binary(address) do
+  def resolve_mappable_address(%{mappable_address: address} = attrs)
+      when is_binary(address) do
     with {:ok, coords} <- Bonfire.Geolocate.Geocode.coordinates(address) do
-      #debug(attrs)
-      #debug(coords)
+      # debug(attrs)
+      # debug(coords)
       # TODO: should take bounds and save in `geom`
       {:ok, Map.put(Map.put(attrs, :lat, coords.lat), :long, coords.lon)}
     else
@@ -149,7 +180,6 @@ defmodule Bonfire.Geolocate.Geolocations do
   def resolve_mappable_address(attrs), do: {:ok, attrs}
 
   def indexing_object_format(u) do
-
     # debug(obj)
 
     %{
@@ -159,25 +189,38 @@ defmodule Bonfire.Geolocate.Geolocations do
       "name" => e(u, :name, ""),
       "note" => e(u, :note, ""),
       "mappable_address" => e(u, :mappable_address, "")
-    } #|> IO.inspect
+    }
+
+    # |> IO.inspect
   end
 
   # TODO: less boilerplate
   def maybe_index(object) when is_struct(object) do
     object |> indexing_object_format() |> maybe_index()
   end
+
   def maybe_index(object) when is_map(object) do
     maybe_apply(Bonfire.Search.Indexer, :maybe_index_object, object, &none/2)
   end
+
   def maybe_index(other), do: other
 
-
   def ap_publish_activity(activity_name, thing) do
-    ValueFlows.Util.Federation.ap_publish_activity(activity_name, :spatial_thing, thing, 2, [
-    ])
+    ValueFlows.Util.Federation.ap_publish_activity(
+      activity_name,
+      :spatial_thing,
+      thing,
+      2,
+      []
+    )
   end
 
   def ap_receive_activity(creator, activity, object) do
-    ValueFlows.Util.Federation.ap_receive_activity(creator, activity, object, &create/2)
+    ValueFlows.Util.Federation.ap_receive_activity(
+      creator,
+      activity,
+      object,
+      &create/2
+    )
   end
 end
