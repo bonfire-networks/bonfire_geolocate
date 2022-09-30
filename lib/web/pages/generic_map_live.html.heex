@@ -1,3 +1,8 @@
+<div class="flex items-center flex-1 p-3 space-x-2 text-left border-b  ">
+  <Bonfire.UI.Common.BackButtonLive.render showing_within={@showing_within} __context__={%{}} />
+  <h1 class="text-xs text-base-content opacity-80 uppercase  font-regular">Map</h1>
+</div>
+
 <%= live_component(
   @socket,
   Bonfire.Geolocate.MapLive,

@@ -22,7 +22,8 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
        socket,
        page_title: "Map",
        page: "map",
-       selected_tab: "map"
+       selected_tab: "map",
+       showing_within: :map
 
        # places: fetch_places(socket),
      )}
