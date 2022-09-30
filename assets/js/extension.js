@@ -3,6 +3,7 @@ let use_vector = false;
 import L from "leaflet";
 import "mapbox-gl";
 import "mapbox-gl-leaflet";
+import "leaflet.locatecontrol";
 import "./leaflet-marker";
 import "./leaflet-icon";
 
@@ -18,10 +19,11 @@ GeolocateHooks.MapLeaflet = {
         const template = document.createElement("template");
         // Warning: remember to update the stylesheet version at the same time as the JS
         template.innerHTML = `
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" crossorigin=""/>
-    <div style="height: 100%; min-height: 420px;">
-        <slot />
-    </div>`;
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.1/dist/leaflet.css" crossorigin=""/>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.min.css" />
+        <div style="height: 100%; min-height: 420px;">
+            <slot />
+        </div>`;
 
         const maybe_map_moved = function (e) {
           var bounds = createPolygonFromBounds(e.target, e.target.getBounds());
@@ -53,6 +55,12 @@ GeolocateHooks.MapLeaflet = {
           return new L.polygon(latlngs);
         };
 
+        const onLocationFound = function (e) {
+          console.log("You are within " + e.accuracy + " meters from this point" + e.latlng);
+
+          view.pushEvent("curent_location", {location: e.latlng, accuracy: e.accuracy});
+        }
+
         class LeafletMap extends HTMLElement {
           constructor() {
             super();
@@ -61,13 +69,25 @@ GeolocateHooks.MapLeaflet = {
             this.shadowRoot.appendChild(template.content.cloneNode(true));
             this.mapElement = this.shadowRoot.querySelector("div");
 
-            var bounds = new L.LatLngBounds(
-              JSON.parse(this.getAttribute("points"))
-            );
-            console.log(this.getAttribute("points"))
-            console.log(bounds)
+            var points = this.getAttribute("points")
+            console.log(points)
 
-            this.map = L.map(this.mapElement).fitBounds(bounds);
+            if (points != undefined && points != "[]") {
+              var bounds = new L.LatLngBounds(
+                JSON.parse(points)
+              );
+              console.log(bounds)
+
+              this.map = L.map(this.mapElement).fitBounds(bounds);
+
+            } else {
+              this.map = L.map(this.mapElement).locate({ setView: true});
+            }
+
+            // adds https://github.com/domoritz/leaflet-locatecontrol
+            L.control.locate({ setView: 'untilPan', flyTo: true }).addTo(this.map);
+
+            this.map.on('locationfound', onLocationFound);
 
             // this.map = L.map(this.mapElement).setView(
             //   [this.getAttribute("lat"), this.getAttribute("lng")],
@@ -179,7 +199,11 @@ GeolocateHooks.MapLeaflet = {
           }
         }
 
-        window.customElements.define("leaflet-map", LeafletMap);
+        if (window.customElements.get("leaflet-map")){
+          console.log("leaftlet already defined")
+        } else {
+          window.customElements.define("leaflet-map", LeafletMap);
+        }
 
       } else {
         console.log("Skipping map initialisation because no mapbox_api_key is available")
