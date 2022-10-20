@@ -1,4 +1,6 @@
 defmodule Bonfire.Geolocate.Web.Routes do
+  def declare_routes, do: "map"
+
   defmacro __using__(_) do
     quote do
       # pages anyone can view
