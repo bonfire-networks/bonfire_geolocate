@@ -104,9 +104,9 @@ defmodule Bonfire.Geolocate.Geolocation do
     end
   end
 
+  @behaviour Bonfire.Common.SchemaModule
   def context_module, do: Bonfire.Geolocate.Geolocations
-
-  def queries_module, do: Bonfire.Geolocate.Queries
+  def query_module, do: Bonfire.Geolocate.Queries
 
   def follow_filters, do: []
 end
