@@ -13,7 +13,6 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   # alias CommonsPub.Characters
   # alias CommonsPub.Feeds.FeedActivities
-  # alias CommonsPub.Workers.APPublishWorker
   # alias CommonsPub.Activities
   # alias CommonsPub.Feeds
 
@@ -129,7 +128,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   @spec update(any(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def update(user, %Geolocation{} = geolocation, attrs) do
-    # FIXME :ok <- ap_publish("update", item.id, user.id)
+    # FIXME :ok <- ap_publish(user, :update, item)
     with {:ok, attrs} <- resolve_mappable_address(attrs),
          {:ok, item} <-
            repo().update(Geolocation.update_changeset(geolocation, attrs)) do
@@ -142,7 +141,7 @@ defmodule Bonfire.Geolocate.Geolocations do
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def soft_delete(%Geolocation{} = geo, _opts) do
     repo().transact_with(fn ->
-      # FIXME :ok <- ap_publish("delete", geo.id, user.id)
+      # FIXME :ok <- ap_publish(user, :delete, geo)
       with {:ok, geo} <- Bonfire.Common.Repo.Delete.soft_delete(geo) do
         {:ok, geo}
       end
