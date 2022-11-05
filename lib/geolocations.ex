@@ -204,8 +204,9 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def maybe_index(other), do: other
 
-  def ap_publish_activity(activity_name, thing) do
+  def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
+      subject,
       activity_name,
       :spatial_thing,
       thing,
