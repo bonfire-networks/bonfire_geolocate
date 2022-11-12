@@ -184,7 +184,7 @@ defmodule Bonfire.Geolocate.Geolocations do
     %{
       "id" => u.id,
       "index_type" => @search_type,
-      # "url" => url(obj),
+      # "url" => url_path(obj),
       "name" => e(u, :name, ""),
       "note" => e(u, :note, ""),
       "mappable_address" => e(u, :mappable_address, "")
