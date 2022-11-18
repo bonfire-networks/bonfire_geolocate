@@ -11,7 +11,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
       {:noreply,
        redirect_to(
          socket,
-         e(attrs, "redirect_after", "/geolocation") <> "/" <> geolocation.id
+         e(attrs, "redirect_after", ~p"/geolocation") <> "/" <> geolocation.id
        )}
     end
   end
