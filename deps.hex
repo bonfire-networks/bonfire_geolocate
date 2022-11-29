@@ -2,8 +2,8 @@ faker = "~> 0.14" # fake data generation
 jason = "~> 1.0"
 pointers_ulid = "~> 0.2"
 pointers = "~> 0.5.1"
-telemetry_metrics = "~> 0.4"
-telemetry_poller = "~> 0.4"
+telemetry_metrics = "~> 0.6.1"
+telemetry_poller = "~> 1.0.0"
 # for this extension:
 geocoder = "~> 1.1.2"
 geo_postgis = "~> 3.1"
