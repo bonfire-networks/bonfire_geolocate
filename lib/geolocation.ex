@@ -58,7 +58,7 @@ defmodule Bonfire.Geolocate.Geolocation do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: Bonfire.Common.Utils.maybe_get(creator, :id),
+      creator_id: Bonfire.Common.Enums.maybe_get(creator, :id),
       context_id: context.id,
       is_public: true
     )
@@ -73,7 +73,7 @@ defmodule Bonfire.Geolocate.Geolocation do
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: Bonfire.Common.Utils.maybe_get(creator, :id),
+      creator_id: Bonfire.Common.Enums.maybe_get(creator, :id),
       is_public: true
     )
     |> common_changeset()
