@@ -1,4 +1,5 @@
 defmodule Bonfire.Geolocate.Migrations do
+  @moduledoc false
   use Ecto.Migration
   # alias CommonsPub.Repo
   # alias Pointers.ULID
