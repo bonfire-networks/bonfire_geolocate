@@ -251,7 +251,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       if Bonfire.Geolocate.is_admin?(user) or geo.creator_id == user.id do
         :ok
       else
-        GraphQL.not_permitted("update")
+        GraphQL.not_permitted("to update this")
       end
     end
 
@@ -268,7 +268,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
       if Bonfire.Geolocate.is_admin?(user) or geo.creator_id == user.id do
         :ok
       else
-        GraphQL.not_permitted("delete")
+        GraphQL.not_permitted("to delete this")
       end
     end
   end
