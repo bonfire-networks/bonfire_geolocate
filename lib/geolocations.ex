@@ -61,7 +61,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   def create(creator, %{} = context, attrs) when is_map(attrs) do
     repo().transact_with(fn ->
       with {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item} <- insert_geolocation(creator, context, attrs) do
+           {:ok, item} <- insert_geolocation(creator, attrs, context: context) do
         maybe_apply(Bonfire.Social.Objects, :publish, [
           creator,
           :create,
@@ -77,7 +77,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   rescue
     e in Postgrex.QueryError ->
       error(e, "!!! Error saving the geo coordinate in DB")
-      insert_geolocation(creator, context, attrs)
+      insert_geolocation(creator, attrs, context: context, skip_geom: true)
   end
 
   def create(creator, _, attrs) when is_map(attrs) do
@@ -106,19 +106,14 @@ defmodule Bonfire.Geolocate.Geolocations do
   rescue
     e in Postgrex.QueryError ->
       error(e, "!!! Error saving the geo coordinate in DB")
-      insert_geolocation(creator, attrs)
+
+      attrs
+      |> debug()
+      |> insert_geolocation(creator, ..., skip_geom: true)
   end
 
-  defp insert_geolocation(creator, context, attrs) do
-    cs = Geolocation.create_changeset(creator, context, attrs)
-
-    with {:ok, item} <- repo().insert(cs) do
-      {:ok, %{item | context: context}}
-    end
-  end
-
-  defp insert_geolocation(creator, attrs) do
-    cs = Geolocation.create_changeset(creator, attrs)
+  defp insert_geolocation(creator, attrs, opts \\ []) do
+    cs = Geolocation.create_changeset(creator, attrs, opts)
     with {:ok, item} <- repo().insert(cs), do: {:ok, item}
   end
 

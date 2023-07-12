@@ -16,6 +16,8 @@ defmodule Bonfire.Geolocate.Geolocation do
     field(:name, :string)
 
     field(:geom, Geo.PostGIS.Geometry)
+    # field(:geom, :map, virtual: true)
+
     # altitude
     field(:alt, :float)
     field(:mappable_address, :string)
@@ -47,41 +49,30 @@ defmodule Bonfire.Geolocate.Geolocation do
   @postgis_srid 4326
 
   @required ~w(name)a
-  @cast @required ++ ~w(note mappable_address lat long geom alt is_disabled)a
+  @cast_fallback @required ++ ~w(note mappable_address lat long alt is_disabled)a
+  @cast @cast_fallback ++ ~w(geom)a
 
   def create_changeset(
         creator,
-        %{id: _} = context,
-        attrs
+        attrs,
+        opts \\ []
       ) do
     %__MODULE__{}
     |> Changeset.cast(attrs, @cast)
     |> Changeset.validate_required(@required)
     |> Changeset.change(
-      creator_id: Bonfire.Common.Enums.maybe_get(creator, :id),
-      context_id: context.id,
+      creator_id: Bonfire.Common.Enums.id(creator),
+      context_id: Bonfire.Common.Enums.id(opts[:context]),
       is_public: true
     )
-    |> common_changeset()
-  end
-
-  def create_changeset(
-        creator,
-        attrs
-      ) do
-    %__MODULE__{}
-    |> Changeset.cast(attrs, @cast)
-    |> Changeset.validate_required(@required)
-    |> Changeset.change(
-      creator_id: Bonfire.Common.Enums.maybe_get(creator, :id),
-      is_public: true
-    )
+    |> validate_coordinates(opts[:skip_geom])
     |> common_changeset()
   end
 
   def update_changeset(%__MODULE__{} = geolocation, attrs) do
     geolocation
     |> Changeset.cast(attrs, @cast)
+    |> validate_coordinates()
     |> common_changeset()
   end
 
@@ -89,14 +80,13 @@ defmodule Bonfire.Geolocate.Geolocation do
     changeset
     |> change_public()
     |> change_disabled()
-    |> validate_coordinates()
   end
 
-  defp validate_coordinates(changeset) do
+  defp validate_coordinates(changeset, skip_geom? \\ false) do
     lat = Changeset.get_change(changeset, :lat)
     long = Changeset.get_change(changeset, :long)
 
-    if not (is_nil(lat) or is_nil(long)) do
+    if !skip_geom? and not (is_nil(lat) or is_nil(long)) do
       geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
       Changeset.change(changeset, geom: geom)
     else
