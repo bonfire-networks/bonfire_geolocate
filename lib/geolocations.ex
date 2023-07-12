@@ -74,6 +74,10 @@ defmodule Bonfire.Geolocate.Geolocations do
         debug({:ok, populate_result(item)})
       end
     end)
+  rescue
+    e in Postgrex.QueryError ->
+      error(e, "!!! Error saving the geo coordinate in DB")
+      insert_geolocation(creator, context, attrs)
   end
 
   def create(creator, _, attrs) when is_map(attrs) do
@@ -99,6 +103,10 @@ defmodule Bonfire.Geolocate.Geolocations do
         debug({:ok, populate_result(item)})
       end
     end)
+  rescue
+    e in Postgrex.QueryError ->
+      error(e, "!!! Error saving the geo coordinate in DB")
+      insert_geolocation(creator, attrs)
   end
 
   defp insert_geolocation(creator, context, attrs) do
