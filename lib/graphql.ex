@@ -248,7 +248,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     def ensure_update_allowed(user, geo) do
-      if Bonfire.Geolocate.is_admin?(user) or geo.creator_id == user.id do
+      if maybe_apply(Bonfire.Me.Accounts, :is_admin?, user) == true or geo.creator_id == user.id do
         :ok
       else
         GraphQL.not_permitted("to update this")
@@ -265,7 +265,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     end
 
     def ensure_delete_allowed(user, geo) do
-      if Bonfire.Geolocate.is_admin?(user) or geo.creator_id == user.id do
+      if maybe_apply(Bonfire.Me.Accounts, :is_admin?, user) == true or geo.creator_id == user.id do
         :ok
       else
         GraphQL.not_permitted("to delete this")
