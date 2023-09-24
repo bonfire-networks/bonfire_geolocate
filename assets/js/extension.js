@@ -58,7 +58,7 @@ GeolocateHooks.MapLeaflet = {
         const onLocationFound = function (e) {
           console.log("You are within " + e.accuracy + " meters from this point" + e.latlng);
 
-          view.pushEvent("curent_location", {location: e.latlng, accuracy: e.accuracy});
+          view.pushEvent("current_location", {location: e.latlng, accuracy: e.accuracy});
         }
 
         class LeafletMap extends HTMLElement {

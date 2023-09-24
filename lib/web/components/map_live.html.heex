@@ -1,14 +1,14 @@
 <main class="">
   <%= if @place do %>
     <%= # show a widget with details about the place, if one is selected
-    if Code.ensure_loaded?(CommonsPub.Web.Component.PreviewLive),
+    if Code.ensure_loaded?(Bonfire.UI.Social.ActivityLive),
       do:
         live_component(
           @socket,
-          CommonsPub.Web.Component.PreviewLive,
+          Bonfire.UI.Social.ActivityLive,
           object: @place,
-          object_type: "geolocation",
-          preview_id: e(@place, :id, "unknown")
+          # object_type: "geolocation",
+          id: e(@place, :id, "unknown-place")
         ) %>
   <% end %>
 
@@ -29,7 +29,7 @@
               popup={e(marker, :name, "")}
             >
               <leaflet-icon
-                icon-url={map_icon(e(marker, :is_disabled, false))}
+                icon-url={Bonfire.Geolocate.MapLive.map_icon(e(marker, :is_disabled, false))}
                 width="64"
                 height="64"
               >

@@ -18,10 +18,16 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
      )}
   end
 
-  # proxy relevent events to the map component # FIXME
+  # proxy relevent events to the map component 
   def do_handle_event("map_" <> _action = event, params, socket) do
-    debug(proxy_event: event)
-    debug(proxy_params: params)
+    debug(event, "event")
+    debug(params, "params")
+    Bonfire.Geolocate.MapLive.handle_event(event, params, socket, true)
+  end
+
+  def do_handle_event(event, params, socket) do
+    debug(event, "event")
+    debug(params, "params")
     Bonfire.Geolocate.MapLive.handle_event(event, params, socket, true)
   end
 

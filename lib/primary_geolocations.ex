@@ -2,6 +2,8 @@
 # defmodule Bonfire.Geolocate.PrimaryGeolocations do
 #   import Bonfire.Common.Config, only: [repo: 0]
 
+# TODO: for adding primary location of a user, etc?
+
 #   alias Bonfire.Geolocate.PrimaryGeolocation
 
 #   ## mutations

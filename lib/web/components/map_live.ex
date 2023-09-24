@@ -4,6 +4,8 @@ defmodule Bonfire.Geolocate.MapLive do
 
   @postgis_srid 4326
 
+  # attr :place, :any, default: nil
+
   def update(%{id: id} = assigns, socket) when is_binary(id) do
     show_place_things(id, assign(socket, assigns))
   end
@@ -17,7 +19,8 @@ defmodule Bonfire.Geolocate.MapLive do
   def update(%{markers: markers} = assigns, socket)
       when is_list(markers) and length(markers) > 0 do
     response(
-      assign(socket, assigns),
+      assign_defaults(socket)
+      |> assign(assigns),
       false
     )
   end
@@ -50,6 +53,17 @@ defmodule Bonfire.Geolocate.MapLive do
     debug(bounds: polygon)
 
     show_place_things(Enum.at(polygon, 0), socket, to_view)
+  end
+
+  def do_handle_event(
+        "current_location",
+        polygon,
+        socket,
+        to_view
+      ) do
+    warn("TODO: handle current_location")
+
+    response(socket, to_view)
   end
 
   # def do_handle_event("map_toggle_marker", %{"id" => id} = _params, socket, to_view ) do
@@ -107,7 +121,7 @@ defmodule Bonfire.Geolocate.MapLive do
 
   defp mark_places(places, socket, to_view \\ false) when is_list(places) do
     markers = Bonfire.Geolocate.Geolocations.populate_coordinates(places)
-    debug(marked_places: markers)
+    debug(markers, "marked_places")
 
     place = if markers && length(markers) == 1, do: hd(markers)
 
@@ -144,9 +158,16 @@ defmodule Bonfire.Geolocate.MapLive do
 
   defp mark_places(_, socket, to_view) do
     response(
-      socket,
+      assign_defaults(socket),
       to_view
     )
+  end
+
+  defp assign_defaults(socket) do
+    socket
+    |> assign_new(:place, fn -> nil end)
+    |> assign_new(:points, fn -> [] end)
+    |> assign_new(:markers, fn -> [] end)
   end
 
   def place_lat(place) do

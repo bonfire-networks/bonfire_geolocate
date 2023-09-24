@@ -93,7 +93,8 @@ defmodule Bonfire.Geolocate.Geolocations do
         # FIXME: use publishing logic in from a different repo
         maybe_apply(Bonfire.Social.Objects, :publish, [
           creator,
-          :create,
+          # :create, 
+          nil,
           item,
           attrs,
           __MODULE__
@@ -113,6 +114,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   defp insert_geolocation(creator, attrs, opts \\ []) do
+    # TODO: should the mappable_address field be unique?
     cs = Geolocation.create_changeset(creator, attrs, opts)
     with {:ok, item} <- repo().insert(cs), do: {:ok, item}
   end
