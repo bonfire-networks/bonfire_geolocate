@@ -14,7 +14,10 @@ GeolocateHooks.MapLeaflet = {
     const view = this;
 
     if (window.Gon !== undefined) {
-      let mapbox_token = window.Gon.getAsset("mapbox_api_key"); // requires phoenix_gon to be set up to load config into the view
+      // note: requires phoenix_gon to be set up to load config into the view
+      let mapbox_token = window.Gon.getAsset("mapbox_api_key"); 
+      // let protomaps_token = window.Gon.getAsset("protomaps_api_key"); // TODO: integrate https://app.protomaps.com
+      
       if (mapbox_token && mapbox_token != "") {
         const template = document.createElement("template");
         // Warning: remember to update the stylesheet version at the same time as the JS
