@@ -5,3 +5,4 @@ telemetry_poller = "~> 1.0.0"
 # for this extension:
 geocoder = "~> 1.1.2"
 geo_postgis = "~> 3.1"
+astro = "~> 1.0"
