@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.Geolocation do
-  use Pointers.Pointable,
+  use Needle.Pointable,
     otp_app: :bonfire_geolocate,
     source: "bonfire_geolocate_geolocation",
     table_id: "2P1ACEW1THGE0010CAT10NMARK"
@@ -7,7 +7,7 @@ defmodule Bonfire.Geolocate.Geolocation do
   import Bonfire.Common.Repo.Utils, only: [change_public: 1, change_disabled: 1]
 
   alias Ecto.Changeset
-  alias Pointers.Pointer
+  alias Needle.Pointer
   @user Application.compile_env!(:bonfire, :user_schema)
 
   @type t :: %__MODULE__{}

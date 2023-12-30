@@ -2,13 +2,13 @@
 #   @moduledoc """
 #   A mixin for objects (eg profile, post, organisation) to define their main location
 #   """
-#   use Pointers.Mixin,
+#   use Needle.Mixin,
 #     otp_app: :bonfire_geolocate,
 #     source: "bonfire_geolocate_primary_geolocation"
 
 #   alias Bonfire.Geolocate.PrimaryGeolocation
 #   alias Ecto.Changeset
-#   alias Pointers.Pointer
+#   alias Needle.Pointer
 
 #   mixin_schema do
 #     belongs_to :geolocation, Bonfire.Geolocate.Geolocation
@@ -27,16 +27,16 @@
 
 # defmodule Bonfire.Geolocate.PrimaryGeolocation.Migration do
 #   use Ecto.Migration
-#   import Pointers.Migration
+#   import Needle.Migration
 #   alias Bonfire.Geolocate.PrimaryGeolocation
 
 #   # create_primary_geolocation_table/{0, 1}
 
 #   defp make_primary_geolocation_table(exprs) do
 #     quote do
-#       require Pointers.Migration
-#       Pointers.Migration.create_mixin_table(Bonfire.Geolocate.PrimaryGeolocation) do
-#         Ecto.Migration.add :geolocation_id, Pointers.Migration.strong_pointer(Bonfire.Geolocate.Geolocation)
+#       require Needle.Migration
+#       Needle.Migration.create_mixin_table(Bonfire.Geolocate.PrimaryGeolocation) do
+#         Ecto.Migration.add :geolocation_id, Needle.Migration.strong_pointer(Bonfire.Geolocate.Geolocation)
 #         unquote_splicing(exprs)
 #       end
 #     end

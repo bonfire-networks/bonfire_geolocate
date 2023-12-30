@@ -2,8 +2,8 @@ defmodule Bonfire.Geolocate.Migrations do
   @moduledoc false
   use Ecto.Migration
   # alias CommonsPub.Repo
-  # alias Pointers.ULID
-  import Pointers.Migration
+  # alias Needle.ULID
+  import Needle.Migration
 
   @user Application.compile_env!(:bonfire, :user_schema)
   # def users_table(), do: @user.__schema__(:source)
