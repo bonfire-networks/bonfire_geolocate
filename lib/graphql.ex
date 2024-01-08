@@ -5,8 +5,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL) do
     import Untangle
 
     import Bonfire.Common.Config, only: [repo: 0]
-
-    #
+    import Bonfire.Common.Utils
 
     alias Bonfire.API.GraphQL
 
