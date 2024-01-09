@@ -16,8 +16,6 @@ defmodule Bonfire.Geolocate.Geolocations do
   # alias CommonsPub.Activities
   # alias CommonsPub.Feeds
 
-  @search_type "Bonfire.Geolocate.Geolocation"
-
   @behaviour Bonfire.Federate.ActivityPub.FederationModules
   def federation_module, do: ["Place", "SpatialThing"]
 
@@ -43,16 +41,16 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def many!(filters \\ []), do: repo().many(Queries.query(Geolocation, filters))
 
-  def search(search) do
+  def search(search, opts \\ []) do
     maybe_apply(
       Bonfire.Search,
       :search_by_type,
-      [search, @search_type],
+      [search, Geolocation, opts],
       &none/2
     ) || many!(autocomplete: search)
   end
 
-  defp none(_, _), do: nil
+  defp none(_, _), do: []
 
   ## mutations
 
@@ -189,7 +187,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
     %{
       "id" => u.id,
-      "index_type" => @search_type,
+      "index_type" => Types.module_to_str(Geolocation),
       # "url" => url_path(obj),
       "name" => e(u, :name, ""),
       "note" => e(u, :note, ""),
