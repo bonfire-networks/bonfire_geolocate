@@ -1,4 +1,4 @@
-defmodule Bonfire.Repo.Migrations.ImportGeolocation  do
+defmodule Bonfire.Repo.Migrations.ImportGeolocation do
   @moduledoc false
   use Ecto.Migration
 
