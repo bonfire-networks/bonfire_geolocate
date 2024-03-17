@@ -34,6 +34,18 @@ defmodule Bonfire.Geolocate.MapLive do
   end
 
   def handle_event(
+        event,
+        params,
+        socket
+      ) do
+    do_handle_event(
+      event,
+      params,
+      socket
+    )
+  end
+
+  def do_handle_event(
         "map_marker_click",
         %{"id" => id} = _params,
         socket,
@@ -44,7 +56,7 @@ defmodule Bonfire.Geolocate.MapLive do
     show_place_things(id, socket, to_view)
   end
 
-  def handle_event(
+  def do_handle_event(
         "map_bounds",
         polygon,
         socket,
@@ -55,7 +67,7 @@ defmodule Bonfire.Geolocate.MapLive do
     show_place_things(Enum.at(polygon, 0), socket, to_view)
   end
 
-  def handle_event(
+  def do_handle_event(
         "current_location",
         polygon,
         socket,
@@ -66,7 +78,7 @@ defmodule Bonfire.Geolocate.MapLive do
     response(socket, to_view)
   end
 
-  # def handle_event("map_toggle_marker", %{"id" => id} = _params, socket, to_view ) do
+  # def do_handle_event("map_toggle_marker", %{"id" => id} = _params, socket, to_view ) do
   #   {id, _} = Integer.parse(id)
 
   #   updated_markers =

@@ -22,12 +22,12 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
   def handle_event("map_" <> _action = event, params, socket) do
     debug(event, "event")
     debug(params, "params")
-    Bonfire.Geolocate.MapLive.handle_event(event, params, socket, true)
+    Bonfire.Geolocate.MapLive.do_handle_event(event, params, socket, true)
   end
 
   def handle_event(event, params, socket) do
     debug(event, "event")
     debug(params, "params")
-    Bonfire.Geolocate.MapLive.handle_event(event, params, socket, true)
+    Bonfire.Geolocate.MapLive.do_handle_event(event, params, socket, true)
   end
 end
