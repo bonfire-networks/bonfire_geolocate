@@ -1,7 +1,11 @@
 defmodule Bonfire.Geolocate.Web.GenericMapLive do
   use Bonfire.UI.Common.Web, :live_view
 
-  declare_extension("Maps", icon: "twemoji:world-map", emoji: "📍")
+  declare_extension("Maps",
+    icon: "twemoji:world-map",
+    emoji: "📍",
+    description: l("Record locations, make and display maps.")
+  )
 
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
