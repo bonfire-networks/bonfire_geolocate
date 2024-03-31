@@ -3,7 +3,7 @@ defmodule Bonfire.Geolocate.GeolocationsTest do
   use Bonfire.Geolocate.ConnCase, async: true
 
   import Bonfire.Common.Simulation
-  # import CommonsPub.Utils.Simulate
+  import Bonfire.Me.Fake
 
   import Bonfire.Geolocate.Test.Faking
   import Bonfire.Geolocate.Simulate
