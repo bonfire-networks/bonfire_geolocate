@@ -29,11 +29,11 @@ defmodule Bonfire.Geolocate.MixProject do
           {:bonfire_api_graphql,
            git: "https://github.com/bonfire-networks/bonfire_api_graphql",
            branch: "main",
-           optional: true},
+           optional: true, runtime: false},
           {:bonfire_tag,
            git: "https://github.com/bonfire-networks/bonfire_tag",
            branch: "main",
-           optional: true},
+           optional: true, runtime: false},
           {:grumble, "~> 0.1.3", only: [:dev, :test], optional: true}
         ])
     ]
