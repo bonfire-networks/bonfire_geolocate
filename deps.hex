@@ -3,7 +3,7 @@ jason = "~> 1.0"
 telemetry_metrics = "~> 0.6.1"
 telemetry_poller = "~> 1.0.0"
 # for this extension:
-geocoder = "~> 1.1.2"
+geocoder = "~> 2.0"
 geo_postgis = "~> 3.1"
 astro = "~> 1.0"
 untangle = "~> 0.3.0"
