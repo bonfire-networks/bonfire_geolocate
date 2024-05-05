@@ -1,4 +1,6 @@
 defmodule Bonfire.Geolocate do
+  @moduledoc "./README.md" |> File.stream!() |> Enum.drop(1) |> Enum.join()
+
   use Application
 
   def start(_type, _args) do
