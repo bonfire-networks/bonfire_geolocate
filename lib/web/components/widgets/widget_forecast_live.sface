@@ -1,0 +1,31 @@
+{#if e(@location, nil)}
+  <Bonfire.UI.Common.WidgetBlockLive widget_title={e(@location, "")}>
+    {#case Forecastr.forecast(:today, e(@location, nil),
+        units: :metric,
+        renderer: Forecastr.Renderer.JSON
+      )}
+      {#match {:ok,
+           %{
+             "description" => weather,
+             "id" => weather_id,
+             "temp" => temp,
+             "name" => weather_location
+           }}}
+        {!-- 
+      TODO: query weather with lat/long when we have them (need to add the ability to fetch by lat/long in Forecastr)
+      TODO: also use https://hexdocs.pm/astro to show sunrise/sunset and moon cycles, etc?
+      --}
+        <div
+          class="flex items-center gap-3"
+          title={l("%{weather} in %{location}", weather: weather, location: weather_location)}
+        >
+          <Iconify.iconify icon={"meteocons:#{weather_id}"} class="w-16 h-16" />
+          <div class="flex flex-col">
+            <span class="text-xl text-base-content/90">{temp}°</span>
+            <span class="text-sm text-base-content/70">{weather}</span>
+          </div>
+        </div>
+      {#match _}
+    {/case}
+  </Bonfire.UI.Common.WidgetBlockLive>
+{/if}
