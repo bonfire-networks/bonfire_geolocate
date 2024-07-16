@@ -1,7 +1,7 @@
 defmodule Bonfire.Geolocate.LiveHandler do
   use Bonfire.UI.Common.Web, :live_handler
 
-  alias Bonfire.Geolocate.Geolocation
+  # alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Geolocations
 
   def handle_event("create", attrs, socket) do
@@ -35,7 +35,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
 
   def handle_event(
         "select",
-        %{"id" => select_geolocation, "name" => name} = attrs,
+        %{"id" => select_geolocation, "name" => name} = _attrs,
         socket
       )
       when is_binary(select_geolocation) do

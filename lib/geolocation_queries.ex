@@ -94,7 +94,7 @@ defmodule Bonfire.Geolocate.Queries do
   #   |> filter(~w(disabled)a)
   # end
 
-  def filter(q, {:user, %{id: id}}) do
+  def filter(q, {:user, %{id: _id}}) do
     q
     |> where([geolocation: c], not is_nil(c.published_at))
     |> filter(~w(disabled)a)

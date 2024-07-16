@@ -9,7 +9,7 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
 
   on_mount {LivePlugs, [Bonfire.UI.Me.LivePlugs.LoadCurrentUser]}
 
-  def mount(params, session, socket) do
+  def mount(_params, _session, socket) do
     {:ok,
      assign(
        socket,
@@ -22,7 +22,7 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
      )}
   end
 
-  # proxy relevent events to the map component 
+  # proxy relevent events to the map component
   def handle_event("map_" <> _action = event, params, socket) do
     debug(event, "event")
     debug(params, "params")

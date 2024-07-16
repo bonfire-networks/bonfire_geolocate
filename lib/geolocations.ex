@@ -6,7 +6,7 @@ Bonfire.Common.Config.require_extension_config!(:bonfire_geolocate)
 defmodule Bonfire.Geolocate.Geolocations do
   import Bonfire.Common.Config, only: [repo: 0]
   use Bonfire.Common.Utils
-  alias Bonfire.Geolocate
+  # alias Bonfire.Geolocate
 
   alias Bonfire.Geolocate.Geolocation
   alias Bonfire.Geolocate.Queries
@@ -92,7 +92,7 @@ defmodule Bonfire.Geolocate.Geolocations do
         # FIXME: use publishing logic in from a different repo
         maybe_apply(Bonfire.Social.Objects, :publish, [
           creator,
-          # :create, 
+          # :create,
           nil,
           item,
           attrs,
@@ -131,7 +131,7 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @spec update(any(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def update(user, %Geolocation{} = geolocation, attrs) do
+  def update(_user, %Geolocation{} = geolocation, attrs) do
     # FIXME :ok <- ap_publish(user, :update, item)
     with {:ok, attrs} <- resolve_mappable_address(attrs),
          {:ok, item} <-
