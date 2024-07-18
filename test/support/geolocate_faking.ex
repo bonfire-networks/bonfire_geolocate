@@ -76,7 +76,6 @@ defmodule Bonfire.Geolocate.Test.Faking do
     )
   end
 
-
   def create_geolocation_submutation(options \\ []) do
     gen_submutation(
       [spatial_thing: var(:spatial_thing)],
