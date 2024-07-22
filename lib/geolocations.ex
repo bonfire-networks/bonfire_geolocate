@@ -125,7 +125,7 @@ defmodule Bonfire.Geolocate.Geolocations do
              name: mappable_address,
              mappable_address: mappable_address
            }) do
-      maybe_apply(Bonfire.Tag.Tags, :tag_something, [user, thing, geolocation])
+      maybe_apply(Bonfire.Tag, :tag_something, [user, thing, geolocation])
     end
   end
 
