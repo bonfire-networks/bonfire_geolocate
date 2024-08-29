@@ -1,9 +1,9 @@
 class LeafletMarker extends HTMLElement {
-    constructor() {
-        super();
+	constructor() {
+		super();
 
-        this.attachShadow({ mode: 'open' });
-    }
+		this.attachShadow({ mode: "open" });
+	}
 }
 
-window.customElements.define('leaflet-marker', LeafletMarker);
+window.customElements.define("leaflet-marker", LeafletMarker);
