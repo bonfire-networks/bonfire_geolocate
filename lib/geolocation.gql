@@ -16,128 +16,128 @@
 A physical mappable location.
 """
 type SpatialThing {
-  id: ID!
+	id: ID!
 
-  "An informal or formal textual identifier for a location. Does not imply uniqueness."
-  name: String!
+	"An informal or formal textual identifier for a location. Does not imply uniqueness."
+	name: String!
 
-  "An address that will be recognized as mappable by mapping software."
-  mappableAddress: String
+	"An address that will be recognized as mappable by mapping software."
+	mappableAddress: String
 
-  "Latitude."
-  lat: Float
+	"Latitude."
+	lat: Float
 
-  "Longitude."
-  long: Float
+	"Longitude."
+	long: Float
 
-  "Altitude."
-  alt: Float
+	"Altitude."
+	alt: Float
 
-  "A textual description or comment."
-  note: String
+	"A textual description or comment."
+	note: String
 
-  geom: Json
+	geom: Json
 
-  ##############################################################################
-  # inverse relationships and queries - FIXME
-  # agents: [Agent!]
-  # economicResources: [EconomicResource!]
-  # economicEvents: [EconomicEvent!]
-  # commitments: [Commitment!]
-  # intents: [Intent!]
+	##############################################################################
+	# inverse relationships and queries - FIXME
+	# agents: [Agent!]
+	# economicResources: [EconomicResource!]
+	# economicEvents: [EconomicEvent!]
+	# commitments: [Commitment!]
+	# intents: [Intent!]
 
-  ## Bonfire-specific
+	## Bonfire-specific
 
-  canonicalUrl: String
-  displayUsername: String
-  inScopeOf: AnyContext
+	canonicalUrl: String
+	displayUsername: String
+	inScopeOf: AnyContext
 }
 
 input SpatialThingCreateParams {
-  "An informal or formal textual identifier for a location. Does not imply uniqueness."
-  name: String!
+	"An informal or formal textual identifier for a location. Does not imply uniqueness."
+	name: String!
 
-  "An address that will be recognized as mappable by mapping software."
-  mappableAddress: String
+	"An address that will be recognized as mappable by mapping software."
+	mappableAddress: String
 
-  "Latitude."
-  lat: Float
+	"Latitude."
+	lat: Float
 
-  "Longitude."
-  long: Float
+	"Longitude."
+	long: Float
 
-  "Altitude."
-  alt: Float
+	"Altitude."
+	alt: Float
 
-  "A textual description or comment."
-  note: String
+	"A textual description or comment."
+	note: String
 }
 
 input SpatialThingUpdateParams {
-  id: ID!
+	id: ID!
 
-  "An informal or formal textual identifier for a location. Does not imply uniqueness."
-  name: String
+	"An informal or formal textual identifier for a location. Does not imply uniqueness."
+	name: String
 
-  "An address that will be recognized as mappable by mapping software."
-  mappableAddress: String
+	"An address that will be recognized as mappable by mapping software."
+	mappableAddress: String
 
-  "Latitude."
-  lat: Float
+	"Latitude."
+	lat: Float
 
-  "Longitude."
-  long: Float
+	"Longitude."
+	long: Float
 
-  "Altitude."
-  alt: Float
+	"Altitude."
+	alt: Float
 
-  "A textual description or comment."
-  note: String
+	"A textual description or comment."
+	note: String
 }
 
 type SpatialThingResponse {
-  spatialThing: SpatialThing
+	spatialThing: SpatialThing
 }
 
 type SpatialThingsPage {
-  page_info: PageInfo
-  edges: [SpatialThing]
-  totalCount: Int
+	page_info: PageInfo
+	edges: [SpatialThing]
+	totalCount: Int
 }
 
 type GeolocationQuery {
-  spatialThing(id: ID): SpatialThing
-  spatialThings(start: ID, limit: Int): [SpatialThing!]
-  spatialThingsPages(
-    limit: Int
-    before: [Cursor]
-    after: [Cursor]
-  ): SpatialThingsPage!
+	spatialThing(id: ID): SpatialThing
+	spatialThings(start: ID, limit: Int): [SpatialThing!]
+	spatialThingsPages(
+		limit: Int
+		before: [Cursor]
+		after: [Cursor]
+	): SpatialThingsPage!
 }
 
 type GeolocationMutation {
-  createSpatialThing(
-    spatialThing: SpatialThingCreateParams!
-    inScopeOf: ID
-  ): SpatialThingResponse
-  updateSpatialThing(
-    spatialThing: SpatialThingUpdateParams!
-  ): SpatialThingResponse
-  deleteSpatialThing(id: ID!): Boolean
+	createSpatialThing(
+		spatialThing: SpatialThingCreateParams!
+		inScopeOf: ID
+	): SpatialThingResponse
+	updateSpatialThing(
+		spatialThing: SpatialThingUpdateParams!
+	): SpatialThingResponse
+	deleteSpatialThing(id: ID!): Boolean
 }
 
 # added these types for filtering, to be extended:...
 input GeolocationDistance {
-  meters: Int
+	meters: Int
 }
 
 input GeolocationPoint {
-  lat: Float
-  long: Float
+	lat: Float
+	long: Float
 }
 
 input GeolocationFilters {
-  nearPoint: GeolocationPoint
-  nearAddress: String
-  distance: GeolocationDistance
+	nearPoint: GeolocationPoint
+	nearAddress: String
+	distance: GeolocationDistance
 }
