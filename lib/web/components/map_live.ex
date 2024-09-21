@@ -82,7 +82,7 @@ defmodule Bonfire.Geolocate.MapLive do
   #   {id, _} = Integer.parse(id)
 
   #   updated_markers =
-  #     Enum.map(socket.assigns.markers, fn m ->
+  #     Enum.map(assigns(socket).markers, fn m ->
   #       case m.id do
   #         ^id ->
   #           Map.update(m, :is_disabled, m.is_disabled, &(!&1))
@@ -123,7 +123,8 @@ defmodule Bonfire.Geolocate.MapLive do
 
     debug(geom: geom)
 
-    fetch_place_things_fn = Map.get(socket.assigns, :fetch_place_things_fn, &fetch_place_things/2)
+    fetch_place_things_fn =
+      Map.get(assigns(socket), :fetch_place_things_fn, &fetch_place_things/2)
 
     debug(fetch_place_things_fn: fetch_place_things_fn)
 

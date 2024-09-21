@@ -1,12 +1,12 @@
 defmodule Bonfire.Geolocate.Places do
   alias Bonfire.Common.Utils
 
-  def fetch_places(socket) do
+  def fetch_places(opts) do
     with {:ok, places} <-
            Utils.maybe_apply(Bonfire.Geolocate.GraphQL, :geolocations, [
              %{limit: 15},
              %{
-               context: %{current_user: Utils.current_user(socket.assigns)}
+               context: %{current_user: Utils.current_user(opts)}
              }
            ]) do
       # [
@@ -21,20 +21,20 @@ defmodule Bonfire.Geolocate.Places do
     end
   end
 
-  def fetch_place_things(filters, socket) do
+  def fetch_place_things(filters, opts) do
     with {:ok, things} <-
            Bonfire.Geolocate.Geolocations.many(filters) do
       things
     else
       _e ->
-        fetch_places(socket)
+        fetch_places(opts)
     end
   end
 
-  def fetch_place(id, socket) do
+  def fetch_place(id, opts) do
     with {:ok, place} <-
            Bonfire.Geolocate.GraphQL.geolocation(%{id: id}, %{
-             context: %{current_user: Utils.current_user(socket.assigns)}
+             context: %{current_user: Utils.current_user(opts)}
            }) do
       place
     else
