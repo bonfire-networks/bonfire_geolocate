@@ -1,7 +1,7 @@
 <main class="">
   <%= if @place and Code.ensure_loaded?(Bonfire.UI.Social.ActivityLive) do %>
     <.live_component
-      module={Bonfire.UI.Social.ActivityLive}
+      module={maybe_component(Bonfire.UI.Social.ActivityLive)}
       id={id(@place) || "unknown-place"}
       object={@place}
     />
