@@ -10,7 +10,7 @@ defmodule Bonfire.Geolocate.Geolocation do
   alias Needle.Pointer
   @user Application.compile_env!(:bonfire, :user_schema)
 
-  @type t :: %__MODULE__{}
+  # @type t :: %__MODULE__{}
 
   pointable_schema do
     field(:name, :string)
