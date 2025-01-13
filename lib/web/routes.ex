@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.Web.Routes do
-  def declare_routes, do: "map"
+  @behaviour Bonfire.UI.Common.RoutesModule
 
   defmacro __using__(_) do
     quote do
