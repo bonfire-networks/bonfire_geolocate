@@ -69,7 +69,8 @@ defmodule Bonfire.Geolocate.Geolocations do
           __MODULE__
         ])
 
-        maybe_index(item)
+        maybe_apply(Bonfire.Search, :maybe_index, [item, nil, creator], creator)
+
         debug({:ok, populate_result(item)})
       end
     end)
@@ -99,7 +100,8 @@ defmodule Bonfire.Geolocate.Geolocations do
           __MODULE__
         ])
 
-        maybe_index(item)
+        maybe_apply(Bonfire.Search, :maybe_index, [item, nil, creator], creator)
+
         debug({:ok, populate_result(item)})
       end
     end)
@@ -131,12 +133,13 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @spec update(any(), Geolocation.t(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  def update(_user, %Geolocation{} = geolocation, attrs) do
+  def update(user, %Geolocation{} = geolocation, attrs) do
     # FIXME :ok <- ap_publish(user, :update, item)
     with {:ok, attrs} <- resolve_mappable_address(attrs),
          {:ok, item} <-
            repo().update(Geolocation.update_changeset(geolocation, attrs)) do
-      maybe_index(item)
+      maybe_apply(Bonfire.Search, :maybe_index, [geolocation, nil, user], user)
+
       {:ok, populate_coordinates(item)}
     end
   end
@@ -196,17 +199,6 @@ defmodule Bonfire.Geolocate.Geolocations do
 
     # |> IO.inspect
   end
-
-  # TODO: less boilerplate
-  def maybe_index(object) when is_struct(object) do
-    object |> indexing_object_format() |> maybe_index()
-  end
-
-  def maybe_index(object) when is_map(object) do
-    maybe_apply(Bonfire.Search.Indexer, :maybe_index_object, object, &none/2)
-  end
-
-  def maybe_index(other), do: other
 
   def ap_publish_activity(subject, activity_name, thing) do
     ValueFlows.Util.Federation.ap_publish_activity(
