@@ -33,7 +33,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
   def one(filters),
-    do: repo().single(Queries.query(Geolocation, filters)) ~> Geolocations.populate_coordinates()
+    do: repo().single(Queries.query(Geolocation, filters)) ~> populate_coordinates()
 
   @doc """
   Retrieves a list of geolocations by arbitrary filters.
@@ -48,7 +48,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   def many_paginated(filters \\ []) do
     with {:ok, %{edges: edges} = page} <-
            repo().many_paginated(Queries.query(Geolocation, filters)) do
-      edges = Enum.map(edges, &Geolocations.populate_coordinates/1)
+      edges = Enum.map(edges, &populate_coordinates/1)
       {:ok, %{page | edges: edges}}
     end
   end
