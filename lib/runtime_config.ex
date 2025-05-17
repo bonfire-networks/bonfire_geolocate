@@ -8,5 +8,11 @@ defmodule Bonfire.Geolocate.RuntimeConfig do
     config :bonfire, :js_config,
       mapbox_api_key: System.get_env("MAPBOX_API_KEY"),
       protomaps_api_key: System.get_env("PROTOMAPS_API_KEY")
+
+    config :bonfire, :ui,
+      # activity_preview: [],
+      object_preview: [
+        {Bonfire.Geolocate.Geolocation, Bonfire.Geolocate.PlacePreviewLive}
+      ]
   end
 end

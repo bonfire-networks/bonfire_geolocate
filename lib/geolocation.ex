@@ -85,12 +85,25 @@ defmodule Bonfire.Geolocate.Geolocation do
   defp validate_coordinates(changeset, skip_geom? \\ false) do
     lat = Changeset.get_change(changeset, :lat)
     long = Changeset.get_change(changeset, :long)
+    geom = Changeset.get_change(changeset, :geom)
 
-    if !skip_geom? and not (is_nil(lat) or is_nil(long)) do
-      geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
-      Changeset.change(changeset, geom: geom)
-    else
-      changeset
+    cond do
+      # Skip geometry creation
+      skip_geom? ->
+        changeset
+
+      # Already has geom field set (from GeoJSON)
+      not is_nil(geom) ->
+        changeset
+
+      # Has lat/long coordinates, create point geometry
+      not (is_nil(lat) or is_nil(long)) ->
+        point_geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
+        Changeset.change(changeset, geom: point_geom)
+
+      # No geometry information available
+      true ->
+        changeset
     end
   end
 

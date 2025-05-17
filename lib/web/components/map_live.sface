@@ -1,7 +1,7 @@
 <main class="">
-  {#if component = maybe_component(Bonfire.UI.Social.ActivityLive) && @place}
+  {#if @show_activity && module_enabled?(Bonfire.UI.Social.ActivityLive) && @place}
     <StatefulComponent
-      module={component}
+      module={maybe_component(Bonfire.UI.Social.ActivityLive, @__context__)}
       id={id(@place) || "unknown-place"}
       object={@place}
     />
@@ -23,11 +23,7 @@
               selected={e(marker, :is_disabled, false)}
               popup={e(marker, :name, "")}
             >
-              <leaflet-icon
-                icon-url={Bonfire.Geolocate.Map.map_icon(e(marker, :is_disabled, false))}
-                width="64"
-                height="64"
-              >
+              <leaflet-icon icon-url={map_icon(e(marker, :is_disabled, false))} width="64" height="64">
               </leaflet-icon>
             </leaflet-marker>
           {/if}

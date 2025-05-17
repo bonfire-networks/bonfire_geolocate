@@ -8,6 +8,16 @@ defmodule Bonfire.Geolocate.MapLive do
   prop places, :list, default: []
   prop markers, :list, default: []
   prop points, :list, default: []
+  prop show_activity, :boolean, default: true
+
+  def update(%{places: places} = assigns, socket)
+      when is_list(places) and length(places) > 0 do
+    mark_places(places, assign(socket, assigns))
+  end
+
+  def update(%{place: %{} = place} = assigns, socket) do
+    mark_places([place], assign(socket, assigns))
+  end
 
   def update(%{id: id} = assigns, socket) when is_binary(id) do
     if id = Types.uid(id) do
@@ -15,11 +25,6 @@ defmodule Bonfire.Geolocate.MapLive do
     else
       assign_default_places(assigns, socket)
     end
-  end
-
-  def update(%{places: places} = assigns, socket)
-      when is_list(places) and length(places) > 0 do
-    mark_places(places, assign(socket, assigns))
   end
 
   def update(%{markers: markers} = assigns, socket)
@@ -119,11 +124,12 @@ defmodule Bonfire.Geolocate.MapLive do
     |> mark_places(socket, to_view)
   end
 
-  defp mark_places(places, socket, to_view \\ false) 
+  defp mark_places(places, socket, to_view \\ false)
   defp mark_places(%{edges: places}, socket, to_view), do: mark_places(places, socket, to_view)
+
   defp mark_places(places, socket, to_view) when is_list(places) do
     markers = Bonfire.Geolocate.Geolocations.populate_coordinates(places)
-    debug(markers, "marked_places")
+    IO.inspect(markers, label: "marked_places")
 
     place = if markers && length(markers) == 1, do: hd(markers)
 
@@ -161,7 +167,6 @@ defmodule Bonfire.Geolocate.MapLive do
       to_view
     )
   end
-
 
   def place_lat(place) do
     Map.get(place, :lat) ||
@@ -201,6 +206,4 @@ defmodule Bonfire.Geolocate.MapLive do
     </svg>
     """
   end
-
-
 end

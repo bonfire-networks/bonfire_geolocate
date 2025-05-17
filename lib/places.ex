@@ -16,7 +16,8 @@ defmodule Bonfire.Geolocate.Places do
 
       places
     else
-      _ -> # TODO: cleanup
+      #  TODO: cleanup
+      _ ->
         Bonfire.Geolocate.Geolocations.many_paginated(opts)
     end
   end
@@ -33,12 +34,16 @@ defmodule Bonfire.Geolocate.Places do
 
   def fetch_place(id, opts) do
     with {:ok, place} <-
-      Utils.maybe_apply(Bonfire.Geolocate.GraphQL, :geolocation, [%{id: id}, %{
-             context: %{current_user: Utils.current_user(opts)}
-           }]) do
+           Utils.maybe_apply(Bonfire.Geolocate.GraphQL, :geolocation, [
+             %{id: id},
+             %{
+               context: %{current_user: Utils.current_user(opts)}
+             }
+           ]) do
       place
     else
-      _ -> # TODO: cleanup
+      #  TODO: cleanup
+      _ ->
         Bonfire.Geolocate.Geolocations.one(id: id, user: Utils.current_user(opts))
     end
   end

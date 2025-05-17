@@ -1,0 +1,22 @@
+<div class="mb-2 text-sm font-medium text-base-content text-opacity-80">
+  {rich(
+    e(
+      @object,
+      :name,
+      nil
+    )
+  )}
+</div>
+
+{#case e(@object, :summary, nil)}
+  {#match nil}
+  {#match summary}
+    <h3 class="text-xs tracking-wider text-primary-content-600 uppercase">Summary</h3>
+    <div class="mb-2 prose-sm prose text-primary-content-700 max-w-prose">{rich(summary)}</div>
+{/case}
+
+<Bonfire.Geolocate.MapLive
+  id={"#{@parent_id || id(@activity)}-#{id(@object)}"}
+  place={IO.inspect(@object, label: "oooobj")}
+  show_activity={false}
+/>

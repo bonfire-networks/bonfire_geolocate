@@ -6,6 +6,7 @@ Bonfire.Common.Config.require_extension_config!(:bonfire_geolocate)
 defmodule Bonfire.Geolocate.Geolocations do
   import Bonfire.Common.Config, only: [repo: 0]
   use Bonfire.Common.Utils
+  use Arrows
   # alias Bonfire.Geolocate
 
   alias Bonfire.Geolocate.Geolocation
@@ -16,8 +17,10 @@ defmodule Bonfire.Geolocate.Geolocations do
   # alias CommonsPub.Activities
   # alias CommonsPub.Feeds
 
+  @postgis_srid 4326
+
   @behaviour Bonfire.Federate.ActivityPub.FederationModules
-  def federation_module, do: ["Place", "SpatialThing"]
+  def federation_module, do: ["Place", "SpatialThing", "geojson:Feature"]
 
   def cursor(:followers), do: &[&1.follower_count, &1.id]
   def test_cursor(:followers), do: &[&1["followerCount"], &1["id"]]
@@ -29,7 +32,8 @@ defmodule Bonfire.Geolocate.Geolocations do
   * ActivityPub integration
   * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
-  def one(filters), do: repo().single(Queries.query(Geolocation, filters))
+  def one(filters),
+    do: repo().single(Queries.query(Geolocation, filters)) ~> Geolocations.populate_coordinates()
 
   @doc """
   Retrieves a list of geolocations by arbitrary filters.
@@ -40,6 +44,14 @@ defmodule Bonfire.Geolocate.Geolocations do
     do: {:ok, repo().many(Queries.query(Geolocation, filters))}
 
   def many!(filters \\ []), do: repo().many(Queries.query(Geolocation, filters))
+
+  def many_paginated(filters \\ []) do
+    with {:ok, %{edges: edges} = page} <-
+           repo().many_paginated(Queries.query(Geolocation, filters)) do
+      edges = Enum.map(edges, &Geolocations.populate_coordinates/1)
+      {:ok, %{page | edges: edges}}
+    end
+  end
 
   def search(search, opts \\ []) do
     maybe_apply(
@@ -56,62 +68,42 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @spec create(any(), context :: any, attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
-  # TODO deprecate in favour of create/2
-  def create(creator, %{} = context, attrs) when is_map(attrs) do
-    repo().transact_with(fn ->
-      with {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item} <- insert_geolocation(creator, attrs, context: context) do
-        maybe_apply(Bonfire.Social.Objects, :publish, [
-          creator,
-          :create,
-          item,
-          attrs,
-          __MODULE__
-        ])
+  def create(creator, context, attrs, opts \\ [])
 
-        maybe_apply(Bonfire.Search, :maybe_index, [item, nil, creator], creator)
+  def create(creator, context, attrs, opts) when is_map(attrs) do
+    with {:ok, item} <-
+           repo().transact_with(fn ->
+             with {:ok, attrs} <- resolve_mappable_address(attrs),
+                  {:ok, item} <- insert_geolocation(creator, attrs, context: context) do
+               {:ok, populate_result(item)}
+               |> debug("created")
+             end
+           end) do
+      if !opts[:skip_publish],
+        do:
+          maybe_apply(Bonfire.Social.Objects, :publish, [
+            creator,
+            :create,
+            item,
+            attrs,
+            __MODULE__
+          ])
 
-        debug({:ok, populate_result(item)})
-      end
-    end)
+      if !opts[:skip_search_index],
+        do: maybe_apply(Bonfire.Search, :maybe_index, [item, nil, creator], creator)
+
+      {:ok, item}
+    end
   rescue
     e in Postgrex.QueryError ->
       error(e, "!!! Error saving the geo coordinate in DB")
       insert_geolocation(creator, attrs, context: context, skip_geom: true)
   end
 
-  def create(creator, _, attrs) when is_map(attrs) do
-    create(creator, attrs)
-  end
-
   @spec create(any(), attrs :: map) ::
           {:ok, Geolocation.t()} | {:error, Changeset.t()}
   def create(creator, attrs) when is_map(attrs) do
-    repo().transact_with(fn ->
-      with {:ok, attrs} <- resolve_mappable_address(attrs),
-           {:ok, item} <- insert_geolocation(creator, attrs) do
-        # FIXME: use publishing logic in from a different repo
-        maybe_apply(Bonfire.Social.Objects, :publish, [
-          creator,
-          # :create,
-          nil,
-          item,
-          attrs,
-          __MODULE__
-        ])
-
-        maybe_apply(Bonfire.Search, :maybe_index, [item, nil, creator], creator)
-
-        debug({:ok, populate_result(item)})
-      end
-    end)
-  rescue
-    e in Postgrex.QueryError ->
-      error(e, "!!! Error saving the geo coordinate in DB")
-
-      attrs
-      |> debug()
-      |> insert_geolocation(creator, ..., skip_geom: true)
+    create(creator, nil, attrs)
   end
 
   defp insert_geolocation(creator, attrs, opts \\ []) do
@@ -211,7 +203,7 @@ defmodule Bonfire.Geolocate.Geolocations do
     )
   end
 
-  def ap_receive_activity(creator, activity, object) do
+  def ap_receive_activity(creator, activity, %{data: %{"type" => "Geolocation"}} = object) do
     ValueFlows.Util.Federation.ap_receive_activity(
       creator,
       activity,
@@ -219,4 +211,70 @@ defmodule Bonfire.Geolocate.Geolocations do
       &create/2
     )
   end
+
+  def ap_receive_activity(creator, activity, %{data: data} = object) do
+    debug(activity, "activity")
+
+    warn(
+      object,
+      "received"
+    )
+
+    attrs =
+      %{
+        name: e(data, "name", nil),
+        note: e(data, "summary", nil),
+        #  TODO?
+        mappable_address: nil,
+        lat: e(data, "latitude", nil),
+        long: e(data, "longitude", nil),
+        geom: extract_geojson_geometry(e(data, "geojson:hasGeometry", nil)),
+        is_public: true
+      }
+      |> debug("aatrrs")
+
+    #  FIXME: why can't we publish? (results in a postgres foreign key error where the object id is not found in the pointer table)
+    create(creator, nil, attrs, skip_publish: true)
+  end
+
+  # Extract and convert GeoJSON geometry from ActivityPub object
+  defp extract_geojson_geometry(%{"type" => type, "coordinates" => coordinates}) do
+    case type do
+      "Point" ->
+        # Handle Point type
+        [lon, lat] = List.flatten(coordinates)
+        %Geo.Point{coordinates: {lat, lon}, srid: @postgis_srid}
+
+      "Polygon" ->
+        # Handle Polygon type
+        coords =
+          Enum.map(coordinates, fn ring ->
+            Enum.map(ring, fn [lon, lat] -> {lat, lon} end)
+          end)
+
+        %Geo.Polygon{coordinates: coords, srid: @postgis_srid}
+
+      "LineString" ->
+        # Handle LineString type
+        coords = Enum.map(coordinates, fn [lon, lat] -> {lat, lon} end)
+        %Geo.LineString{coordinates: coords, srid: @postgis_srid}
+
+      "MultiPolygon" ->
+        # Handle MultiPolygon type
+        coords =
+          Enum.map(coordinates, fn polygon ->
+            Enum.map(polygon, fn ring ->
+              Enum.map(ring, fn [lon, lat] -> {lat, lon} end)
+            end)
+          end)
+
+        %Geo.MultiPolygon{coordinates: coords, srid: @postgis_srid}
+
+      other ->
+        error(other, "Unsupported GeoJSON type")
+        nil
+    end
+  end
+
+  defp extract_geojson_geometry(_), do: nil
 end
