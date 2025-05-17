@@ -10,6 +10,6 @@ untangle = "~> 0.3.0"
 needle = "~> 0.7"
 tz_world = "~> 1.4.1" 
 
-# for 4square data
-sweet_xml = "~> 0.7"
-explorer = "~> 0.10.0"
+# WIP - for 4square data
+# sweet_xml = "~> 0.7"
+# explorer = "~> 0.10.1"

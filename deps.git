@@ -1,4 +1,6 @@
 bonfire_common = "https://github.com/bonfire-networks/bonfire_common"
 # bonfire_web_phoenix = "https://github.com/bonfire-networks/bonfire_web_phoenix"
 # geocoder = "https://github.com/knrz/geocoder"
-# phoenix_gon = "https://github.com/khusnetdinov/phoenix_gon" # used to pass config to JS
+# phoenix_gon = "https://github.com/khusnetdinov/phoenix_gon" 
+phoenix_gon = "https://github.com/bonfire-networks/phoenix_gon" 
+# ^ used to pass config to JS

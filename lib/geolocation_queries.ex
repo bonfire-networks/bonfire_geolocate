@@ -6,6 +6,7 @@ defmodule Bonfire.Geolocate.Queries do
   # alias CommonsPub.Follows.{Follow, FollowerCount}
   # @user CommonsPub.Users.User
 
+  use Untangle
   import Bonfire.Common.Repo.Utils, only: [match_admin: 0]
   import Ecto.Query
   import Geo.PostGIS
@@ -249,6 +250,11 @@ defmodule Bonfire.Geolocate.Queries do
 
   def filter(q, filter_name) when is_binary(filter_name) do
     filter(q, String.to_existing_atom(filter_name))
+  end
+
+  def filter(q, filter_name) do
+    warn(filter_name, "Unknown filter")
+    q
   end
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do

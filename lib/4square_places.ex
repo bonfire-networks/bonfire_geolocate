@@ -1,3 +1,4 @@
+if Code.ensure_loaded?(SweetXml) and Code.ensure_loaded?(Explorer) do
 defmodule Bonfire.Geolocate.FoursquarePlaces do
   @moduledoc """
   Downloads location data files from https://docs.foursquare.com/data-products/docs/access-fsq-os-places
@@ -362,4 +363,5 @@ defmodule Bonfire.Geolocate.FoursquarePlaces do
         {:error, error}
     end
   end
+end
 end

@@ -1,5 +1,5 @@
 defmodule Bonfire.Geolocate.Web.GenericMapLive do
-  use Bonfire.UI.Common.Web, :live_view
+  use Bonfire.UI.Common.Web, :surface_live_view
 
   declare_extension("Maps",
     icon: "ph:map-pin-fill",

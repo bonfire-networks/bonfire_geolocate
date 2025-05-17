@@ -1,11 +1,11 @@
 <main class="">
-  <%= if @place and Code.ensure_loaded?(Bonfire.UI.Social.ActivityLive) do %>
-    <.live_component
-      module={maybe_component(Bonfire.UI.Social.ActivityLive)}
+  {#if component = maybe_component(Bonfire.UI.Social.ActivityLive) && @place}
+    <StatefulComponent
+      module={component}
       id={id(@place) || "unknown-place"}
       object={@place}
     />
-  <% end %>
+  {/if}
 
   <div class="bg-base-100 shadow w-center">
     <section
@@ -15,8 +15,8 @@
       style="width: 100%; height: 100%"
     >
       <leaflet-map points={"#{inspect(@points)}"}>
-        <%= for marker <- @markers do %>
-          <%= if Map.get(marker, :lat) && Map.get(marker, :long) do %>
+        {#for marker <- @markers}
+          {#if Map.get(marker, :lat) && Map.get(marker, :long)}
             <leaflet-marker
               lat={marker.lat}
               lng={marker.long}
@@ -24,14 +24,14 @@
               popup={e(marker, :name, "")}
             >
               <leaflet-icon
-                icon-url={Bonfire.Geolocate.MapLive.map_icon(e(marker, :is_disabled, false))}
+                icon-url={Bonfire.Geolocate.Map.map_icon(e(marker, :is_disabled, false))}
                 width="64"
                 height="64"
               >
               </leaflet-icon>
             </leaflet-marker>
-          <% end %>
-        <% end %>
+          {/if}
+        {/for}
       </leaflet-map>
     </section>
   </div>

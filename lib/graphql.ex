@@ -144,7 +144,8 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled and
                user: GraphQL.current_user(info),
                id: id
              ]) do
-        {:ok, Geolocations.populate_coordinates(geo)}
+        # {:ok, Geolocations.populate_coordinates(geo)}
+        {:ok, geo}
       end
     end
 
@@ -171,6 +172,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled and
       with {:ok, %{edges: edges} = page} <- page_result do
         edges = Enum.map(edges, &Geolocations.populate_coordinates/1)
         {:ok, %{page | edges: edges}}
+        # {:ok, page}
       end
     end
 

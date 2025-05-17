@@ -13,6 +13,8 @@ GeolocateHooks.MapLeaflet = {
 	mounted() {
 		const view = this;
 
+		console.log("mounting leaflet map");
+
 		if (window.Gon !== undefined) {
 			// note: requires phoenix_gon to be set up to load config into the view
 			let mapbox_token = window.Gon.getAsset("mapbox_api_key");
@@ -212,12 +214,12 @@ GeolocateHooks.MapLeaflet = {
 				}
 			} else {
 				console.log(
-					"Skipping map initialisation because no mapbox_api_key is available",
+					"ERROR: Skipping map initialisation because no mapbox_api_key is available"
 				);
 			}
 		} else {
 			console.log(
-				"Skipping map initialisation because window.Gon is not available on the page and so can't read mapbox_api_key from it",
+				"ERROR: Skipping map initialisation because window.Gon is not available on the page and so can't read mapbox_api_key from it"
 			);
 		}
 	},

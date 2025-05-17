@@ -1,34 +1,44 @@
 defmodule Bonfire.Geolocate.MapLive do
-  use Bonfire.UI.Common.Web, :live_component
+  use Bonfire.UI.Common.Web, :stateful_component
   import Bonfire.Geolocate.Places
 
   @postgis_srid 4326
 
-  # attr :place, :any, default: nil
+  prop place, :any, default: nil
+  prop places, :list, default: []
+  prop markers, :list, default: []
+  prop points, :list, default: []
 
   def update(%{id: id} = assigns, socket) when is_binary(id) do
-    show_place_things(id, assign(socket, assigns))
+    if id = Types.uid(id) do
+      show_place_things(id, assign(socket, assigns))
+    else
+      assign_default_places(assigns, socket)
+    end
   end
 
   def update(%{places: places} = assigns, socket)
       when is_list(places) and length(places) > 0 do
-    # debug(places: places)
     mark_places(places, assign(socket, assigns))
   end
 
   def update(%{markers: markers} = assigns, socket)
       when is_list(markers) and length(markers) > 0 do
     response(
-      assign_defaults(socket)
+      socket
       |> assign(assigns),
       false
     )
   end
 
   def update(assigns, socket) do
+    assign_default_places(assigns, socket)
+  end
+
+  def assign_default_places(assigns, socket) do
     socket = assign(socket, assigns)
 
-    debug("fallback to showing some locations, because no `places` assign was set ")
+    debug("fallback to showing some locations, because no `places` assign was set")
 
     fetch_places(socket) |> mark_places(socket)
   end
@@ -51,7 +61,7 @@ defmodule Bonfire.Geolocate.MapLive do
         socket,
         to_view \\ false
       ) do
-    debug(click: id)
+    debug(id, "clicked")
 
     show_place_things(id, socket, to_view)
   end
@@ -62,7 +72,7 @@ defmodule Bonfire.Geolocate.MapLive do
         socket,
         to_view
       ) do
-    debug(bounds: polygon)
+    debug(polygon, "bounds")
 
     show_place_things(Enum.at(polygon, 0), socket, to_view)
   end
@@ -78,32 +88,9 @@ defmodule Bonfire.Geolocate.MapLive do
     response(socket, to_view)
   end
 
-  # def do_handle_event("map_toggle_marker", %{"id" => id} = _params, socket, to_view ) do
-  #   {id, _} = Integer.parse(id)
-
-  #   updated_markers =
-  #     Enum.map(assigns(socket).markers, fn m ->
-  #       case m.id do
-  #         ^id ->
-  #           Map.update(m, :is_disabled, m.is_disabled, &(!&1))
-
-  #         _ ->
-  #           m
-  #       end
-  #     end)
-
-  #   {:ok, assign(socket, markers: updated_markers)}
-  # end
-
   defp show_place_things(id, socket, to_view \\ false) when is_binary(id) do
-    # fetch_place_things([at_location_id: id], socket) |> mark_places(socket, to_view)
     fetch_place(id, socket) |> mark_places(socket, to_view)
   end
-
-  # defp show_place_things("intents", socket,
-  #       to_view) do
-  #   fetch_place_things([preload: :at_location], socket) |> mark_places(socket, to_view)
-  # end
 
   defp show_place_things(
          polygon,
@@ -114,31 +101,32 @@ defmodule Bonfire.Geolocate.MapLive do
     polygon = Enum.map(polygon, &{List.first(&1), List.last(&1)})
     polygon = polygon ++ [List.first(polygon)]
 
-    debug(polygon: polygon)
+    debug(polygon, "polygon")
 
     geom = %Geo.Polygon{
       coordinates: [polygon],
       srid: @postgis_srid
     }
 
-    debug(geom: geom)
+    debug(geom, "geom")
 
     fetch_place_things_fn =
       Map.get(assigns(socket), :fetch_place_things_fn, &fetch_place_things/2)
 
-    debug(fetch_place_things_fn: fetch_place_things_fn)
+    debug(fetch_place_things_fn, "fetch_place_things_fn")
 
     apply(fetch_place_things_fn, [[location_within: geom], socket])
     |> mark_places(socket, to_view)
   end
 
-  defp mark_places(places, socket, to_view \\ false) when is_list(places) do
+  defp mark_places(places, socket, to_view \\ false) 
+  defp mark_places(%{edges: places}, socket, to_view), do: mark_places(places, socket, to_view)
+  defp mark_places(places, socket, to_view) when is_list(places) do
     markers = Bonfire.Geolocate.Geolocations.populate_coordinates(places)
     debug(markers, "marked_places")
 
     place = if markers && length(markers) == 1, do: hd(markers)
 
-    # calculation map bounds
     points =
       Enum.map(
         markers,
@@ -152,8 +140,6 @@ defmodule Bonfire.Geolocate.MapLive do
           [h, t]
         end
       end)
-
-    # debug(points: points)
 
     response(
       assign(socket,
@@ -171,17 +157,11 @@ defmodule Bonfire.Geolocate.MapLive do
 
   defp mark_places(_, socket, to_view) do
     response(
-      assign_defaults(socket),
+      socket,
       to_view
     )
   end
 
-  defp assign_defaults(socket) do
-    socket
-    |> assign_new(:place, fn -> nil end)
-    |> assign_new(:points, fn -> [] end)
-    |> assign_new(:markers, fn -> [] end)
-  end
 
   def place_lat(place) do
     Map.get(place, :lat) ||
@@ -206,7 +186,6 @@ defmodule Bonfire.Geolocate.MapLive do
   end
 
   def map_icon(false) do
-    # heroicon location-marker
     """
     <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 20 20" fill="currentColor">
       <path fill-rule="evenodd" d="M5.05 4.05a7 7 0 119.9 9.9L10 18.9l-4.95-4.95a7 7 0 010-9.9zM10 11a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd" />
@@ -222,4 +201,6 @@ defmodule Bonfire.Geolocate.MapLive do
     </svg>
     """
   end
+
+
 end
