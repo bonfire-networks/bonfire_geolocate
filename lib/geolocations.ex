@@ -32,8 +32,11 @@ defmodule Bonfire.Geolocate.Geolocations do
   * ActivityPub integration
   * Various parts of the codebase that need to query for geolocations (inc. tests)
   """
-  def one(filters),
-    do: repo().single(Queries.query(Geolocation, filters)) ~> populate_coordinates()
+  def one(filters) do
+    with {:ok, result} <- repo().single(Queries.query(Geolocation, filters)) do
+      {:ok, populate_coordinates(result)}
+    end
+  end
 
   @doc """
   Retrieves a list of geolocations by arbitrary filters.
@@ -75,11 +78,12 @@ defmodule Bonfire.Geolocate.Geolocations do
            repo().transact_with(fn ->
              with {:ok, attrs} <- resolve_mappable_address(attrs),
                   {:ok, item} <- insert_geolocation(creator, attrs, context: context) do
-               {:ok, populate_result(item)}
-               |> debug("created")
+               {:ok, populate_coordinates(item)}
+               #  |> debug("created")
              end
            end) do
-      if !opts[:skip_publish],
+      #  FIXME: we should publish by default but assigning boundaries is failing (results in a postgres foreign key error where the object id is not found in the pointer table)
+      if !Keyword.get(opts, :skip_publish, true),
         do:
           maybe_apply(Bonfire.Social.Objects, :publish, [
             creator,
@@ -145,10 +149,6 @@ defmodule Bonfire.Geolocate.Geolocations do
         {:ok, geo}
       end
     end)
-  end
-
-  def populate_result(geo) do
-    populate_coordinates(geo)
   end
 
   def populate_coordinates(objects) when is_list(objects) do
@@ -233,8 +233,7 @@ defmodule Bonfire.Geolocate.Geolocations do
       }
       |> debug("aatrrs")
 
-    #  FIXME: why can't we publish? (results in a postgres foreign key error where the object id is not found in the pointer table)
-    create(creator, nil, attrs, skip_publish: true)
+    create(creator, nil, attrs)
   end
 
   # Extract and convert GeoJSON geometry from ActivityPub object
