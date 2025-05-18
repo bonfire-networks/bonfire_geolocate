@@ -1,7 +1,9 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.Test.Faking do
+  import Bonfire.Common.Extend
   @moduledoc false
-  if not Code.ensure_loaded?(Bonfire.API.GraphQL.Test.GraphQLFields) do
+  if Application.compile_env(:bonfire_api_graphql, :modularity) == :disabled or
+       not module_enabled?(Bonfire.API.GraphQL.Test.GraphQLFields) do
     import ExUnit.Assertions
 
     def assert_geolocation(geo) do
@@ -15,7 +17,6 @@ defmodule Bonfire.Geolocate.Test.Faking do
     end
   else
     import Grumble
-    import Bonfire.Common.Extend
     import_if_enabled(Bonfire.API.GraphQL.Test.GraphQLFields)
     import_if_enabled(Bonfire.API.GraphQL.Test.GraphQLAssertions)
 
