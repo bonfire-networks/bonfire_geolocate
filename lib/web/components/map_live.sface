@@ -28,6 +28,40 @@
             </leaflet-marker>
           {/if}
         {/for}
+
+        {!-- 
+        <!-- WIP: support more than points -->
+
+        {#for line <- @lines}
+          <leaflet-polyline 
+            points={"#{inspect(line)}"} 
+            color="blue" 
+            weight="3"
+            popup={e(line, :name, "Line")}
+          ></leaflet-polyline>
+        {/for}
+        
+        {#for polygon <- @polygons}
+          <leaflet-polygon 
+            points={"#{inspect(List.first(polygon))}"} 
+            holes={"#{inspect(Enum.slice(polygon, 1..-1))}"} 
+            color="green" 
+            fill-color="green" 
+            fill-opacity="0.4"
+            popup={e(polygon, :name, "Polygon")}
+          ></leaflet-polygon>
+        {/for}
+        
+        {#for multi_polygon <- @multi_polygons}
+          <leaflet-multi-polygon 
+            polygons={"#{inspect(multi_polygon)}"} 
+            color="purple" 
+            fill-color="purple" 
+            fill-opacity="0.3"
+            popup={e(multi_polygon, :name, "MultiPolygon")}
+          ></leaflet-multi-polygon>
+        {/for}
+         --}
       </leaflet-map>
     </section>
   </div>

@@ -8,6 +8,9 @@ defmodule Bonfire.Geolocate.MapLive do
   prop places, :list, default: []
   prop markers, :list, default: []
   prop points, :list, default: []
+  prop lines, :list, default: []
+  prop polygons, :list, default: []
+  prop multi_polygons, :list, default: []
   prop show_activity, :boolean, default: true
 
   def update(%{places: places} = assigns, socket)
@@ -133,13 +136,19 @@ defmodule Bonfire.Geolocate.MapLive do
 
     place = if markers && length(markers) == 1, do: hd(markers)
 
+    # WIP: Extract and process different geometry types
+    # {points, lines, polygons, multi_polygons} = process_geometries(markers)
+
+    # Keep the original points extraction for now
     points =
       Enum.map(
         markers,
-        &[
-          place_lat(&1),
-          place_long(&1)
-        ]
+        fn marker ->
+          [
+            e(marker, :lat, 0),
+            e(marker, :long, 0)
+          ]
+        end
       )
       |> Enum.filter(fn [h, t] ->
         if(h && t && h != 0 && t != 0) do
@@ -149,9 +158,12 @@ defmodule Bonfire.Geolocate.MapLive do
 
     response(
       assign(socket,
+        place: place,
         markers: markers,
-        points: points,
-        place: place
+        points: points
+        # lines: lines,
+        # polygons: polygons, 
+        # multi_polygons: multi_polygons,
       ),
       to_view
     )
@@ -168,18 +180,46 @@ defmodule Bonfire.Geolocate.MapLive do
     )
   end
 
-  def place_lat(place) do
-    Map.get(place, :lat) ||
-      (Map.get(place, :geom) || %{})
-      |> Map.get(:coordinates, {0, 0})
-      |> elem(0)
-  end
+  # Process markers to extract different geometry types
+  defp process_geometries(markers) do
+    Enum.reduce(markers, {[], [], [], []}, fn marker, {points, lines, polygons, multi_polygons} ->
+      case marker do
+        %{geom: %Geo.Point{coordinates: coords}} ->
+          {[[elem(coords, 0), elem(coords, 1)] | points], lines, polygons, multi_polygons}
 
-  def place_long(place) do
-    Map.get(place, :long) ||
-      (Map.get(place, :geom) || %{})
-      |> Map.get(:coordinates, {0, 0})
-      |> elem(1)
+        %{geom: %Geo.LineString{coordinates: coords}} ->
+          line_coords = Enum.map(coords, fn {lat, long} -> [lat, long] end)
+          {points, [line_coords | lines], polygons, multi_polygons}
+
+        %{geom: %Geo.Polygon{coordinates: [outer_ring | holes]}} ->
+          outer = Enum.map(outer_ring, fn {lat, long} -> [lat, long] end)
+
+          holes_formatted =
+            Enum.map(holes || [], fn ring ->
+              Enum.map(ring, fn {lat, long} -> [lat, long] end)
+            end)
+
+          polygon = [outer | holes_formatted]
+          {points, lines, [polygon | polygons], multi_polygons}
+
+        %{geom: %Geo.MultiPolygon{coordinates: multi_poly_coords}} ->
+          formatted_multi_poly =
+            Enum.map(multi_poly_coords, fn polygon ->
+              Enum.map(polygon, fn ring ->
+                Enum.map(ring, fn {lat, long} -> [lat, long] end)
+              end)
+            end)
+
+          {points, lines, polygons, [formatted_multi_poly | multi_polygons]}
+
+        %{lat: lat, long: long}
+        when not is_nil(lat) and not is_nil(long) and lat != 0 and long != 0 ->
+          {[[lat, long] | points], lines, polygons, multi_polygons}
+
+        _ ->
+          {points, lines, polygons, multi_polygons}
+      end
+    end)
   end
 
   def response(socket, true) do

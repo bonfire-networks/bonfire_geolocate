@@ -156,12 +156,108 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   def populate_coordinates(%{geom: %{coordinates: {lat, long}}} = object) do
-    # debug(populate_coordinates: lat)
+    # debug(lat)
     Map.merge(object, %{lat: lat, long: long})
   end
 
-  # |> debug("could not find coords")
-  def populate_coordinates(geo), do: geo || %{}
+  def populate_coordinates(%{geom: %{coordinates: _} = geom} = object) do
+    # debug(populate_coordinates: lat)
+    {lat, long} = extract_coordinates(geom)
+    Map.merge(object, %{lat: lat, long: long})
+  end
+
+  def populate_coordinates(geo), do: (geo || %{}) |> debug("could not find coords")
+
+  # Common function to extract both coordinates at once (returns {lat, long})
+  def extract_coordinates(geom) when is_struct(geom) do
+    case geom do
+      # Point types (direct access)
+      %type{coordinates: coordinates}
+      when type in [Geo.Point, Geo.PointZ, Geo.PointM, Geo.PointZM] ->
+        extract_points(coordinates)
+
+      # Line types (first point)
+      %type{coordinates: coordinates}
+      when type in [Geo.LineString, Geo.LineStringZ, Geo.LineStringZM] ->
+        coordinates |> List.first() |> extract_points()
+
+      # Polygon types (first point of outer ring)
+      %type{coordinates: coordinates} when type in [Geo.Polygon, Geo.PolygonZ] ->
+        coordinates |> List.first() |> List.first() |> extract_points()
+
+      # Multi-point types (first point)
+      %type{coordinates: coordinates} when type in [Geo.MultiPoint, Geo.MultiPointZ] ->
+        coordinates |> List.first() |> extract_points()
+
+      # Multi-line types (first point of first line)
+      %type{coordinates: coordinates} when type in [Geo.MultiLineString, Geo.MultiLineStringZ] ->
+        coordinates |> List.first() |> List.first() |> extract_points()
+
+      # Multi-polygon types (first point of first polygon's outer ring)
+      %type{coordinates: coordinates} when type in [Geo.MultiPolygon, Geo.MultiPolygonZ] ->
+        coordinates |> List.first() |> List.first() |> List.first() |> extract_points()
+
+      # Collection - try first geometry
+      %Geo.GeometryCollection{geometries: [first | _]} ->
+        extract_coordinates(first)
+
+      %Geo.GeometryCollection{} ->
+        warn(geom, "Unsupported GeometryCollection")
+        {0, 0}
+
+      # Fallback for unknown or empty structures
+      %{coordinates: coordinates} ->
+        try do
+          extract_points(coordinates)
+        rescue
+          e ->
+            warn(e, "Could not extract coordinates")
+            debug(geom)
+            {0, 0}
+        end
+
+      _ ->
+        warn(geom, "Unsupported geometry type")
+        {0, 0}
+    end
+  end
+
+  def extract_coordinates(%{coordinates: coordinates} = geom) do
+    try do
+      extract_points(coordinates)
+    rescue
+      e ->
+        warn(e, "Could not extract coordinates")
+        debug(geom)
+        {0, 0}
+    end
+  end
+
+  def extract_coordinates(other) do
+    warn(other, "Could not extract coordinates")
+    {0, 0}
+  end
+
+  # Helper function to extract both lat and long from a point
+  defp extract_points(coords) when is_tuple(coords) and tuple_size(coords) >= 2 do
+    try do
+      {elem(coords, 0), elem(coords, 1)}
+    rescue
+      e ->
+        warn(e, "Could not extract coordinates")
+        debug(coords)
+        {0, 0}
+    end
+  end
+
+  defp extract_points(coords) when is_list(coords) and length(coords) >= 2 do
+    {Enum.at(coords, 0, 0), Enum.at(coords, 1, 0)}
+  end
+
+  defp extract_points(other) do
+    warn(other, "Could not extract coordinates")
+    {0, 0}
+  end
 
   def resolve_mappable_address(%{mappable_address: address} = attrs)
       when is_binary(address) do
@@ -237,7 +333,7 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   # Extract and convert GeoJSON geometry from ActivityPub object
-  defp extract_geojson_geometry(%{"type" => type, "coordinates" => coordinates}) do
+  def extract_geojson_geometry(%{"type" => type, "coordinates" => coordinates}) do
     case type do
       "Point" ->
         # Handle Point type
@@ -275,5 +371,5 @@ defmodule Bonfire.Geolocate.Geolocations do
     end
   end
 
-  defp extract_geojson_geometry(_), do: nil
+  def extract_geojson_geometry(_), do: nil
 end
