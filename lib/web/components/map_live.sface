@@ -1,4 +1,4 @@
-<main class="">
+<main class="h-[250px] overflow-hidden">
   {#if @show_activity && module_enabled?(Bonfire.UI.Social.ActivityLive) && @place}
     <StatefulComponent
       module={maybe_component(Bonfire.UI.Social.ActivityLive, @__context__)}

@@ -26,7 +26,7 @@ GeolocateHooks.MapLeaflet = {
 				template.innerHTML = `
         <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.1/dist/leaflet.css" crossorigin=""/>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/leaflet.locatecontrol@0.76.1/dist/L.Control.Locate.min.css" />
-        <div style="width: 100%; height: 100%; min-height: 600px;">
+        <div style="width: 100%; height: 100%; min-height: 250px;">
             <slot />
         </div>`;
 
