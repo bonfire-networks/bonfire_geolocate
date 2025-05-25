@@ -43,7 +43,7 @@ defmodule Bonfire.Geolocate.LiveHandler do
 
     selected =
       if !is_uid?(select_geolocation),
-        do: create_in_autocomplete(current_user(assigns(socket)), select_geolocation),
+        do: create_in_autocomplete(current_user(socket), select_geolocation),
         else: {name, select_geolocation}
 
     debug(selected)
