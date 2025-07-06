@@ -7,7 +7,7 @@
       {#match {:ok,
            %{
              "description" => weather,
-             "id" => weather_id,
+             "icon" => icon,
              "temp" => temp,
              "name" => weather_location
            }}}
@@ -19,7 +19,7 @@
           class="flex items-center gap-3"
           title={l("%{weather} in %{location}", weather: weather, location: weather_location)}
         >
-          <Iconify.iconify icon={"meteocons:#{weather_id}"} class="w-16 h-16" />
+          <Iconify.iconify icon={"meteocons:#{icon}"} class="w-16 h-16" />
           <div class="flex flex-col">
             <span class="text-xl text-base-content/90">{temp}°</span>
             <span class="text-sm text-base-content/70">{weather}</span>
