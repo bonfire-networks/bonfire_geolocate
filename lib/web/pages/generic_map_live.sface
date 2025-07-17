@@ -5,5 +5,4 @@
   />
   <h1 class="text-xs text-base-content opacity-80 uppercase font-regular">Map</h1>
 </div> --}
-
 <Bonfire.Geolocate.MapLive id="generic_map" />
