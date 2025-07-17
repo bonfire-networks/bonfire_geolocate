@@ -77,134 +77,209 @@ GeolocateHooks.MapLeaflet = {
 				class LeafletMap extends HTMLElement {
 					constructor() {
 						super();
-
 						this.attachShadow({ mode: "open" });
 						this.shadowRoot.appendChild(template.content.cloneNode(true));
 						this.mapElement = this.shadowRoot.querySelector("div");
-
-						var points = this.getAttribute("points");
-						console.log(points);
-
-						if (points != undefined && points != "[]") {
-							var bounds = new L.LatLngBounds(JSON.parse(points));
-							console.log(bounds);
-
-							this.map = L.map(this.mapElement).fitBounds(bounds);
-						} else {
-							this.map = L.map(this.mapElement).locate({ setView: true });
-						}
-
-						// adds https://github.com/domoritz/leaflet-locatecontrol
-						L.control
-							.locate({ setView: "untilPan", flyTo: true })
-							.addTo(this.map);
-
-						this.map.on("locationfound", onLocationFound);
-
-						// this.map = L.map(this.mapElement).setView(
-						//   [this.getAttribute("lat"), this.getAttribute("lng")],
-						//   13
-						// );
-						console.log(use_vector);
-						this.map.options.minZoom = 2;
-						if (!use_vector) {
-							console.log("map: use tiles");
-
-							L.tileLayer(
-								"https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
-								{
-									attribution:
-										'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-									maxZoom: 18,
-									id: "mapbox/streets-v11",
-									tileSize: 512,
-									zoomOffset: -1,
-									accessToken: mapbox_token,
-									crossOrigin: "",
-								},
-							).addTo(this.map);
-						} else {
-							console.log("map: use vectors from openmaptiles.org");
-
-							this.map.options.minZoom = 4;
-
-							// L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-							//     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-							//     maxZoom: 18,
-							//     id: 'mapbox/streets-v11',
-							//     tileSize: 512,
-							//     zoomOffset: -1,
-							//     accessToken: 'your.mapbox.access.token'
-							// }).addTo(mymap);
-
-							L.mapboxGL({
-								accessToken: mapbox_token,
-								style: "mapbox://styles/mapbox/streets-v11", // style URL
-								// style: 'https://openmaptiles.github.io/maptiler-toner-gl-style/style-cdn.json'
-								// style: 'https://openmaptiles.github.io/maptiler-terrain-gl-style/style-cdn.json'
-								// style: 'https://maputnik.github.io/osm-liberty/style.json'
-								// style: 'https://openmaptiles.github.io/maptiler-basic-gl-style/style-cdn.json'
-								// style: 'https://openmaptiles.github.io/osm-bright-gl-style/style-cdn.json'
-								// style: 'https://openmaptiles.github.io/maptiler-3d-gl-style/style-cdn.json'
-							}).addTo(this.map);
-
-							this.map.fitWorld();
-						}
-
-						this.map.on("moveend", maybe_map_moved);
-						this.map.on("zoomend", maybe_map_moved);
-
-						this.defaultIcon = L.icon({
-							iconUrl:
-								"https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
-							// iconSize: [32, 32],
-						});
 					}
 
 					connectedCallback() {
-						const markerElements = this.querySelectorAll("leaflet-marker");
-						markerElements.forEach((markerEl) => {
-							const lat = markerEl.getAttribute("lat");
-							const lng = markerEl.getAttribute("lng");
-
-							const marker = L.marker([lat, lng], {
-								icon: this.defaultIcon,
-							}).addTo(this.map);
-
-							const popup = markerEl.getAttribute("popup");
-
-							if (popup) {
-								marker.bindPopup(popup);
-
-								marker.on("click", function (e) {
-									this.openPopup();
-								});
-								// marker.on("mouseout", function (e) {
-								//   this.closePopup();
-								// });
+						// Helper to ensure array of pairs
+						function toLatLngPairs(arr) {
+							if (arr.length > 0 && typeof arr[0] === 'number') {
+								let pairs = [];
+								for (let i = 0; i < arr.length; i += 2) {
+									pairs.push([arr[i], arr[i + 1]]);
+								}
+								return pairs;
+							}
+							return arr;
+						}
+						// Wait for children to be parsed
+						setTimeout(() => {
+							let points = [];
+							try {
+								points = JSON.parse(this.getAttribute("points") || "[]");
+							} catch (e) {
+								console.warn("[LeafletMap] Invalid points JSON", this.getAttribute("points"), e);
+							}
+							let fitBounds = null;
+							if (points.length > 0) {
+								points = toLatLngPairs(points);
+								console.log("[LeafletMap] Using points for fitBounds", points);
+								fitBounds = new L.LatLngBounds(points);
+							} else {
+								// Try to extract bounds from polylines, polygons, or multi-polygons
+								const getAllCoords = (selector, attr) =>
+									Array.from(this.querySelectorAll(selector))
+										.map((el) => {
+											try {
+												return JSON.parse(el.getAttribute(attr) || "[]");
+											} catch (e) {
+												console.warn(`[LeafletMap] Invalid JSON in ${selector} ${attr}`, el.getAttribute(attr), e);
+												return [];
+											}
+										})
+										.flat(2);
+								let coords = getAllCoords("leaflet-polyline", "points");
+								if (coords.length > 0) {
+									coords = toLatLngPairs(coords);
+									console.log("[LeafletMap] Using polyline for fitBounds", coords);
+								}
+								if (coords.length === 0) {
+									coords = getAllCoords("leaflet-polygon", "points");
+									if (coords.length > 0) {
+										coords = toLatLngPairs(coords);
+										console.log("[LeafletMap] Using polygon for fitBounds", coords);
+									}
+								}
+								if (coords.length === 0) {
+									coords = getAllCoords("leaflet-multi-polygon", "polygons");
+									if (coords.length > 0) {
+										coords = toLatLngPairs(coords);
+										console.log("[LeafletMap] Using multi-polygon for fitBounds", coords);
+									}
+								}
+								if (coords.length > 0) {
+									fitBounds = new L.LatLngBounds(coords);
+								}
+							}
+							if (fitBounds) {
+								this.map = L.map(this.mapElement).fitBounds(fitBounds);
+							} else {
+								console.log("[LeafletMap] No geometry found, falling back to current location");
+								this.map = L.map(this.mapElement).locate({ setView: true });
 							}
 
-							// marker.addEventListener("click", (_event) => {
-							//   markerEl.click();
-							// });
+							// adds https://github.com/domoritz/leaflet-locatecontrol
+							L.control
+								.locate({ setView: "untilPan", flyTo: true })
+								.addTo(this.map);
 
-							const iconEl = markerEl.querySelector("leaflet-icon");
-							const iconSize = [
-								iconEl.getAttribute("width"),
-								iconEl.getAttribute("height"),
-							];
+							this.map.on("locationfound", onLocationFound);
+							this.map.options.minZoom = 2;
+							if (!use_vector) {
+								L.tileLayer(
+									"https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}",
+									{
+										attribution:
+											'Map data &copy; <a href="https://www.openstreetmap.org/">OpenStreetMap</a> contributors, <a href="https://creativecommons.org/licenses/by-sa/2.0/">CC-BY-SA</a>, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+										maxZoom: 18,
+										id: "mapbox/streets-v11",
+										tileSize: 512,
+										zoomOffset: -1,
+										accessToken: window.Gon.getAsset("mapbox_api_key"),
+										crossOrigin: "",
+									},
+								).addTo(this.map);
+							} else {
+								this.map.options.minZoom = 4;
+								L.mapboxGL({
+									accessToken: window.Gon.getAsset("mapbox_api_key"),
+									style: "mapbox://styles/mapbox/streets-v11",
+								}).addTo(this.map);
+								this.map.fitWorld();
+							}
+							this.map.on("moveend", maybe_map_moved);
+							this.map.on("zoomend", maybe_map_moved);
+							this.defaultIcon = L.icon({
+								iconUrl: "https://unpkg.com/leaflet@1.7.1/dist/images/marker-icon.png",
+							});
 
-							// iconEl.addEventListener("url-updated", (e) => {
-							//   marker.setIcon(
-							//     L.icon({
-							//       iconUrl: e.detail,
-							//       iconSize: iconSize,
-							//       iconAnchor: iconSize,
-							//     })
-							//   );
-							// });
-						});
+							// Add markers after map is ready
+							const markerElements = this.querySelectorAll("leaflet-marker");
+							markerElements.forEach((markerEl) => {
+								const lat = markerEl.getAttribute("lat");
+								const lng = markerEl.getAttribute("lng");
+								const marker = L.marker([lat, lng], {
+									icon: this.defaultIcon,
+								}).addTo(this.map);
+								const popup = markerEl.getAttribute("popup");
+								if (popup) {
+									marker.bindPopup(popup);
+									marker.on("click", function (e) {
+										this.openPopup();
+									});
+								}
+							});
+						}, 0);
 					}
+				}
+
+				// --- Custom elements for polylines, polygons, and multi-polygons ---
+
+				class LeafletPolyline extends HTMLElement {
+					connectedCallback() {
+						let points = [];
+						try {
+							points = JSON.parse(this.getAttribute("points") || "[]");
+						} catch (e) {
+							console.warn("[LeafletPolyline] Invalid points JSON", this.getAttribute("points"), e);
+						}
+						const color = this.getAttribute("color") || "blue";
+						const weight = parseInt(this.getAttribute("weight") || "3");
+						const popup = this.getAttribute("popup") || null;
+						const map = this.closest("leaflet-map").map;
+						if (points.length > 0 && map) {
+							const polyline = L.polyline(points, { color, weight }).addTo(map);
+							if (popup) polyline.bindPopup(popup);
+						}
+					}
+				}
+
+				class LeafletPolygon extends HTMLElement {
+					connectedCallback() {
+						let points = [];
+						let holes = [];
+						try {
+							points = JSON.parse(this.getAttribute("points") || "[]");
+						} catch (e) {
+							console.warn("[LeafletPolygon] Invalid points JSON", this.getAttribute("points"), e);
+						}
+						try {
+							holes = JSON.parse(this.getAttribute("holes") || "[]");
+						} catch (e) {
+							console.warn("[LeafletPolygon] Invalid holes JSON", this.getAttribute("holes"), e);
+						}
+						const color = this.getAttribute("color") || "green";
+						const fillColor = this.getAttribute("fill-color") || color;
+						const fillOpacity = parseFloat(this.getAttribute("fill-opacity") || "0.4");
+						const popup = this.getAttribute("popup") || null;
+						const map = this.closest("leaflet-map").map;
+						if (points.length > 0 && map) {
+							const polygon = L.polygon([points, ...holes], { color, fillColor, fillOpacity }).addTo(map);
+							if (popup) polygon.bindPopup(popup);
+						}
+					}
+				}
+
+				class LeafletMultiPolygon extends HTMLElement {
+					connectedCallback() {
+						let polygons = [];
+						try {
+							polygons = JSON.parse(this.getAttribute("polygons") || "[]");
+						} catch (e) {
+							console.warn("[LeafletMultiPolygon] Invalid polygons JSON", this.getAttribute("polygons"), e);
+						}
+						const color = this.getAttribute("color") || "purple";
+						const fillColor = this.getAttribute("fill-color") || color;
+						const fillOpacity = parseFloat(this.getAttribute("fill-opacity") || "0.3");
+						const popup = this.getAttribute("popup") || null;
+						const map = this.closest("leaflet-map").map;
+						if (polygons.length > 0 && map) {
+							const multiPolygon = L.multiPolygon(polygons, { color, fillColor, fillOpacity }).addTo(map);
+							if (popup) multiPolygon.bindPopup(popup);
+						}
+					}
+				}
+
+				if (!window.customElements.get("leaflet-polyline")) {
+					window.customElements.define("leaflet-polyline", LeafletPolyline);
+				}
+				if (!window.customElements.get("leaflet-polygon")) {
+					window.customElements.define("leaflet-polygon", LeafletPolygon);
+				}
+				if (!window.customElements.get("leaflet-multi-polygon")) {
+					window.customElements.define("leaflet-multi-polygon", LeafletMultiPolygon);
 				}
 
 				if (window.customElements.get("leaflet-map")) {
@@ -212,6 +287,7 @@ GeolocateHooks.MapLeaflet = {
 				} else {
 					window.customElements.define("leaflet-map", LeafletMap);
 				}
+
 			} else {
 				console.log(
 					"ERROR: Skipping map initialisation because no mapbox_api_key is available"

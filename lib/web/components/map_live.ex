@@ -96,8 +96,11 @@ defmodule Bonfire.Geolocate.MapLive do
     response(socket, to_view)
   end
 
-  defp show_place_things(id, socket, to_view \\ false) when is_binary(id) do
-    fetch_place(id, socket) |> mark_places(socket, to_view)
+  defp show_place_things(id, socket, to_view \\ false)
+
+  defp show_place_things(id, socket, to_view) when is_binary(id) do
+    fetch_place(id, socket)
+    |> mark_places(socket, to_view)
   end
 
   defp show_place_things(
@@ -137,33 +140,37 @@ defmodule Bonfire.Geolocate.MapLive do
     place = if markers && length(markers) == 1, do: hd(markers)
 
     # WIP: Extract and process different geometry types
-    # {points, lines, polygons, multi_polygons} = process_geometries(markers)
+    {points, lines, polygons, multi_polygons} = process_geometries(markers)
 
-    # Keep the original points extraction for now
-    points =
-      Enum.map(
-        markers,
-        fn marker ->
-          [
-            e(marker, :lat, 0),
-            e(marker, :long, 0)
-          ]
-        end
-      )
-      |> Enum.filter(fn [h, t] ->
-        if(h && t && h != 0 && t != 0) do
-          [h, t]
-        end
-      end)
+    # Deprecated: original points extraction 
+    # points =
+    #   Enum.map(
+    #     markers,
+    #     fn marker ->
+    #       [
+    #         e(marker, :lat, 0),
+    #         e(marker, :long, 0)
+    #       ]
+    #     end
+    #   )
+    #   |> Enum.filter(fn [h, t] ->
+    #     if(h && t && h != 0 && t != 0) do
+    #       [h, t]
+    #     end
+    #   end)
 
     response(
-      assign(socket,
-        place: place,
-        markers: markers,
-        points: points
-        # lines: lines,
-        # polygons: polygons, 
-        # multi_polygons: multi_polygons,
+      assign(
+        socket,
+        [
+          place: place,
+          markers: markers,
+          points: points,
+          lines: lines,
+          polygons: polygons,
+          multi_polygons: multi_polygons
+        ]
+        |> debug("map assigns")
       ),
       to_view
     )

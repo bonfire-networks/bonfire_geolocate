@@ -1,7 +1,12 @@
+{#case e(@object, :name, nil)}
+  {#match nil}
+  {#match name}
+    <h3 class="text-sm text-primary-content-600">{rich(name)}</h3>
+{/case}
+
 {#case e(@object, :summary, nil)}
   {#match nil}
   {#match summary}
-    <h3 class="text-xs tracking-wider text-primary-content-600 uppercase">Summary</h3>
     <div class="mb-2 prose-sm prose text-primary-content-700 max-w-prose">{rich(summary)}</div>
 {/case}
 
@@ -12,7 +17,7 @@
     show_activity={false}
   />
 
-  <div class="p-3 text-sm font-medium text-base-content">
+  {!-- <div class="p-3 text-sm font-medium text-base-content">
     {rich(
       e(
         @object,
@@ -20,5 +25,5 @@
         nil
       )
     )}
-  </div>
+  </div> --}
 </div>
