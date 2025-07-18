@@ -1,16 +1,18 @@
+
+
+<div class="rounded-lg border border-base-content/10 bg-base-200 shadow">
 {#case e(@object, :name, nil)}
   {#match nil}
   {#match name}
-    <h3 class="text-sm text-primary-content-600">{rich(name)}</h3>
+    <h3 class="p-3 font-semibold">{rich(name)}</h3>
 {/case}
 
 {#case e(@object, :summary, nil)}
   {#match nil}
   {#match summary}
-    <div class="mb-2 prose-sm prose text-primary-content-700 max-w-prose">{rich(summary)}</div>
+    <div class="mb-2 prose-sm prose max-w-prose">{rich(summary)}</div>
 {/case}
 
-<div class="rounded-lg bg-base-200 shadow">
   <Bonfire.Geolocate.MapLive
     id={"#{@parent_id || id(@activity)}-#{id(@object)}"}
     place={IO.inspect(@object, label: "oooobj")}
