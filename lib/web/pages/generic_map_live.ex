@@ -17,7 +17,7 @@ defmodule Bonfire.Geolocate.Web.GenericMapLive do
        page: "map",
        selected_tab: "map",
        showing_within: :map,
-      nav_items: Bonfire.Common.ExtensionModule.default_nav()
+       nav_items: Bonfire.Common.ExtensionModule.default_nav()
        # places: fetch_places(socket),
      )}
   end
