@@ -1,7 +1,7 @@
 if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
   # SPDX-License-Identifier: AGPL-3.0-only
   defmodule Bonfire.Geolocate.GraphQLTest do
-    use Bonfire.Geolocate.DataCase, async: true
+    use Bonfire.Geolocate.ConnCase, async: true
 
     import Bonfire.Common.Simulation
     # import CommonsPub.Utils.Simulate
