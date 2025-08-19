@@ -15,7 +15,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         geo = fake_geolocation!(user)
 
-        q = geolocation_query()
+        q = Bonfire.Geolocate.Test.Faking.geolocation_query()
         conn = user_conn(user)
 
         assert_geolocation(grumble_post_key(q, conn, :spatial_thing, %{id: geo.id}))
@@ -28,7 +28,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         _geos = some(5, fn -> fake_geolocation!(user) end)
 
-        q = geolocation_pages_query()
+        q = Bonfire.Geolocate.Test.Faking.geolocation_pages_query()
         conn = user_conn(user)
 
         vars = %{
@@ -50,7 +50,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
 
         geo = fake_geolocation!(user, context)
 
-        q = geolocation_query(fields: [in_scope_of: [:__typename]])
+        q = Bonfire.Geolocate.Test.Faking.geolocation_query(fields: [in_scope_of: [:__typename]])
         conn = user_conn(user)
         assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
         assert resp["inScopeOf"]["__typename"] == "SpatialThing"
@@ -60,7 +60,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         geo = fake_geolocation!(user)
 
-        q = geolocation_query(fields: [in_scope_of: [:__typename]])
+        q = Bonfire.Geolocate.Test.Faking.geolocation_query(fields: [in_scope_of: [:__typename]])
         conn = user_conn(user)
         assert resp = grumble_post_key(q, conn, :spatial_thing, %{id: geo.id})
         assert is_nil(resp["inScopeOf"])
@@ -71,7 +71,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
       test "creates a new geolocation" do
         user = fake_user!()
 
-        q = create_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.create_geolocation_mutation()
         conn = user_conn(user)
         vars = %{spatial_thing: geolocation_input()}
 
@@ -82,7 +82,11 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         context = fake_user!()
 
-        q = create_geolocation_mutation(fields: [in_scope_of: [:__typename]])
+        q =
+          Bonfire.Geolocate.Test.Faking.create_geolocation_mutation(
+            fields: [in_scope_of: [:__typename]]
+          )
+
         conn = user_conn(user)
         vars = %{spatial_thing: geolocation_input(), in_scope_of: context.id}
 
@@ -92,7 +96,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
       test "creates a new geolocation with a mappable address" do
         user = fake_user!()
 
-        q = create_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.create_geolocation_mutation()
         conn = user_conn(user)
 
         vars = %{
@@ -117,7 +121,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         geo = fake_geolocation!(user)
 
-        q = update_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.update_geolocation_mutation()
         conn = user_conn(user)
         vars = %{spatial_thing: Map.put(geolocation_input(), "id", geo.id)}
 
@@ -128,7 +132,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         geo = fake_geolocation!(user)
 
-        q = update_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.update_geolocation_mutation()
         conn = user_conn(user)
 
         vars = %{
@@ -153,7 +157,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         geo = fake_geolocation!(user)
 
-        q = update_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.update_geolocation_mutation()
         conn = user_conn(user)
 
         vars = %{
@@ -180,13 +184,13 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         user = fake_user!()
         geo = fake_geolocation!(user)
 
-        q = delete_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.delete_geolocation_mutation()
         conn = user_conn(user)
         assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
       end
 
       test "fails to delete a location of another user unless an admin" do
-        q = delete_geolocation_mutation()
+        q = Bonfire.Geolocate.Test.Faking.delete_geolocation_mutation()
         # first user is admin
         admin = fake_user!()
         user = fake_user!()
