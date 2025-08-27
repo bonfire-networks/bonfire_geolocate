@@ -1,7 +1,7 @@
 {#if e(@location, nil)}
   <Bonfire.UI.Common.WidgetBlockLive widget_title={e(@location, "")}>
     {#case Forecastr.forecast(:today, e(@location, nil),
-        units: :metric,
+        units: Settings.get(:measurement_units, :metric, @__context__) |> flood("unit_used"),
         renderer: Forecastr.Renderer.JSON
       )}
       {#match {:ok,
