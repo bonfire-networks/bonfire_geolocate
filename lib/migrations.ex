@@ -21,11 +21,8 @@ defmodule Bonfire.Geolocate.Migrations do
       add(:mappable_address, :string)
       add(:geom, :geometry)
       add(:alt, :float)
-
-      add(:context_id, weak_pointer(), null: true)
-
-      add(:creator_id, weak_pointer(), null: true)
-
+      add_pointer(:context_id, :weak, Needle.Pointer, null: true)
+      add_pointer(:creator_id, :weak, Needle.Pointer, null: true)
       add(:published_at, :timestamptz)
       add(:deleted_at, :timestamptz)
       add(:disabled_at, :timestamptz)

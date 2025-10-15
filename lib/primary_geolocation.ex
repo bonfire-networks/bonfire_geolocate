@@ -36,7 +36,7 @@
 #     quote do
 #       require Needle.Migration
 #       Needle.Migration.create_mixin_table(Bonfire.Geolocate.PrimaryGeolocation) do
-#         Ecto.Migration.add :geolocation_id, Needle.Migration.strong_pointer(Bonfire.Geolocate.Geolocation)
+#         add_pointer(:geolocation_id, :strong, Bonfire.Geolocate.Geolocation)
 #         unquote_splicing(exprs)
 #       end
 #     end
