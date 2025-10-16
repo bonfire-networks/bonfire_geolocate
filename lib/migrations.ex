@@ -4,9 +4,11 @@ defmodule Bonfire.Geolocate.Migrations do
   # alias CommonsPub.Repo
   # alias Needle.ULID
   import Needle.Migration
+  use Needle.Migration.Indexable
 
   @user Application.compile_env!(:bonfire, :user_schema)
   # def users_table(), do: @user.__schema__(:source)
+  @table Bonfire.Geolocate.Geolocation.__schema__(:source)
 
   def change do
     :ok =
@@ -30,7 +32,14 @@ defmodule Bonfire.Geolocate.Migrations do
       timestamps(inserted_at: false, type: :utc_datetime_usec)
     end
 
+    add_geolocation_indexes()
+
     # require Bonfire.Geolocate.PrimaryGeolocation.Migration
     # Bonfire.Geolocate.PrimaryGeolocation.Migration.migrate_primary_geolocation()
+  end
+
+  def add_geolocation_indexes do
+    create_index_for_pointer(@table, :context_id)
+    create_index_for_pointer(@table, :creator_id)
   end
 end
