@@ -6,8 +6,8 @@ telemetry_poller = "~> 1.1"
 geocoder = "~> 2.0"
 geo_postgis = "~> 3.1"
 astro = "~> 1.0"
-untangle = "~> 0.3.0"
-needle = "~> 0.7"
+"~> 0.4"
+~> 0.7"
 tz_world = "~> 1.4.1" 
 
 # WIP - for 4square data
