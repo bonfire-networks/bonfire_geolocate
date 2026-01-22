@@ -36,7 +36,7 @@ type SpatialThing {
 	"A textual description or comment."
 	note: String
 
-	geom: Json
+	geom: JSON
 
 	##############################################################################
 	# inverse relationships and queries - FIXME

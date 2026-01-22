@@ -5,9 +5,9 @@ defmodule Bonfire.Geolocate.GraphQL.Hydration do
     %{
       spatial_thing: %{
         # FIXME:
-        # canonical_url: [
-        #   resolve: &CommonsPub.Characters.GraphQL.Resolver.canonical_url_edge/3
-        # ],
+        canonical_url: [
+          resolve: &Bonfire.API.GraphQL.CommonResolver.canonical_url_edge/3
+        ],
         # display_username: [
         #   resolve: &CommonsPub.Characters.GraphQL.Resolver.display_username_edge/3
         # ],

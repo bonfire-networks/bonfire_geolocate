@@ -1,9 +1,8 @@
 # SPDX-License-Identifier: AGPL-3.0-only
-defmodule Bonfire.Geolocate.Test.Faking do
-  import Bonfire.Common.Extend
-  @moduledoc false
-  if Application.compile_env(:bonfire_api_graphql, :modularity) == :disabled or
-       not module_enabled?(Bonfire.API.GraphQL.Test.GraphQLFields) do
+
+if Application.compile_env(:bonfire_api_graphql, :modularity) == :disabled or
+     not Code.ensure_loaded?(Bonfire.API.GraphQL.Test.GraphQLFields) do
+  defmodule Bonfire.Geolocate.Test.Faking do
     import ExUnit.Assertions
 
     def assert_geolocation(geo) do
@@ -15,10 +14,15 @@ defmodule Bonfire.Geolocate.Test.Faking do
       assert Map.has_key?(geo, :long)
       assert Map.has_key?(geo, :note)
     end
-  else
+  end
+else
+  defmodule Bonfire.Geolocate.Test.Faking do
+    import Bonfire.Common.Extend
+    @moduledoc false
+
     import Grumble
-    import_if_enabled(Bonfire.API.GraphQL.Test.GraphQLFields)
-    import_if_enabled(Bonfire.API.GraphQL.Test.GraphQLAssertions)
+    import(Bonfire.API.GraphQL.Test.GraphQLFields)
+    import(Bonfire.API.GraphQL.Test.GraphQLAssertions)
 
     ## assertions
 
