@@ -34,7 +34,7 @@ defmodule Bonfire.Geolocate.LocationsApiTest do
         |> get("/api/bonfire-v1/locations")
         |> json_response(200)
 
-      flood(response, "Locations response")
+      debug(response, "Locations response")
 
       assert is_list(response)
       ids = Enum.map(response, & &1["id"])
@@ -59,7 +59,7 @@ defmodule Bonfire.Geolocate.LocationsApiTest do
         |> get("/api/bonfire-v1/locations/#{location.id}")
         |> json_response(200)
 
-      flood(response, "Location details response")
+      debug(response, "Location details response")
 
       assert_location_fields(response)
       assert response["id"] == location.id
