@@ -1,7 +1,7 @@
 defmodule Bonfire.Geolocate.Web.GenericMapLive do
   use Bonfire.UI.Common.Web, :surface_live_view
 
-  declare_extension("Maps",
+  declare_extension("Weather & location",
     icon: "ph:map-pin-fill",
     emoji: "📍",
     description: l("Record locations, make and display maps.")
