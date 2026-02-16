@@ -1,31 +1,143 @@
+<div>
 {#if e(@location, nil)}
-  <Bonfire.UI.Common.WidgetBlockLive widget_title={e(@location, "")}>
-    {#case Forecastr.forecast(:today, e(@location, nil),
-        units: Settings.get(:measurement_units, :metric, @__context__) |> debug("unit_used"),
-        renderer: Forecastr.Renderer.JSON
-      )}
-      {#match {:ok,
-           %{
-             "description" => weather,
-             "icon" => icon,
-             "temp" => temp,
-             "name" => weather_location
-           }}}
-        {!-- 
-      TODO: query weather with lat/long when we have them (need to add the ability to fetch by lat/long in Forecastr)
-      TODO: also use https://hexdocs.pm/astro to show sunrise/sunset and moon cycles, etc?
-      --}
-        <div
-          class="flex items-center gap-3"
-          title={l("%{weather} in %{location}", weather: weather, location: weather_location)}
-        >
-          <Iconify.iconify icon={"meteocons:#{icon}"} class="w-16 h-16" />
-          <div class="flex flex-col">
-            <span class="text-xl text-base-content/90">{temp}°</span>
-            <span class="text-sm text-base-content/70">{weather}</span>
-          </div>
-        </div>
-      {#match _}
-    {/case}
-  </Bonfire.UI.Common.WidgetBlockLive>
+  {#case Forecastr.forecast(:today, e(@location, nil),
+      units: Settings.get(:measurement_units, :metric, @__context__),
+      renderer: Forecastr.Renderer.JSON
+    )}
+    {#match {:ok, weather_data}}
+      {#case weather_data}
+        {#match %{
+            "description" => description,
+            "icon" => icon,
+            "temp" => temp,
+            "name" => weather_location,
+            "coordinates" => coordinates
+          }}
+          <Bonfire.UI.Common.WidgetBlockLive
+            widget_title={if Map.get(weather_data, "country"), do: "#{weather_location}, #{Map.get(weather_data, "country")}", else: weather_location}
+            class="w-full rounded-xl bg-base-content/5 border border-base-content/10 overflow-hidden"
+            title_class="px-4 pt-3 pb-0 text-lg font-bold tracking-wide flex items-center gap-2 justify-between"
+          >
+            <div
+              role="region"
+              aria-label={l("Weather conditions for %{location}", location: weather_location)}
+            >
+              {!-- Primary row: icon + temp + description | stats --}
+              <div class="flex items-center justify-between gap-3 p-4">
+                {!-- Left: weather summary --}
+                <div class="flex items-center gap-2.5 min-w-0">
+                  <Iconify.iconify
+                    icon={"meteocons:#{icon}-fill"}
+                    class="w-10 h-10 flex-shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-110"
+                  />
+                  <div class="flex flex-col min-w-0">
+                    <div class="flex items-baseline gap-1.5">
+                      <span
+                        class="text-2xl font-bold text-base-content tabular-nums leading-none"
+                        style="font-variant-numeric: tabular-nums"
+                        aria-label={l("Temperature %{temp} degrees", temp: format_temp(temp))}
+                      >{format_temp(temp)}°</span>
+                      {#case Map.get(weather_data, "apparent_temp")}
+                        {#match apparent when not is_nil(apparent)}
+                          <span
+                            class="text-xs text-base-content/40 tabular-nums"
+                            style="font-variant-numeric: tabular-nums"
+                          >{l("Feels")} {format_temp(apparent)}°</span>
+                        {#match _}
+                      {/case}
+                    </div>
+                    <div class="flex items-center gap-1.5 mt-0.5">
+                      <span class="text-xs text-base-content/50 capitalize truncate">{description}</span>
+                      {#if Map.get(weather_data, "temp_max") != Map.get(weather_data, "temp_min")}
+                        <span class="text-base-content/20">·</span>
+                        <span
+                          class="text-[11px] text-base-content/40 tabular-nums flex-shrink-0"
+                          style="font-variant-numeric: tabular-nums"
+                        >{format_temp(Map.get(weather_data, "temp_max"))}°↑ {format_temp(Map.get(weather_data, "temp_min"))}°↓</span>
+                      {/if}
+                    </div>
+                  </div>
+                </div>
+
+                {!-- Right: inline stats --}
+                <div
+                  class="flex items-center gap-8 flex-shrink-0 text-xs tabular-nums"
+                  style="font-variant-numeric: tabular-nums"
+                  role="group"
+                  aria-label={l("Weather details")}
+                >
+
+                  {#case Map.get(weather_data, "wind_speed")}
+                    {#match speed when not is_nil(speed)}
+                      <div class="text-center" title={l("Wind")}>
+                        <#Icon iconify="ph:wind" class="w-5 h-5 mx-auto text-base-content/40" aria-hidden="true" />
+                        <p class="text-sm font-medium text-base-content/70 mt-0.5 whitespace-nowrap">
+                          {format_wind_speed(speed, Settings.get(:measurement_units, :metric, @__context__))}
+                          {#if wind_direction(Map.get(weather_data, "wind_bearing"))}
+                            <span class="text-base-content/40 lowercase">{wind_direction(Map.get(weather_data, "wind_bearing"))}</span>
+                          {/if}
+                        </p>
+                      </div>
+                    {#match _}
+                  {/case}
+
+                  {#case Map.get(weather_data, "humidity")}
+                    {#match humidity when not is_nil(humidity)}
+                      <div class="text-center" title={l("Humidity")}>
+                        <#Icon iconify="ph:drop" class="w-5 h-5 mx-auto text-base-content/40" aria-hidden="true" />
+                        <p class="text-sm font-medium text-base-content/70 mt-0.5">{format_humidity(humidity)}%</p>
+                      </div>
+                    {#match _}
+                  {/case}
+
+                  {#case Map.get(weather_data, "uv_index")}
+                    {#match uv when not is_nil(uv)}
+                      <div class="text-center" title={l("UV Index")}>
+                        <#Icon iconify="ph:sun" class="w-5 h-5 mx-auto text-base-content/40" aria-hidden="true" />
+                        <p class={"text-sm font-medium mt-0.5", uv_color(uv)}>{uv_level(uv)}</p>
+                      </div>
+                    {#match _}
+                  {/case}
+                </div>
+              </div>
+
+              {!-- Astronomical footer --}
+              {#case get_astro_data(coordinates, Date.utc_today())}
+                {#match %{sunrise: sunrise, sunset: sunset, moon_phase: moon_phase, moon_emoji: moon_emoji}
+                  when not is_nil(sunrise) or not is_nil(sunset) or not is_nil(moon_phase)}
+                  <div
+                    class="flex items-center justify-between gap-4 px-4 py-2 bg-base-content/5 border-t border-base-content/5 text-sm text-base-content/70"
+                    style="font-variant-numeric: tabular-nums"
+                    role="group"
+                    aria-label={l("Astronomical data")}
+                  >
+                    {#if sunrise}
+                      <span class="flex items-center gap-1">
+                        <#Icon iconify="ph:sun-horizon" class="w-5 h-5 text-amber-500" aria-hidden="true" />
+                        {format_time(sunrise)}
+                      </span>
+                    {/if}
+                    {#if sunset}
+                      <span class="flex items-center gap-1">
+                        <#Icon iconify="ph:moon-stars" class="w-5 h-5 text-indigo-400" aria-hidden="true" />
+                        {format_time(sunset)}
+                      </span>
+                    {/if}
+                    {#if moon_phase}
+                      <span class="flex items-center gap-1" title={moon_phase}>
+                        <span class="text-base select-none" aria-hidden="true">{moon_emoji}</span>
+                        {moon_phase}
+                      </span>
+                    {/if}
+                  </div>
+                {#match _}
+              {/case}
+            </div>
+          </Bonfire.UI.Common.WidgetBlockLive>
+        {#match _}
+      {/case}
+    {#match {:error, _reason}}
+    {#match _}
+  {/case}
 {/if}
+</div>

@@ -25,6 +25,7 @@ defmodule Bonfire.Geolocate.MixProject do
       aliases: aliases(),
       deps:
         Mess.deps([
+          {:astro, "~> 1.0"},
           {:floki, ">= 0.0.0", only: [:dev, :test]},
           {:absinthe, "~> 1.7", optional: true},
           {:bonfire_api_graphql,
