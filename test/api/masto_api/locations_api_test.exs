@@ -31,7 +31,7 @@ defmodule Bonfire.Geolocate.LocationsApiTest do
 
       response =
         conn
-        |> get("/api/bonfire-v1/locations")
+        |> get("/api/v1-bonfire/locations")
         |> json_response(200)
 
       debug(response, "Locations response")
@@ -56,7 +56,7 @@ defmodule Bonfire.Geolocate.LocationsApiTest do
 
       response =
         conn
-        |> get("/api/bonfire-v1/locations/#{location.id}")
+        |> get("/api/v1-bonfire/locations/#{location.id}")
         |> json_response(200)
 
       debug(response, "Location details response")
