@@ -1,10 +1,9 @@
 <div>
- {#case Settings.get([Bonfire.Geolocate, :location], nil, @__context__)}
-    {#match location when is_binary(location)}
-      {#case Forecastr.forecast(:today, location,
-          units: Settings.get(:measurement_units, :metric, @__context__),
-          renderer: Forecastr.Renderer.JSON
-        )}
+  {#if e(@location, nil)}
+    {#case Forecastr.forecast(:today, e(@location, nil),
+        units: Settings.get(:measurement_units, :metric, @__context__),
+        renderer: Forecastr.Renderer.JSON
+      )}
       {#match {:ok, weather_data}}
         {#case weather_data}
           {#match %{
@@ -146,12 +145,11 @@
         >
           <div class="flex flex-col items-center gap-2 p-6 text-center">
             <#Icon iconify="ph:cloud-slash-duotone" class="w-8 h-8 text-base-content/30" />
-            <p class="text-sm text-base-content/60">{l("Could not load forecast for %{location}", location: location)}</p>
+            <p class="text-sm text-base-content/60">{l("Could not load forecast for %{location}", location: e(@location, nil))}</p>
             <p class="text-xs text-base-content/40">{reason}</p>
           </div>
         </Bonfire.UI.Common.WidgetBlockLive>
       {#match _}
     {/case}
-    {#match _}
-  {/case}
+  {/if}
 </div>
