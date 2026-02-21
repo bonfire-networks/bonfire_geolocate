@@ -4,7 +4,10 @@ defmodule Bonfire.Geolocate.Settings.InstanceLocationSettingLive do
   declare_settings(:input, l("Location"),
     keys: [Bonfire.Geolocate, :location],
     icon: "ph:globe-duotone",
-    description: l("Set a default location (used for weather on the dashboard when a user hasn't set their own)."),
+    description:
+      l(
+        "Set a default location (used for weather on the dashboard when a user hasn't set their own)."
+      ),
     scope: :instance
   )
 end
