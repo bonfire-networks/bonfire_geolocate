@@ -116,9 +116,7 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
       when is_number(lat) and is_number(lon) do
     # Astro library accepts {longitude, latitude} tuple
     location = {lon, lat}
-    # Custom timezone resolver that always returns UTC (since we don't have tz_world)
-    utc_resolver = fn _location -> {:ok, "Etc/UTC"} end
-    opts = [time_zone: :utc, time_zone_resolver: utc_resolver]
+    opts = []
 
     sunrise = safe_astro_call(fn -> Astro.sunrise(location, date, opts) end)
     sunset = safe_astro_call(fn -> Astro.sunset(location, date, opts) end)
