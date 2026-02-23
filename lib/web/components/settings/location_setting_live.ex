@@ -5,6 +5,6 @@ defmodule Bonfire.Geolocate.Settings.LocationSettingLive do
     keys: [Bonfire.Geolocate, :location],
     icon: "ph:globe-duotone",
     description: l("Set your location to display weather on your dashboard."),
-    scope: :user
+    # scope: :user
   )
 end

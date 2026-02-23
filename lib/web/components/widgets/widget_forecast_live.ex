@@ -12,6 +12,21 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
   """
   use Bonfire.UI.Common.Web, :stateless_component
 
+  @doc "Configures forecastr with the API key from Settings (user > account > instance cascade)."
+  def maybe_configure_forecast(context) do
+    case Bonfire.Common.Settings.get([Bonfire.Geolocate, :pirate_weather_api_key], nil, context) do
+      api_key when is_binary(api_key) and api_key != "" ->
+        Application.put_env(:forecastr, :appid, api_key)
+        Application.put_env(:forecastr, :backend, Forecastr.PirateWeather)
+        Application.put_env(:forecastr, :ttl, 14 * 60_000)
+
+      _ ->
+        nil
+    end
+
+    nil
+  end
+
   declare_settings(:select, l("Measurement Units"),
     keys: [:measurement_units],
     options: [

@@ -1,4 +1,5 @@
 <div>
+  {maybe_configure_forecast(@__context__)}
   {#case Settings.get([Bonfire.Geolocate, :location], nil, @__context__)}
     {#match location when not is_nil(location) and location != ""}
       {#case Forecastr.forecast(:today, location,
