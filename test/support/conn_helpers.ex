@@ -1,5 +1,6 @@
 defmodule Bonfire.Geolocate.Test.ConnHelpers do
   require Phoenix.ConnTest
+  require Bonfire.Common.Config
   alias Phoenix.ConnTest
   alias Phoenix.Controller
 

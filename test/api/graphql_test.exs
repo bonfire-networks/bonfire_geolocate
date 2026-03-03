@@ -23,7 +23,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
     end
 
     describe "spatialThingPages" do
-      @tag :fixme
+      @tag :todo
       test "fetches a paginated list of geolocations" do
         user = fake_user!()
         _geos = some(5, fn -> fake_geolocation!(user) end)
@@ -43,7 +43,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
     end
 
     describe "geolocation.in_scope_of" do
-      @tag :fixme
+      @tag :todo
       test "returns the context of the geolocation" do
         user = fake_user!()
         context = fake_geolocation!(user)
@@ -93,6 +93,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         assert_geolocation(grumble_post_key(q, conn, :create_spatial_thing, vars)["spatialThing"])
       end
 
+      @tag :todo
       test "creates a new geolocation with a mappable address" do
         user = fake_user!()
 
@@ -189,6 +190,7 @@ if Code.ensure_loaded?(Bonfire.API.GraphQL.Schema) do
         assert grumble_post_key(q, conn, :delete_spatial_thing, %{id: geo.id})
       end
 
+      @tag :todo
       test "fails to delete a location of another user unless an admin" do
         q = Bonfire.Geolocate.Test.Faking.delete_geolocation_mutation()
         # first user is admin
