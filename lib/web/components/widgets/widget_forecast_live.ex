@@ -16,6 +16,7 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
   def maybe_configure_forecast(context) do
     case Bonfire.Common.Settings.get([Bonfire.Geolocate, :pirate_weather_api_key], nil, context) do
       api_key when is_binary(api_key) and api_key != "" ->
+        # FIXME: this means user keys will be applied globally
         Application.put_env(:forecastr, :appid, api_key)
         Application.put_env(:forecastr, :backend, Forecastr.PirateWeather)
         Application.put_env(:forecastr, :ttl, 14 * 60_000)
