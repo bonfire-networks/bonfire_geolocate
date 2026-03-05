@@ -41,14 +41,14 @@
                             style="font-variant-numeric: tabular-nums"
                             aria-label={l("Temperature %{temp} degrees", temp: format_temp(temp))}
                           >{format_temp(temp)}°</span>
-                          {#case Map.get(weather_data, "apparent_temp")}
+                          <!-- {#case Map.get(weather_data, "apparent_temp")}
                             {#match apparent when not is_nil(apparent)}
                               <span
                                 class="text-xs text-base-content/40 tabular-nums"
                                 style="font-variant-numeric: tabular-nums"
                               >{l("Feels")} {format_temp(apparent)}°</span>
                             {#match _}
-                          {/case}
+                          {/case} -->
                         </div>
                         <div class="flex items-center gap-1.5 mt-0.5">
                           <span class="text-xs text-base-content/50 capitalize truncate">{description}</span>
