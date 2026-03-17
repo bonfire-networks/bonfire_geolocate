@@ -1,4 +1,4 @@
-<div>
+<div class="px-4 lg:px-0">
   {maybe_configure_forecast(@__context__)}
   {#case Settings.get([Bonfire.Geolocate, :location], nil, @__context__)}
     {#match location when not is_nil(location) and location != ""}
@@ -19,7 +19,7 @@
                 widget_title={if Map.get(weather_data, "country"),
                   do: "#{weather_location}, #{Map.get(weather_data, "country")}",
                   else: weather_location}
-                class="w-full flex-auto mx-auto bonfire-wrapper overflow-hidden"
+                class="w-full p-4 flex-auto mx-auto rounded-2xl bg-base-100 shadow outline outline-base-content/10  overflow-hidden"
                 title_class="px-4 pt-3 pb-0 text-lg font-bold tracking-wide flex items-center gap-2 justify-between"
               >
                 <div
