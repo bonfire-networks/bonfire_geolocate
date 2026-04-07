@@ -134,7 +134,7 @@
             <div class="flex flex-col items-center gap-2 p-6 text-center">
               <#Icon iconify="ph:cloud-slash-duotone" class="w-8 h-8 text-base-content/30" />
               <p class="text-sm text-base-content/60">{l("Could not load forecast for %{location}", location: location)}</p>
-              <p class="text-xs text-base-content/40">{reason}</p>
+              <p class="text-xs text-base-content/40">{if is_binary(reason), do: reason, else: inspect(reason)}</p>
             </div>
           </Bonfire.UI.Common.WidgetBlockLive>
         {#match _}
