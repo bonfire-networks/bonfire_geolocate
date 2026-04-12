@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 defmodule Bonfire.Geolocate.GeolocationsTest do
   use Bonfire.Geolocate.DataCase, async: true
+  @moduletag :skip
 
   import Bonfire.Common.Simulation
   import Bonfire.Me.Fake

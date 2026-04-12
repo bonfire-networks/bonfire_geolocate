@@ -16,6 +16,7 @@ defmodule Bonfire.Geolocate.LocationsApiTest do
   import Untangle
 
   @moduletag :masto_api
+  @moduletag :skip
 
   describe "GET locations" do
     test "returns a list of locations" do

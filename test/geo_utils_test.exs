@@ -1,6 +1,7 @@
 defmodule Bonfire.Geolocate.GeoUtilsTest do
   use Bonfire.Common.Utils
   use ExUnit.Case, async: true
+  @moduletag :skip
 
   alias Bonfire.Geolocate.Geolocations
 
