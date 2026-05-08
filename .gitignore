@@ -45,3 +45,4 @@ deps.path
 /forks
 
 .\#*
+assets/.yarn/install-state.gz

@@ -7,5 +7,6 @@
 		"leaflet.locatecontrol": "^0.76.1",
 		"mapbox-gl": "^2.10.0",
 		"mapbox-gl-leaflet": "^0.0.15"
-	}
+	},
+	"packageManager": "yarn@4.14.1"
 }
