@@ -5,10 +5,10 @@ telemetry_poller = "~> 1.1"
 # for this extension:
 geocoder = "~> 2.0"
 geo_postgis = "~> 3.1"
-astro = "~> 1.0"
+astro = "~> 2.1.1"
 "~> 0.4"
 ~> 0.7"
-tz_world = "~> 1.4.1" 
+tz_world = "~> 2.3.0" 
 
 # WIP - for 4square data
 # sweet_xml = "~> 0.7"
