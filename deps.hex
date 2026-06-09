@@ -5,7 +5,9 @@ telemetry_poller = "~> 1.1"
 # for this extension:
 geocoder = "~> 2.0"
 geo_postgis = "~> 3.1"
-astro = "~> 2.1.1"
+# astro removed: it downloads a 32MB JPL ephemeris from NASA at boot and crashes the
+# whole node on failure. Only used for sun/moon data in the weather widget (guarded below).
+# astro = "~> 2.1.1"
 "~> 0.4"
 ~> 0.7"
 tz_world = "~> 2.3.0" 

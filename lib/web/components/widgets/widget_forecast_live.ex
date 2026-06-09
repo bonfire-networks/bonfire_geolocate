@@ -130,33 +130,40 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
 
   def get_astro_data(%{"lat" => lat, "lon" => lon}, date)
       when is_number(lat) and is_number(lon) do
-    # Astro library accepts {longitude, latitude} tuple
-    location = {lon, lat}
+    # `astro` is an optional dependency (only for sun/moon data). It is referenced
+    # dynamically via `apply/3` so this module compiles and runs without it; when the
+    # dep is absent we simply return no astronomical data.
+    if Code.ensure_loaded?(Astro) do
+      # Astro library accepts {longitude, latitude} tuple
+      location = {lon, lat}
 
-    # Resolve timezone from coordinates via TzWorld, falling back to UTC
-    tz_resolver = fn point ->
-      case TzWorld.timezone_at(point) do
-        {:ok, _tz} = ok -> ok
-        _ -> {:ok, "Etc/UTC"}
+      # Resolve timezone from coordinates via TzWorld, falling back to UTC
+      tz_resolver = fn point ->
+        case TzWorld.timezone_at(point) do
+          {:ok, _tz} = ok -> ok
+          _ -> {:ok, "Etc/UTC"}
+        end
       end
+
+      opts = [time_zone: :default, time_zone_resolver: tz_resolver]
+
+      sunrise = safe_astro_call(fn -> apply(Astro, :sunrise, [location, date, opts]) end)
+      sunset = safe_astro_call(fn -> apply(Astro, :sunset, [location, date, opts]) end)
+      # lunar_phase_at returns phase angle (0-360 degrees)
+      phase_angle = safe_astro_call(fn -> apply(Astro, :lunar_phase_at, [DateTime.utc_now()]) end)
+      # lunar_phase_emoji expects phase angle, not DateTime
+      moon_emoji =
+        if phase_angle, do: safe_astro_call(fn -> apply(Astro, :lunar_phase_emoji, [phase_angle]) end)
+
+      %{
+        sunrise: sunrise,
+        sunset: sunset,
+        moon_phase: phase_angle_to_name(phase_angle),
+        moon_emoji: moon_emoji || "🌙"
+      }
+    else
+      %{}
     end
-
-    opts = [time_zone: :default, time_zone_resolver: tz_resolver]
-
-    sunrise = safe_astro_call(fn -> Astro.sunrise(location, date, opts) end)
-    sunset = safe_astro_call(fn -> Astro.sunset(location, date, opts) end)
-    # lunar_phase_at returns phase angle (0-360 degrees)
-    phase_angle = safe_astro_call(fn -> Astro.lunar_phase_at(DateTime.utc_now()) end)
-    # lunar_phase_emoji expects phase angle, not DateTime
-    moon_emoji =
-      if phase_angle, do: safe_astro_call(fn -> Astro.lunar_phase_emoji(phase_angle) end)
-
-    %{
-      sunrise: sunrise,
-      sunset: sunset,
-      moon_phase: phase_angle_to_name(phase_angle),
-      moon_emoji: moon_emoji || "🌙"
-    }
   end
 
   def get_astro_data(_, _), do: %{}
