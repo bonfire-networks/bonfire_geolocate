@@ -153,7 +153,8 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
       phase_angle = safe_astro_call(fn -> apply(Astro, :lunar_phase_at, [DateTime.utc_now()]) end)
       # lunar_phase_emoji expects phase angle, not DateTime
       moon_emoji =
-        if phase_angle, do: safe_astro_call(fn -> apply(Astro, :lunar_phase_emoji, [phase_angle]) end)
+        if phase_angle,
+          do: safe_astro_call(fn -> apply(Astro, :lunar_phase_emoji, [phase_angle]) end)
 
       %{
         sunrise: sunrise,
