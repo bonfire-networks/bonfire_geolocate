@@ -72,7 +72,7 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
   @doc """
   Gets the UV index color class based on level.
   """
-  def uv_color(nil), do: "text-base-content/70"
+  def uv_color(nil), do: "text-muted"
 
   def uv_color(uv) when is_number(uv) do
     cond do
@@ -83,7 +83,7 @@ defmodule Bonfire.Geolocate.WidgetForecastLive do
     end
   end
 
-  def uv_color(_), do: "text-base-content/70"
+  def uv_color(_), do: "text-muted"
 
   @doc """
   Formats humidity as percentage (API returns 0-1 value).
