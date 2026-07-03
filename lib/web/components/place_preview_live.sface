@@ -2,7 +2,7 @@
   {#case e(@object, :name, nil)}
     {#match nil}
     {#match name}
-      <h3 class="p-3 font-semibold">{rich(name)}</h3>
+      <h3 class="p-3 font-medium">{rich(name)}</h3>
   {/case}
 
   {#case e(@object, :summary, nil)}
