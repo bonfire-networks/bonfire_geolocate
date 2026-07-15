@@ -39,7 +39,7 @@
                           style="font-variant-numeric: tabular-nums"
                           aria-label={l("Temperature %{temp} degrees", temp: format_temp(temp))}
                         >{format_temp(temp)}°</span>
-                        <span class="text-xs text-base-content/50 capitalize truncate">{description}</span>
+                        <span class="text-xs text-muted capitalize truncate">{description}</span>
                       </div>
                       {#if Map.get(weather_data, "temp_max") != Map.get(weather_data, "temp_min")}
                         <span
@@ -95,7 +95,7 @@
                     {#match %{sunrise: sunrise, sunset: sunset, moon_phase: moon_phase, moon_emoji: moon_emoji}
                       when not is_nil(sunrise) or not is_nil(sunset) or not is_nil(moon_phase)}
                       <div
-                        class="flex items-center justify-around px-3 py-1.5 bg-base-content/5 border-t border-base-content/5 text-xs text-muted"
+                        class="flex items-center justify-around px-3 py-1.5 bg-base-content/5 border-t border-secondary text-xs text-muted"
                         style="font-variant-numeric: tabular-nums"
                         role="group"
                         aria-label={l("Astronomical data")}
