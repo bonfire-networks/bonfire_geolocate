@@ -5,6 +5,11 @@ defmodule Bonfire.Geolocate.RuntimeConfig do
   def config do
     import Config
 
+    if System.get_env("DB_ADAPTER") == "yugabyte" do
+      # YugabyteDB doesn't ship PostGIS, so the geolocation tables aren't created there (see Bonfire.Geolocate.Migrations)
+      config :bonfire_geolocate, modularity: :disabled
+    end
+
     config :bonfire, :js_config,
       mapbox_api_key: Bonfire.Common.EnvSecrets.env_or_file("MAPBOX_API_KEY"),
       protomaps_api_key: Bonfire.Common.EnvSecrets.env_or_file("PROTOMAPS_API_KEY")

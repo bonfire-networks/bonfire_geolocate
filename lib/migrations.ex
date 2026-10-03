@@ -10,7 +10,17 @@ defmodule Bonfire.Geolocate.Migrations do
   # def users_table(), do: @user.__schema__(:source)
   @table Bonfire.Geolocate.Geolocation.__schema__(:source)
 
+  # YugabyteDB doesn't ship PostGIS, so geolocation is unavailable there
+  # TODO: support it with a YugabyteDB image that has PostGIS built in, see https://github.com/giovannicandido/yugabytedb-postgis
+  defp postgis_unavailable?, do: System.get_env("DB_ADAPTER") == "yugabyte"
+
   def change do
+    if postgis_unavailable?(),
+      do: IO.warn("Skipping geolocation tables since PostGIS isn't currently available on YugabyteDB"),
+      else: do_change()
+  end
+
+  defp do_change do
     :ok =
       execute(
         "create extension IF NOT EXISTS postgis;",
@@ -39,7 +49,9 @@ defmodule Bonfire.Geolocate.Migrations do
   end
 
   def add_geolocation_indexes do
-    create_index_for_pointer(@table, :context_id)
-    create_index_for_pointer(@table, :creator_id)
+    if not postgis_unavailable?() do
+      create_index_for_pointer(@table, :context_id)
+      create_index_for_pointer(@table, :creator_id)
+    end
   end
 end
