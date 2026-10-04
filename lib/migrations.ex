@@ -16,7 +16,10 @@ defmodule Bonfire.Geolocate.Migrations do
 
   def change do
     if postgis_unavailable?(),
-      do: IO.warn("Skipping geolocation tables since PostGIS isn't currently available on YugabyteDB"),
+      do:
+        IO.warn(
+          "Skipping geolocation tables since PostGIS isn't currently available on YugabyteDB"
+        ),
       else: do_change()
   end
 

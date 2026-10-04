@@ -13,7 +13,7 @@
 
   <Bonfire.Geolocate.MapLive
     id={"#{@parent_id || id(@activity)}-#{id(@object)}"}
-    place={IO.inspect(@object, label: "oooobj")}
+    place={@object}
     show_activity={false}
   />
 
