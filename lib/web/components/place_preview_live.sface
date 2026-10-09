@@ -1,4 +1,4 @@
-<div class="rounded-lg border border-divider bg-base-200 shadow">
+<div class="rounded-box border border-divider bg-base-200 shadow">
   {#case e(@object, :name, nil)}
     {#match nil}
     {#match name}

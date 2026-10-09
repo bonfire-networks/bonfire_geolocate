@@ -43,7 +43,7 @@
                       </div>
                       {#if Map.get(weather_data, "temp_max") != Map.get(weather_data, "temp_min")}
                         <span
-                          class="text-[11px] text-subtle tabular-nums mt-0.5"
+                          class="text-xs text-subtle tabular-nums mt-0.5"
                           style="font-variant-numeric: tabular-nums"
                         >{format_temp(Map.get(weather_data, "temp_max"))}°↑ {format_temp(Map.get(weather_data, "temp_min"))}°↓</span>
                       {/if}
@@ -129,7 +129,7 @@
           <Bonfire.UI.Common.WidgetBlockLive
             widget_title={l("Weather")}
             class="w-full flex-auto mx-auto bonfire-wrapper overflow-hidden"
-            title_class="px-4 pt-3 pb-0 text-lg font-bold tracking-wide flex items-center gap-2 justify-between"
+            title_class="px-4 pt-3 pb-0 type-heading flex items-center gap-2 justify-between"
           >
             <div class="flex flex-col items-center gap-2 p-6 text-center">
               <#Icon iconify="ph:cloud-slash-duotone" class="w-8 h-8 text-subtle" />
