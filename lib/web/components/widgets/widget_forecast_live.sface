@@ -43,7 +43,7 @@
                       </div>
                       {#if Map.get(weather_data, "temp_max") != Map.get(weather_data, "temp_min")}
                         <span
-                          class="text-[11px] text-base-content/40 tabular-nums mt-0.5"
+                          class="text-[11px] text-subtle tabular-nums mt-0.5"
                           style="font-variant-numeric: tabular-nums"
                         >{format_temp(Map.get(weather_data, "temp_max"))}°↑ {format_temp(Map.get(weather_data, "temp_min"))}°↓</span>
                       {/if}
@@ -60,11 +60,11 @@
                     {#case Map.get(weather_data, "wind_speed")}
                       {#match speed when not is_nil(speed)}
                         <div class="flex items-center gap-1.5" title={l("Wind")}>
-                          <#Icon iconify="ph:wind" class="w-4 h-4 text-base-content/40" aria-hidden="true" />
+                          <#Icon iconify="ph:wind" class="w-4 h-4 text-subtle" aria-hidden="true" />
                           <span class="text-sm font-medium text-muted whitespace-nowrap">
                             {format_wind_speed(speed, Settings.get(:measurement_units, :metric, @__context__))}
                             {#if wind_direction(Map.get(weather_data, "wind_bearing"))}
-                              <span class="text-base-content/40 lowercase">{wind_direction(Map.get(weather_data, "wind_bearing"))}</span>
+                              <span class="text-subtle lowercase">{wind_direction(Map.get(weather_data, "wind_bearing"))}</span>
                             {/if}
                           </span>
                         </div>
@@ -74,7 +74,7 @@
                     {#case Map.get(weather_data, "humidity")}
                       {#match humidity when not is_nil(humidity)}
                         <div class="flex items-center gap-1.5" title={l("Humidity")}>
-                          <#Icon iconify="ph:drop" class="w-4 h-4 text-base-content/40" aria-hidden="true" />
+                          <#Icon iconify="ph:drop" class="w-4 h-4 text-subtle" aria-hidden="true" />
                           <span class="text-sm font-medium text-muted">{format_humidity(humidity)}%</span>
                         </div>
                       {#match _}
@@ -83,7 +83,7 @@
                     {#case Map.get(weather_data, "uv_index")}
                       {#match uv when not is_nil(uv)}
                         <div class="flex items-center gap-1.5" title={l("UV Index")}>
-                          <#Icon iconify="ph:sun" class="w-4 h-4 text-base-content/40" aria-hidden="true" />
+                          <#Icon iconify="ph:sun" class="w-4 h-4 text-subtle" aria-hidden="true" />
                           <span class={"text-sm font-medium", uv_color(uv)}>{uv_level(uv)}</span>
                         </div>
                       {#match _}
@@ -95,7 +95,7 @@
                     {#match %{sunrise: sunrise, sunset: sunset, moon_phase: moon_phase, moon_emoji: moon_emoji}
                       when not is_nil(sunrise) or not is_nil(sunset) or not is_nil(moon_phase)}
                       <div
-                        class="flex items-center justify-around px-3 py-1.5 bg-base-content/5 border-t border-secondary text-xs text-muted"
+                        class="flex items-center justify-around px-3 py-1.5 bg-fill border-t border-divider text-xs text-muted"
                         style="font-variant-numeric: tabular-nums"
                         role="group"
                         aria-label={l("Astronomical data")}
@@ -132,9 +132,9 @@
             title_class="px-4 pt-3 pb-0 text-lg font-bold tracking-wide flex items-center gap-2 justify-between"
           >
             <div class="flex flex-col items-center gap-2 p-6 text-center">
-              <#Icon iconify="ph:cloud-slash-duotone" class="w-8 h-8 text-base-content/30" />
+              <#Icon iconify="ph:cloud-slash-duotone" class="w-8 h-8 text-subtle" />
               <p class="text-sm text-muted">{l("Could not load forecast for %{location}", location: location)}</p>
-              <p class="text-xs text-base-content/40">{if is_binary(reason), do: reason, else: inspect(reason)}</p>
+              <p class="text-xs text-subtle">{if is_binary(reason), do: reason, else: inspect(reason)}</p>
             </div>
           </Bonfire.UI.Common.WidgetBlockLive>
         {#match _}
