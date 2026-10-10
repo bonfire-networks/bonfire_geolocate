@@ -30,7 +30,7 @@
                   <div class="flex items-center gap-3 p-3">
                     <Iconify.iconify
                       icon={"meteocons:#{icon}-fill"}
-                      class="w-8 h-8 flex-shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-110"
+                      class="size-8 flex-shrink-0 motion-safe:transition-transform motion-safe:duration-200 hover:scale-110"
                     />
                     <div class="flex flex-col min-w-0">
                       <div class="flex items-baseline gap-1.5">
@@ -60,7 +60,7 @@
                     {#case Map.get(weather_data, "wind_speed")}
                       {#match speed when not is_nil(speed)}
                         <div class="flex items-center gap-1.5" title={l("Wind")}>
-                          <#Icon iconify="ph:wind" class="w-4 h-4 text-subtle" aria-hidden="true" />
+                          <#Icon iconify="ph:wind" class="size-4 text-subtle" aria-hidden="true" />
                           <span class="text-sm font-medium text-muted whitespace-nowrap">
                             {format_wind_speed(speed, Settings.get(:measurement_units, :metric, @__context__))}
                             {#if wind_direction(Map.get(weather_data, "wind_bearing"))}
@@ -74,7 +74,7 @@
                     {#case Map.get(weather_data, "humidity")}
                       {#match humidity when not is_nil(humidity)}
                         <div class="flex items-center gap-1.5" title={l("Humidity")}>
-                          <#Icon iconify="ph:drop" class="w-4 h-4 text-subtle" aria-hidden="true" />
+                          <#Icon iconify="ph:drop" class="size-4 text-subtle" aria-hidden="true" />
                           <span class="text-sm font-medium text-muted">{format_humidity(humidity)}%</span>
                         </div>
                       {#match _}
@@ -83,7 +83,7 @@
                     {#case Map.get(weather_data, "uv_index")}
                       {#match uv when not is_nil(uv)}
                         <div class="flex items-center gap-1.5" title={l("UV Index")}>
-                          <#Icon iconify="ph:sun" class="w-4 h-4 text-subtle" aria-hidden="true" />
+                          <#Icon iconify="ph:sun" class="size-4 text-subtle" aria-hidden="true" />
                           <span class={"text-sm font-medium", uv_color(uv)}>{uv_level(uv)}</span>
                         </div>
                       {#match _}
@@ -102,13 +102,13 @@
                       >
                         {#if sunrise}
                           <span class="flex items-center gap-1">
-                            <#Icon iconify="ph:sun-horizon" class="w-4 h-4 text-amber-500" aria-hidden="true" />
+                            <#Icon iconify="ph:sun-horizon" class="size-4 text-amber-500" aria-hidden="true" />
                             {format_time(sunrise)}
                           </span>
                         {/if}
                         {#if sunset}
                           <span class="flex items-center gap-1">
-                            <#Icon iconify="ph:moon-stars" class="w-4 h-4 text-indigo-400" aria-hidden="true" />
+                            <#Icon iconify="ph:moon-stars" class="size-4 text-indigo-400" aria-hidden="true" />
                             {format_time(sunset)}
                           </span>
                         {/if}
@@ -132,7 +132,7 @@
             title_class="px-4 pt-3 pb-0 type-heading flex items-center gap-2 justify-between"
           >
             <div class="flex flex-col items-center gap-2 p-6 text-center">
-              <#Icon iconify="ph:cloud-slash-duotone" class="w-8 h-8 text-subtle" />
+              <#Icon iconify="ph:cloud-slash-duotone" class="size-8 text-subtle" />
               <p class="text-sm text-muted">{l("Could not load forecast for %{location}", location: location)}</p>
               <p class="text-xs text-subtle">{if is_binary(reason), do: reason, else: inspect(reason)}</p>
             </div>
