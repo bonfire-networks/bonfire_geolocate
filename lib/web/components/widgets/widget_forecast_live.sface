@@ -42,10 +42,7 @@
                         <span class="text-xs text-muted capitalize truncate">{description}</span>
                       </div>
                       {#if Map.get(weather_data, "temp_max") != Map.get(weather_data, "temp_min")}
-                        <span
-                          class="text-xs text-subtle tabular-nums mt-0.5"
-                          style="font-variant-numeric: tabular-nums"
-                        >{format_temp(Map.get(weather_data, "temp_max"))}°↑ {format_temp(Map.get(weather_data, "temp_min"))}°↓</span>
+                        <span class="text-xs text-subtle tabular-nums mt-0.5" style="font-variant-numeric: tabular-nums">{format_temp(Map.get(weather_data, "temp_max"))}°↑ {format_temp(Map.get(weather_data, "temp_min"))}°↓</span>
                       {/if}
                     </div>
                   </div>
