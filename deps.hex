@@ -10,7 +10,7 @@ geo_postgis = "~> 3.1"
 # astro = "~> 2.1.1"
 "~> 0.4"
 ~> 0.7"
-tz_world = "~> 2.3.0" 
+tz_world = "~> 2.5"
 
 # WIP - for 4square data
 # sweet_xml = "~> 0.7"
