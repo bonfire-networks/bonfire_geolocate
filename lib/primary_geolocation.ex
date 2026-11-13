@@ -1,72 +1,74 @@
-# defmodule Bonfire.Geolocate.PrimaryGeolocation do
-#   @moduledoc """
-#   A mixin for objects (eg profile, post, organisation) to define their main location
-#   """
-#   use Needle.Mixin,
-#     otp_app: :bonfire_geolocate,
-#     source: "bonfire_geolocate_primary_geolocation"
+defmodule Bonfire.Geolocate.PrimaryGeolocation do
+  @moduledoc """
+  A mixin for objects (eg profile, post, organisation, event) to define their main location
+  """
+  use Needle.Mixin,
+    otp_app: :bonfire_geolocate,
+    source: "bonfire_geolocate_primary_geolocation"
 
-#   alias Bonfire.Geolocate.PrimaryGeolocation
-#   alias Ecto.Changeset
-#   alias Needle.Pointer
+  alias Bonfire.Geolocate.PrimaryGeolocation
+  alias Ecto.Changeset
 
-#   mixin_schema do
-#     belongs_to :geolocation, Bonfire.Geolocate.Geolocation
-#   end
+  mixin_schema do
+    belongs_to(:geolocation, Bonfire.Geolocate.Geolocation)
+  end
 
-#   @cast [:geolocation_id]
-#   @required [:geolocation_id]
+  @cast [:geolocation_id]
+  @required [:geolocation_id]
 
-#   def changeset(primary_geolocation \\ %PrimaryGeolocation{}, attrs) do
-#     primary_geolocation
-#     |> Changeset.cast(attrs, @cast)
-#     |> Changeset.validate_required(@required)
-#     |> Changeset.assoc_constraint(:geolocation)
-#   end
-# end
+  def changeset(primary_geolocation \\ %PrimaryGeolocation{}, attrs) do
+    primary_geolocation
+    |> Changeset.cast(attrs, @cast)
+    |> Changeset.validate_required(@required)
+    |> Changeset.assoc_constraint(:geolocation)
+  end
+end
 
-# defmodule Bonfire.Geolocate.PrimaryGeolocation.Migration do
-#   use Ecto.Migration
-#   import Needle.Migration
-#   alias Bonfire.Geolocate.PrimaryGeolocation
+defmodule Bonfire.Geolocate.PrimaryGeolocation.Migration do
+  @moduledoc false
+  use Ecto.Migration
+  import Needle.Migration
+  alias Bonfire.Geolocate.PrimaryGeolocation
 
-#   # create_primary_geolocation_table/{0, 1}
+  # create_primary_geolocation_table/{0, 1}
 
-#   defp make_primary_geolocation_table(exprs) do
-#     quote do
-#       require Needle.Migration
-#       Needle.Migration.create_mixin_table(Bonfire.Geolocate.PrimaryGeolocation) do
-#         add_pointer(:geolocation_id, :strong, Bonfire.Geolocate.Geolocation)
-#         unquote_splicing(exprs)
-#       end
-#     end
-#   end
+  defp make_primary_geolocation_table(exprs) do
+    quote do
+      require Needle.Migration
 
-#   defmacro create_primary_geolocation_table(), do: make_primary_geolocation_table([])
-#   defmacro create_primary_geolocation_table([do: {_, _, body}]), do: make_primary_geolocation_table(body)
+      Needle.Migration.create_mixin_table Bonfire.Geolocate.PrimaryGeolocation do
+        Needle.Migration.add_pointer(:geolocation_id, :strong, Bonfire.Geolocate.Geolocation)
+        unquote_splicing(exprs)
+      end
+    end
+  end
 
-#   # drop_primary_geolocation_table/0
+  defmacro create_primary_geolocation_table(), do: make_primary_geolocation_table([])
 
-#   def drop_primary_geolocation_table(), do: drop_mixin_table(PrimaryGeolocation)
+  defmacro create_primary_geolocation_table(do: {_, _, body}),
+    do: make_primary_geolocation_table(body)
 
-#   # migrate_primary_geolocation/{0, 1}
+  # drop_primary_geolocation_table/0
 
-#   defp mpl(:up), do: make_primary_geolocation_table([])
+  def drop_primary_geolocation_table(), do: drop_mixin_table(PrimaryGeolocation)
 
-#   defp mpl(:down) do
-#     quote do
-#       Bonfire.Geolocate.PrimaryGeolocation.Migration.drop_primary_geolocation_table()
-#     end
-#   end
+  # migrate_primary_geolocation/{0, 1}
 
-#   defmacro migrate_primary_geolocation() do
-#     quote do
-#       if Ecto.Migration.direction() == :up,
-#         do: unquote(mpl(:up)),
-#         else: unquote(mpl(:down))
-#     end
-#   end
+  defp mpl(:up), do: make_primary_geolocation_table([])
 
-#   defmacro migrate_primary_geolocation(dir), do: mpl(dir)
+  defp mpl(:down) do
+    quote do
+      Bonfire.Geolocate.PrimaryGeolocation.Migration.drop_primary_geolocation_table()
+    end
+  end
 
-# end
+  defmacro migrate_primary_geolocation() do
+    quote do
+      if Ecto.Migration.direction() == :up,
+        do: unquote(mpl(:up)),
+        else: unquote(mpl(:down))
+    end
+  end
+
+  defmacro migrate_primary_geolocation(dir), do: mpl(dir)
+end

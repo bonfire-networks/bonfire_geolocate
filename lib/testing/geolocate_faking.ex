@@ -1,5 +1,10 @@
 # SPDX-License-Identifier: AGPL-3.0-only
 
+# if Application.compile_env(:bonfire_api_graphql, :modularity) == :disabled or
+#      not Code.ensure_loaded?(Bonfire.API.GraphQL.Test.GraphQLFields) or
+#      not Code.ensure_loaded?(Grumble) do
+#   # the plain variant is also used when Grumble is not on the code path of this dependency's compile (it is not one of its declared deps), which otherwise fails the compile when the GraphQL test helpers were just compiled in the same run
+# Grumble is not checked here: it is a dev/test dependency that is not on the code path when this compiles as a dependency, so the GraphQL variant calls it remotely through private wrappers (as `Bonfire.API.GraphQL.Test.GraphQLFields` does) instead of falling back to the plain variant
 if Application.compile_env(:bonfire_api_graphql, :modularity) == :disabled or
      not Code.ensure_loaded?(Bonfire.API.GraphQL.Test.GraphQLFields) do
   defmodule Bonfire.Geolocate.Test.Faking do
@@ -20,7 +25,13 @@ else
     import Bonfire.Common.Extend
     @moduledoc false
 
-    import Grumble
+    # import Grumble
+    # `import` needs the module at compile time and a remote call doesn't
+    defp field(name, set \\ []), do: Grumble.field(name, set)
+    defp list_type(name, set \\ []), do: Grumble.list_type(name, set)
+    defp type!(name, set \\ []), do: Grumble.type!(name, set)
+    defp var(name), do: Grumble.var(name)
+
     import(Bonfire.API.GraphQL.Test.GraphQLFields)
     import(Bonfire.API.GraphQL.Test.GraphQLAssertions)
 
