@@ -22,6 +22,12 @@ defmodule Bonfire.Geolocate.MapLive do
     mark_places([place], assign(socket, assigns))
   end
 
+  # markers given by the caller (eg. the events map, with its own popups), before the `id` clause: a stateful component always has an `id`, so the `markers` clause below was never reached
+  def update(%{markers: markers} = assigns, socket)
+      when is_list(markers) and length(markers) > 0 do
+    response(assign(socket, assigns), false)
+  end
+
   def update(%{id: id} = assigns, socket) when is_binary(id) do
     if id = Types.uid(id) do
       show_place_things(id, assign(socket, assigns))
@@ -30,14 +36,15 @@ defmodule Bonfire.Geolocate.MapLive do
     end
   end
 
-  def update(%{markers: markers} = assigns, socket)
-      when is_list(markers) and length(markers) > 0 do
-    response(
-      socket
-      |> assign(assigns),
-      false
-    )
-  end
+  # (moved above the `id` clause)
+  # def update(%{markers: markers} = assigns, socket)
+  #     when is_list(markers) and length(markers) > 0 do
+  #   response(
+  #     socket
+  #     |> assign(assigns),
+  #     false
+  #   )
+  # end
 
   def update(assigns, socket) do
     assign_default_places(assigns, socket)
