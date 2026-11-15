@@ -316,7 +316,11 @@ defmodule Bonfire.Geolocate.Geolocations do
       "received"
     )
 
-    attrs =
+    create(creator, nil, ap_attrs(data))
+  end
+
+  @doc "The attrs of a geolocation read from an AS2 `Place`: name, summary, latitude, longitude and `geojson:hasGeometry`."
+  def ap_attrs(data) do
       %{
         name: e(data, "name", nil),
         note: e(data, "summary", nil),
@@ -328,8 +332,6 @@ defmodule Bonfire.Geolocate.Geolocations do
         is_public: true
       }
       |> debug("aatrrs")
-
-    create(creator, nil, attrs)
   end
 
   # Extract and convert GeoJSON geometry from ActivityPub object
