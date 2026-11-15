@@ -35,18 +35,20 @@ defmodule Bonfire.Geolocate.Places do
   end
 
   def fetch_place(id, opts) do
+    current_user = Utils.current_user(opts)
+
     with {:ok, place} <-
            Utils.maybe_apply(GraphQL, :geolocation, [
              %{id: id},
              %{
-               context: %{current_user: Utils.current_user(opts)}
+               context: %{current_user: current_user}
              }
            ]) do
       place
     else
       #  TODO: cleanup
       _ ->
-        Geolocations.one(id: id, user: Utils.current_user(opts))
+        Geolocations.one(id: id, user: current_user)
     end
   end
 end

@@ -123,7 +123,14 @@ defmodule Bonfire.Geolocate.Geolocations do
              name: mappable_address,
              mappable_address: mappable_address
            }) do
-      maybe_apply(Bonfire.Tag, :tag_something, [user, thing, geolocation])
+      # checked as the user: whoever owns the thing may tag it, anyone else needs the `:tag` permission, and no user is refused
+      maybe_apply(Bonfire.Tag, :tag_something, [
+        user,
+        thing,
+        geolocation,
+        true,
+        [current_user: user]
+      ])
     end
   end
 
@@ -321,17 +328,17 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @doc "The attrs of a geolocation read from an AS2 `Place`: name, summary, latitude, longitude and `geojson:hasGeometry`."
   def ap_attrs(data) do
-      %{
-        name: e(data, "name", nil),
-        note: e(data, "summary", nil),
-        #  TODO?
-        mappable_address: nil,
-        lat: e(data, "latitude", nil),
-        long: e(data, "longitude", nil),
-        geom: extract_geojson_geometry(e(data, "geojson:hasGeometry", nil)),
-        is_public: true
-      }
-      |> debug("aatrrs")
+    %{
+      name: e(data, "name", nil),
+      note: e(data, "summary", nil),
+      #  TODO?
+      mappable_address: nil,
+      lat: e(data, "latitude", nil),
+      long: e(data, "longitude", nil),
+      geom: extract_geojson_geometry(e(data, "geojson:hasGeometry", nil)),
+      is_public: true
+    }
+    |> debug("aatrrs")
   end
 
   # Extract and convert GeoJSON geometry from ActivityPub object
