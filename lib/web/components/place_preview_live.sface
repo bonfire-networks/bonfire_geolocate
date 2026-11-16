@@ -2,13 +2,13 @@
   {#case e(@object, :name, nil)}
     {#match nil}
     {#match name}
-      <h3 class="p-3 font-medium">{rich(name)}</h3>
+      <h3 class="p-3 font-medium">{name}</h3>
   {/case}
 
   {#case e(@object, :summary, nil)}
     {#match nil}
     {#match summary}
-      <div class="mb-2 prose-sm prose max-w-prose">{rich(summary)}</div>
+      <div class="mb-2 prose-sm prose max-w-prose">{rich_untrusted(summary)}</div>
   {/case}
 
   <Bonfire.Geolocate.MapLive
