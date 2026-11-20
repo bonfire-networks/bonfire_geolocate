@@ -252,7 +252,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled and
     end
 
     def ensure_update_allowed(user, geo) do
-      if maybe_apply(Bonfire.Me.Accounts, :is_admin?, [user], fallback_return: nil) == true or
+      if maybe_apply(Bonfire.Me.Accounts, :is_admin!, [user], fallback_return: nil) == true or
            geo.creator_id == user.id do
         :ok
       else
@@ -270,7 +270,7 @@ if Application.compile_env(:bonfire_api_graphql, :modularity) != :disabled and
     end
 
     def ensure_delete_allowed(user, geo) do
-      if maybe_apply(Bonfire.Me.Accounts, :is_admin?, [user], fallback_return: nil) == true or
+      if maybe_apply(Bonfire.Me.Accounts, :is_admin!, [user], fallback_return: nil) == true or
            geo.creator_id == user.id do
         :ok
       else
