@@ -13,6 +13,23 @@ defmodule Bonfire.Geolocate.MapLive do
   prop multi_polygons, :list, default: []
   prop show_activity, :boolean, default: true
 
+  data maps_enabled, :boolean, default: false
+
+  @doc "Whether maps can be drawn: the extension is enabled and the instance has a key for the map tiles (`MAPBOX_API_KEY`, which the map's JS reads too)."
+  def maps_enabled? do
+    require Bonfire.Common.Config
+
+    module_enabled?(Bonfire.Geolocate) and
+      Bonfire.Common.Config.get([:js_config, :mapbox_api_key], nil, :bonfire) not in [nil, ""]
+  end
+
+  # read once per map, not per render
+  def mount(socket), do: {:ok, assign(socket, maps_enabled: maps_enabled?())}
+
+  # with no map to draw, nothing is loaded for it, and the template says maps are not set up
+  def update(assigns, %{assigns: %{maps_enabled: false}} = socket),
+    do: {:ok, assign(socket, assigns)}
+
   def update(%{places: places} = assigns, socket)
       when is_list(places) and length(places) > 0 do
     mark_places(places, assign(socket, assigns))

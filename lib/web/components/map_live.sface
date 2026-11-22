@@ -1,64 +1,70 @@
 <main class="h-[250px] overflow-hidden">
-  {#if @show_activity && module_enabled?(Bonfire.UI.Social.ActivityLive) && @place}
-    <StatefulComponent
-      module={maybe_component(Bonfire.UI.Social.ActivityLive, @__context__)}
-      id={id(@place) || "unknown-place"}
-      object={@place}
-    />
+  {#if !@maps_enabled}
+    <div data-id="map_unavailable" class="h-full grid place-items-center text-center text-muted p-8">
+      <p class="font-medium text-base-content">{l("Maps are not set up on this instance")}</p>
+    </div>
+  {#else}
+    {#if @show_activity && module_enabled?(Bonfire.UI.Social.ActivityLive) && @place}
+      <StatefulComponent
+        module={maybe_component(Bonfire.UI.Social.ActivityLive, @__context__)}
+        id={id(@place) || "unknown-place"}
+        object={@place}
+      />
+    {/if}
+
+    <div class="bg-base-100 shadow w-center">
+      <section
+        class="map"
+        id={"map-" <> e(@place, :id, "unknown")}
+        phx-hook="MapLeaflet"
+        style="width: 100%; height: 100%"
+      >
+        <leaflet-map points={Jason.encode!(@points)}>
+          {#for marker <- @markers}
+            {#if Map.get(marker, :lat) && Map.get(marker, :long)}
+              <leaflet-marker
+                lat={marker.lat}
+                lng={marker.long}
+                selected={e(marker, :is_disabled, false)}
+                popup={e(marker, :name, "")}
+              >
+                <leaflet-icon icon-url={map_icon(e(marker, :is_disabled, false))} width="64" height="64">
+                </leaflet-icon>
+              </leaflet-marker>
+            {/if}
+          {/for}
+
+          {#for line <- @lines}
+            <leaflet-polyline
+              points={Jason.encode!(line)}
+              color="blue"
+              weight="3"
+              popup={e(line, :name, "Line")}
+            />
+          {/for}
+
+          {#for polygon <- @polygons}
+            <leaflet-polygon
+              points={Jason.encode!(List.first(polygon))}
+              holes={Jason.encode!(Enum.slice(polygon, 1..-1))}
+              color="green"
+              fill-color="green"
+              fill-opacity="0.4"
+              popup={e(polygon, :name, "Polygon")}
+            />
+          {/for}
+
+          {#for multi_polygon <- @multi_polygons}
+            <leaflet-multi-polygon
+              polygons={Jason.encode!(multi_polygon)}
+              color="purple"
+              fill-color="purple"
+              fill-opacity="0.3"
+              popup={e(multi_polygon, :name, "MultiPolygon")}
+            />
+          {/for}
+        </leaflet-map>
+      </section>
+    </div>
   {/if}
-
-  <div class="bg-base-100 shadow w-center">
-    <section
-      class="map"
-      id={"map-" <> e(@place, :id, "unknown")}
-      phx-hook="MapLeaflet"
-      style="width: 100%; height: 100%"
-    >
-      <leaflet-map points={Jason.encode!(@points)}>
-        {#for marker <- @markers}
-          {#if Map.get(marker, :lat) && Map.get(marker, :long)}
-            <leaflet-marker
-              lat={marker.lat}
-              lng={marker.long}
-              selected={e(marker, :is_disabled, false)}
-              popup={e(marker, :name, "")}
-            >
-              <leaflet-icon icon-url={map_icon(e(marker, :is_disabled, false))} width="64" height="64">
-              </leaflet-icon>
-            </leaflet-marker>
-          {/if}
-        {/for}
-
-        {#for line <- @lines}
-          <leaflet-polyline
-            points={Jason.encode!(line)}
-            color="blue"
-            weight="3"
-            popup={e(line, :name, "Line")}
-          />
-        {/for}
-
-        {#for polygon <- @polygons}
-          <leaflet-polygon
-            points={Jason.encode!(List.first(polygon))}
-            holes={Jason.encode!(Enum.slice(polygon, 1..-1))}
-            color="green"
-            fill-color="green"
-            fill-opacity="0.4"
-            popup={e(polygon, :name, "Polygon")}
-          />
-        {/for}
-
-        {#for multi_polygon <- @multi_polygons}
-          <leaflet-multi-polygon
-            polygons={Jason.encode!(multi_polygon)}
-            color="purple"
-            fill-color="purple"
-            fill-opacity="0.3"
-            popup={e(multi_polygon, :name, "MultiPolygon")}
-          />
-        {/for}
-      </leaflet-map>
-    </section>
-  </div>
 </main>
