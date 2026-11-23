@@ -1,0 +1,118 @@
+{#if current_user_id(@__context__)}
+  {#case units(@__context__)}
+    {#match units}
+      {#case viewer_location(@__context__)}
+        {#match viewer}
+          <Bonfire.UI.Common.FeedFilterRowLive
+            id={@id}
+            name="nearby"
+            label={l("Nearby")}
+            click="Bonfire.Geolocate:locate"
+            target={@target}
+            active={not is_nil(e(@feed_filters, :nearby, nil))}
+            open={not is_nil(e(@feed_filters, :nearby, nil))}
+            value={summary(@feed_filters, units)}
+          >
+            <div class="pb-3 flex flex-col gap-3">
+              <p class="text-xs text-muted">
+                {l(
+                  "Where it is. Things with a place within this distance, plus online ones with no place, unless you turn that off."
+                )}
+              </p>
+              {#if viewer && viewer.source == :profile}
+                <p class="text-xs text-muted">{l("Using the location on your profile.")}</p>
+              {/if}
+              {!-- the browser's location, asked for only when the button is pressed (see the hook) --}
+              <div
+                id={"#{@id}_detect_location"}
+                :hook
+                class="flex flex-col gap-1"
+                data-denied={l("Couldn't get your location. Check that this site may use it.")}
+                data-unsupported={l("This browser can't share its location.")}
+              >
+                <form
+                  id={"#{@id}_nearby_place_form"}
+                  phx-submit="Bonfire.Geolocate:set_place"
+                  phx-target={@target}
+                  class="flex flex-col gap-1"
+                >
+                  <label for={"#{@id}_nearby_place"} class="sr-only">{l("Place")}</label>
+                  <div class="join w-full">
+                    <input
+                      id={"#{@id}_nearby_place"}
+                      type="text"
+                      name="place"
+                      value={place_name(@feed_filters, @control_state, viewer)}
+                      placeholder={l("Type a place or detect your location")}
+                      autocomplete="off"
+                      spellcheck="false"
+                      class="input input-sm join-item flex-1 min-w-0 text-base"
+                    />
+                    {!-- shown by the hook once the typed text differs from the saved place --}
+                    <button
+                      type="submit"
+                      class="btn btn-sm btn-square btn-primary join-item hidden"
+                      data-role="search_place"
+                      aria-label={l("Search here")}
+                      title={l("Search here")}
+                    >
+                      <#Icon iconify="ph:magnifying-glass-duotone" class="size-4" />
+                    </button>
+                    <button
+                      type="button"
+                      class="btn btn-sm btn-square join-item"
+                      data-role="detect_location"
+                      aria-label={l("Detect location")}
+                      title={l("Detect location")}
+                    >
+                      <#Icon iconify="ph:crosshair-simple-duotone" class="size-4" />
+                    </button>
+                  </div>
+                  <p
+                    :if={e(@control_state, :nearby, :place_not_found, false)}
+                    class="text-xs text-error"
+                    data-role="place_not_found"
+                  >
+                    {l("We couldn't find that place.")}
+                  </p>
+                </form>
+                <p class="text-xs text-error" data-role="detect_location_error" hidden />
+              </div>
+              {#if not is_nil(viewer) or not is_nil(e(@feed_filters, :nearby, nil))}
+                <form
+                  id={"#{@id}_nearby_form"}
+                  phx-change="Bonfire.Geolocate:set_nearby"
+                  phx-target={@target}
+                  class="flex flex-col gap-2"
+                >
+                  <label for={"#{@id}_nearby_radius"} class="sr-only">{l("Radius")}</label>
+                  <select id={"#{@id}_nearby_radius"} name="radius" class="select select-sm w-full">
+                    <option value="">{l("Anywhere")}</option>
+                    {#for n <- radii()}
+                      <option value={n} selected={from_km(e(@feed_filters, :nearby, :km, nil), units) == n}>
+                        {#if units == :imperial}
+                          {l("Within %{mi} mi", mi: n)}
+                        {#else}
+                          {l("Within %{km} km", km: n)}
+                        {/if}
+                      </option>
+                    {/for}
+                  </select>
+                  <label class="flex items-center justify-between gap-3 cursor-pointer">
+                    <span class="text-sm text-muted">{l("Also show online events and anything with no place specified")}</span>
+                    <input type="hidden" name="include_no_place" value="false">
+                    <input
+                      type="checkbox"
+                      name="include_no_place"
+                      value="true"
+                      checked={include_no_place?(@feed_filters)}
+                      class="toggle toggle-primary toggle-xs"
+                    />
+                  </label>
+                </form>
+              {/if}
+            </div>
+          </Bonfire.UI.Common.FeedFilterRowLive>
+      {/case}
+  {/case}
+{/if}

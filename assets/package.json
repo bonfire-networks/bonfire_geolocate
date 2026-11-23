@@ -2,11 +2,17 @@
 	"repository": {},
 	"description": " ",
 	"license": "AGPL-3.0",
+	"scripts": {
+		"build.ext": "npx esbuild ./js/map.js --target=es2020 --bundle --format=esm --minify --drop:console --drop:debugger --outfile=../../../priv/static/assets/geolocate_map.js && yarn copy.worker",
+		"watch.ext": "yarn copy.worker && NODE_ENV=development npx esbuild ./js/map.js --target=es2020 --bundle --format=esm --sourcemap --outfile=../../../priv/static/assets/geolocate_map.js --watch=forever",
+		"copy.worker": "mkdir -p ../../../priv/static/assets && cp node_modules/maplibre-gl/dist/maplibre-gl-worker.mjs ../../../priv/static/assets/maplibre-gl-worker.mjs"
+	},
 	"dependencies": {
-		"leaflet": "^1.9.1",
-		"leaflet.locatecontrol": "^0.76.1",
-		"mapbox-gl": "^2.10.0",
-		"mapbox-gl-leaflet": "^0.0.15"
+		"@maplibre/maplibre-gl-leaflet": "^0.1.4",
+		"leaflet": "^1.9.4",
+		"leaflet.locatecontrol": "^0.91.0",
+		"maplibre-gl": "^6.19.0",
+		"pmtiles": "^4.5.0"
 	},
 	"packageManager": "yarn@4.18.0+sha512.fcb8716fe7cd0eece141ffc18b92193a9df9204c1ba83189c288835223fc0bbe64af473bab0d5e9927a7daeb5caf2bb07eb2787cc9338ca040ea125f2a1f2f7e"
 }

@@ -98,7 +98,9 @@ defmodule Bonfire.Geolocate.Geolocation do
 
       # Has lat/long coordinates, create point geometry
       not (is_nil(lat) or is_nil(long)) ->
-        point_geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
+        # point_geom = %Geo.Point{coordinates: {lat, long}, srid: @postgis_srid}
+        # longitude first (x), as `Geo.Point`, GeoJSON and PostGIS have it, so geography functions measure right
+        point_geom = %Geo.Point{coordinates: {long, lat}, srid: @postgis_srid}
         Changeset.change(changeset, geom: point_geom)
 
       # No geometry information available

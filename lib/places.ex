@@ -20,7 +20,8 @@ defmodule Bonfire.Geolocate.Places do
     else
       #  TODO: cleanup
       _ ->
-        Geolocations.many_paginated(opts)
+        # Geolocations.many_paginated(opts)
+        with {:ok, page} <- Geolocations.many_paginated(opts), do: page
     end
   end
 

@@ -104,11 +104,7 @@ defmodule Bonfire.Geolocate.Queries do
   # by GPS coords
 
   def filter(q, {:near_point, geom_point, :distance_meters, meters}) do
-    where(
-      q,
-      [geolocation: g],
-      st_dwithin_in_meters(g.geom, ^geom_point, ^meters)
-    )
+    where(q, ^within_meters(:geolocation, geom_point, meters))
   end
 
   def filter(q, {:location_within, geom_point}) do
@@ -255,6 +251,37 @@ defmodule Bonfire.Geolocate.Queries do
   def filter(q, filter_name) do
     warn(filter_name, "Unknown filter")
     q
+  end
+
+  @doc """
+  A `where` condition: the geolocation joined as `binding` is within `meters` of `point` (a `%Geo.Point{}`, longitude first, as points are stored), measured as a geography, which the `geom::geography` spatial index serves. Used by `near_point` here and the nearby feed filter (`Bonfire.Geolocate.FeedFilters`).
+  """
+  def within_meters(binding \\ :geolocation, %Geo.Point{} = point, meters) do
+    dynamic([{^binding, g}], st_dwithin_in_meters(g.geom, ^point, ^meters))
+  end
+
+  @doc """
+  A `where` condition: the geolocation joined as `binding` is inside the box `{south, west, north, east}` (degrees, with west not past east: a box over the antimeridian is two, see `Bonfire.Geolocate.FeedFilters`).
+
+  Two tests: the box, densified so its edges along the parallels stay on them when measured as a geography, against `geom::geography` with `&&`, which the `geom::geography` spatial index serves; then the exact test on the plane (`ST_Intersects`), which is what the map shows (a box of latitudes and longitudes), as the geography test is only for the index.
+  """
+  def within_box(binding \\ :geolocation, {south, west, north, east}) do
+    dynamic(
+      [{^binding, g}],
+      fragment(
+        "?::geography && ST_Segmentize(ST_MakeEnvelope(?, ?, ?, ?, 4326), 0.25)::geography AND ST_Intersects(?, ST_MakeEnvelope(?, ?, ?, ?, 4326))",
+        g.geom,
+        ^west,
+        ^south,
+        ^east,
+        ^north,
+        g.geom,
+        ^west,
+        ^south,
+        ^east,
+        ^north
+      )
+    )
   end
 
   defp page(q, %{after: cursor, limit: limit}, desc: :followers) do

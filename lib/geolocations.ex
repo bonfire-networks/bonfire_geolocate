@@ -48,11 +48,21 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def many!(filters \\ []), do: repo().many(Queries.query(Geolocation, filters))
 
+  # def many_paginated(filters \\ []) do
+  #   with {:ok, %{edges: edges} = page} <-
+  #          repo().many_paginated(Queries.query(Geolocation, filters)) do
+  #     edges = Enum.map(edges, &populate_coordinates/1)
+  #     {:ok, %{page | edges: edges}}
+  #   end
+  # end
+  # `repo().many_paginated/1` returns the page itself, not `{:ok, page}`
   def many_paginated(filters \\ []) do
-    with {:ok, %{edges: edges} = page} <-
-           repo().many_paginated(Queries.query(Geolocation, filters)) do
-      edges = Enum.map(edges, &populate_coordinates/1)
-      {:ok, %{page | edges: edges}}
+    case repo().many_paginated(Queries.query(Geolocation, filters)) do
+      %{edges: edges} = page ->
+        {:ok, %{page | edges: Enum.map(edges, &populate_coordinates/1)}}
+
+      other ->
+        error(other, "Could not list places")
     end
   end
 
@@ -162,7 +172,9 @@ defmodule Bonfire.Geolocate.Geolocations do
     Enum.map(objects, &populate_coordinates/1)
   end
 
-  def populate_coordinates(%{geom: %{coordinates: {lat, long}}} = object) do
+  # def populate_coordinates(%{geom: %{coordinates: {lat, long}}} = object) do
+  # a point is stored longitude first (x), as `Geo.Point` and PostGIS have it
+  def populate_coordinates(%{geom: %{coordinates: {long, lat}}} = object) do
     # debug(lat)
     Map.merge(object, %{lat: lat, long: long})
   end
@@ -246,9 +258,11 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   # Helper function to extract both lat and long from a point
+  # a position is longitude first (x, then y), as `Geo` and GeoJSON have it; returns `{lat, long}`
   defp extract_points(coords) when is_tuple(coords) and tuple_size(coords) >= 2 do
     try do
-      {elem(coords, 0), elem(coords, 1)}
+      # {elem(coords, 0), elem(coords, 1)}
+      {elem(coords, 1), elem(coords, 0)}
     rescue
       e ->
         warn(e, "Could not extract coordinates")
@@ -258,7 +272,8 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   defp extract_points(coords) when is_list(coords) and length(coords) >= 2 do
-    {Enum.at(coords, 0, 0), Enum.at(coords, 1, 0)}
+    # {Enum.at(coords, 0, 0), Enum.at(coords, 1, 0)}
+    {Enum.at(coords, 1, 0), Enum.at(coords, 0, 0)}
   end
 
   defp extract_points(other) do
@@ -268,17 +283,51 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   def resolve_mappable_address(%{mappable_address: address} = attrs)
       when is_binary(address) do
-    with {:ok, coords} <- Bonfire.Geolocate.Geocode.coordinates(address) do
+    if is_nil(geocodable_name(address)) do
+      # text that is not a place (eg. "Online", or a URL) is kept as the place's text, but not geocoded
+      {:ok, attrs}
+    else
+      geocode_mappable_address(attrs, address)
+    end
+  end
+
+  def resolve_mappable_address(attrs), do: {:ok, attrs}
+
+  defp geocode_mappable_address(attrs, address) do
+    with {:ok, coords} <-
+           known_coordinates(address) || Bonfire.Geolocate.Geocode.coordinates(address) do
       # debug(attrs)
       # debug(coords)
       # TODO: should take bounds and save in `geom`
       {:ok, Map.put(Map.put(attrs, :lat, coords.lat), :long, coords.lon)}
     else
-      _ -> {:ok, attrs}
+      reason ->
+        # the place is still saved, just not on the map
+        warn(reason, "Could not geocode the address, so it has no coordinates: #{address}")
+        {:ok, attrs}
     end
   end
 
-  def resolve_mappable_address(attrs), do: {:ok, attrs}
+  # the point of a place already saved with the same address (trimmed, any case), instead of asking the geocoder again
+  defp known_coordinates(address) do
+    require Ecto.Query
+    normalised = address |> String.trim() |> String.downcase()
+
+    Ecto.Query.from(g in Geolocation,
+      where: fragment("lower(trim(?))", g.mappable_address) == ^normalised and not is_nil(g.geom),
+      select: g.geom,
+      limit: 1
+    )
+    |> repo().one()
+    |> case do
+      nil ->
+        nil
+
+      geom ->
+        {lat, long} = extract_coordinates(geom)
+        {:ok, %{lat: lat, lon: long}}
+    end
+  end
 
   def indexing_object_format(u) do
     # debug(obj)
@@ -328,18 +377,78 @@ defmodule Bonfire.Geolocate.Geolocations do
 
   @doc "The attrs of a geolocation read from an AS2 `Place`: name, summary, latitude, longitude and `geojson:hasGeometry`."
   def ap_attrs(data) do
+    lat = e(data, "latitude", nil)
+    long = e(data, "longitude", nil)
+    geom = extract_geojson_geometry(e(data, "geojson:hasGeometry", nil))
+    name = e(data, "name", nil)
+
     %{
-      name: e(data, "name", nil),
+      name: name,
       note: e(data, "summary", nil),
       #  TODO?
-      mappable_address: nil,
-      lat: e(data, "latitude", nil),
-      long: e(data, "longitude", nil),
-      geom: extract_geojson_geometry(e(data, "geojson:hasGeometry", nil)),
+      mappable_address: ap_mappable_address(data, name, has_coordinates?(data, lat, long, geom)),
+      lat: lat,
+      long: long,
+      geom: geom,
       is_public: true
     }
     |> debug("aatrrs")
   end
+
+  # a Place that has coordinates (or a geometry) keeps them and is not geocoded; its `geo` is not read
+  defp has_coordinates?(_data, lat, long, geom),
+    do: not is_nil(geom) or (not is_nil(lat) and not is_nil(long))
+
+  # the text to geocode: the address (a Schema.org `PostalAddress`, or a plain string), else the name unless that is not a place (eg. "Online")
+  defp ap_mappable_address(_data, _name, true), do: nil
+
+  defp ap_mappable_address(data, name, false),
+    do: ap_address_text(e(data, "address", nil)) || geocodable_name(name)
+
+  defp geocodable_name(name) do
+    name = non_blank(name)
+
+    if name && not Bonfire.Common.URIs.looks_like_url?(name) && not non_place_name?(name),
+      do: name
+  end
+
+  # a name that is a listed word, or a short one (up to the configured number of words, with no comma) that has a listed word among its words
+  defp non_place_name?(name) do
+    words = name |> String.downcase() |> String.split()
+    listed = non_place_names()
+    max_words = Config.get([Bonfire.Geolocate, :non_place_name_max_words], 3)
+
+    String.downcase(name) in listed or
+      (length(words) <= max_words and not String.contains?(name, ",") and
+         Enum.any?(words, &(&1 in listed)))
+  end
+
+  defp non_place_names do
+    Config.get([Bonfire.Geolocate, :non_place_names], [])
+    |> Enum.map(&String.downcase/1)
+  end
+
+  defp ap_address_text(%{} = address) do
+    ~w(streetAddress postalCode addressLocality addressRegion addressCountry)
+    |> Enum.map(&non_blank(address[&1]))
+    |> Enum.reject(&is_nil/1)
+    |> case do
+      [] -> nil
+      parts -> Enum.join(parts, ", ")
+    end
+  end
+
+  defp ap_address_text(address), do: non_blank(address)
+
+  defp non_blank(value) when is_binary(value) do
+    case String.trim(value) do
+      "" -> nil
+      trimmed -> trimmed
+    end
+  end
+
+  defp non_blank(value) when is_integer(value), do: Integer.to_string(value)
+  defp non_blank(_), do: nil
 
   # Extract and convert GeoJSON geometry from ActivityPub object
   def extract_geojson_geometry(%{"type" => type, "coordinates" => coordinates}) do
@@ -381,4 +490,26 @@ defmodule Bonfire.Geolocate.Geolocations do
   end
 
   def extract_geojson_geometry(_), do: nil
+
+  @km_per_degree 111.195
+
+  @doc """
+  The box that holds the circle of `km` around a point, as a map takes it to fit its view: `[[south, west], [north, east]]` in degrees (a degree of longitude is shorter away from the equator, and the box is held to the globe). Nil for something that is not a point and a radius.
+
+      iex> Bonfire.Geolocate.Geolocations.bounds_around(0, 0, 111.195)
+      [[-1.0, -1.0], [1.0, 1.0]]
+  """
+  def bounds_around(lat, long, km)
+      when is_number(lat) and is_number(long) and is_number(km) and km > 0 do
+    dlat = km / @km_per_degree
+    # at the poles every longitude is within reach
+    dlong = min(km / (@km_per_degree * max(:math.cos(lat * :math.pi() / 180), 0.0001)), 180.0)
+
+    [
+      [max(lat - dlat, -90.0) * 1.0, max(long - dlong, -180.0) * 1.0],
+      [min(lat + dlat, 90.0) * 1.0, min(long + dlong, 180.0) * 1.0]
+    ]
+  end
+
+  def bounds_around(_, _, _), do: nil
 end
